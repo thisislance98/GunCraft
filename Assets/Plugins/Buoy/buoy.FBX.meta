@@ -1,0 +1,78 @@
+fileFormatVersion: 2
+guid: 1bce1f32336e559449196358a449ab37
+ModelImporter:
+  serializedVersion: 15
+  fileIDToRecycleName:
+    100000: redLigh
+    100002: //RootNode
+    100004: buoy 1
+    100006: greenLight
+    100008: yellowLight
+    400000: redLigh
+    400002: //RootNode
+    400004: buoy 1
+    400006: greenLight
+    400008: yellowLight
+    2300000: redLigh
+    2300002: buoy 1
+    2300004: greenLight
+    2300006: yellowLight
+    3300000: redLigh
+    3300002: buoy 1
+    3300004: greenLight
+    3300006: yellowLight
+    4300000: yellowLight
+    4300002: greenLight
+    4300004: redLigh
+    4300006: buoy
+    11100000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: .00999999978
+    meshCompression: 0
+    addColliders: 0
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    handles: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  additionalBone: 1
+  animationType: 1
+  userData: 
