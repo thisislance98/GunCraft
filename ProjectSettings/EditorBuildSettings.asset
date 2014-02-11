@@ -5,13 +5,19 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: Assets/Scenes/Server.unity
-  - enabled: 0
-    path: Assets/Scenes/Client.unity
   - enabled: 1
-    path: Assets/Scenes/SinglePlayer.unity
+    path: Assets/Photon Unity Networking/Demos/PUNGuide_M2H/_MainMenuScene.unity
   - enabled: 1
-    path: Assets/Photon Unity Networking/Demos/DemoWorker/DemoWorker-Scene.unity
+    path: Assets/Photon Unity Networking/Demos/PUNGuide_M2H/_Tutorial 1/Tutorial_1A.unity
   - enabled: 1
-    path: Assets/Photon Unity Networking/Demos/DemoWorker/DemoWorkerGame-Scene.unity
+    path: Assets/Photon Unity Networking/Demos/PUNGuide_M2H/_Tutorial 1/Tutorial_1B.unity
+  - enabled: 1
+    path: Assets/Photon Unity Networking/Demos/PUNGuide_M2H/_Tutorial 1/Tutorial_1C.unity
+  - enabled: 1
+    path: Assets/Photon Unity Networking/Demos/PUNGuide_M2H/_Tutorial 2/Tutorial_2A1.unity
+  - enabled: 1
+    path: Assets/Photon Unity Networking/Demos/PUNGuide_M2H/_Tutorial 2/Tutorial_2A2.unity
+  - enabled: 1
+    path: Assets/Photon Unity Networking/Demos/PUNGuide_M2H/_Tutorial 2/Tutorial_2A3.unity
+  - enabled: 1
+    path: Assets/Photon Unity Networking/Demos/PUNGuide_M2H/_Tutorial 2/Tutorial_2B.unity

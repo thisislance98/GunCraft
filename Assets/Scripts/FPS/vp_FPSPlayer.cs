@@ -115,7 +115,8 @@ public class vp_FPSPlayer : MonoBehaviour
 		// deals with input
 
 		// handle input for moving
-	//	InputWalk();
+		if (Application.isEditor)
+			InputWalk(new Touch());
 		InputRun();
 		InputJump();
 		InputCrouch();
@@ -205,11 +206,12 @@ public class vp_FPSPlayer : MonoBehaviour
 
 	
 		// classic 'WASD' first person controls
-//		if (Input.GetKey(KeyCode.W)) { delta += Vector3.up*100;}
-//		if (Input.GetKey(KeyCode.A)) { delta += Vector3.left*100; }
-//		if (Input.GetKey(KeyCode.S)) { delta += Vector3.down*100; }
-//		if (Input.GetKey(KeyCode.D)) { delta += Vector3.right*100; }
-//	
+		if (Input.GetKey(KeyCode.W)) { delta += Vector3.up*100;}
+		if (Input.GetKey(KeyCode.A)) { delta += Vector3.left*100; }
+		if (Input.GetKey(KeyCode.S)) { delta += Vector3.down*100; }
+		if (Input.GetKey(KeyCode.D)) { delta += Vector3.right*100; }
+	
+	
 		if (delta.magnitude > 0)
 		{
 			float walkSpeed = .1f;
