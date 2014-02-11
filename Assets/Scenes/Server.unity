@@ -4,13 +4,12 @@
 SceneSettings:
   m_ObjectHideFlags: 0
   m_PVSData: 
-  m_QueryMode: 1
   m_PVSObjectsArray: []
   m_PVSPortalsArray: []
   m_OcclusionBakeSettings:
-    viewCellSize: 1
-    bakeMode: 2
-    memoryUsage: 10485760
+    smallestOccluder: 5
+    smallestHole: .25
+    backfaceThreshold: 100
 --- !u!196 &2
 NavMeshSettings:
   m_ObjectHideFlags: 0
@@ -38,11 +37,12 @@ RenderSettings:
   m_SkyboxMaterial: {fileID: 0}
   m_HaloStrength: .5
   m_FlareStrength: 1
+  m_FlareFadeSpeed: 3
   m_HaloTexture: {fileID: 0}
   m_SpotCookie: {fileID: 0}
   m_ObjectHideFlags: 0
 --- !u!127 &8
-GameManager:
+LevelGameManager:
   m_ObjectHideFlags: 0
 --- !u!157 &9
 LightmapSettings:
@@ -208,6 +208,9 @@ GUIText:
   m_Material: {fileID: 0}
   m_FontSize: 0
   m_FontStyle: 0
+  m_Color:
+    serializedVersion: 2
+    rgba: 4294967295
   m_PixelCorrect: 1
   m_RichText: 1
 --- !u!114 &33
@@ -220,6 +223,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eced6f91f3d095b4fb6e625378fec1aa, type: 3}
   m_Name: 
+  m_EditorClassIdentifier: 
   prefab: {fileID: 100000, guid: 4e2e6f35bdb259a4fa975dfd83c4f363, type: 2}
 --- !u!1 &229946532
 GameObject:
@@ -289,6 +293,7 @@ Camera:
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_HDR: 0
+  m_OcclusionCulling: 1
 --- !u!4 &229946537
 Transform:
   m_ObjectHideFlags: 0
@@ -337,6 +342,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e9d0b5f3bbe925a408bd595c79d0bf63, type: 3}
   m_Name: 
+  m_EditorClassIdentifier: 
   mMat: {fileID: 2100000, guid: e76d0bdab6849b94aa507497bbb96687, type: 2}
   mTex: {fileID: 0}
   mColor: {r: 1, g: 1, b: 1, a: 1}
@@ -392,6 +398,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2bf738278144456fb8d6b9d5ec1f65d, type: 3}
   m_Name: 
+  m_EditorClassIdentifier: 
   proxyPrefab: {fileID: 100000, guid: 4a4525ab1cfda4a55ba39a2a6b6a1fab, type: 2}
   ownerPrefab: {fileID: 100014, guid: 2caa07fb57fe398489998d2502cd44a2, type: 2}
   creatorPrefab: {fileID: 100000, guid: 4a4525ab1cfda4a55ba39a2a6b6a1fab, type: 2}
@@ -435,6 +442,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e9d0b5f3bbe925a408bd595c79d0bf63, type: 3}
   m_Name: 
+  m_EditorClassIdentifier: 
   mMat: {fileID: 0}
   mTex: {fileID: 0}
   mColor: {r: 1, g: 1, b: 1, a: 1}
@@ -480,6 +488,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ac5060295fbd39b4a88d20d0c83d925e, type: 3}
   m_Name: 
+  m_EditorClassIdentifier: 
   label: {fileID: 343046659}
   maxChars: 0
   caratChar: '|'
@@ -511,7 +520,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 472356758}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -.542374909, y: .542373657, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1904220050}
@@ -526,6 +535,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c8077b76001d36d489868d20d28bddb9, type: 3}
   m_Name: 
+  m_EditorClassIdentifier: 
   uiCamera: {fileID: 1448488998}
   widgetContainer: {fileID: 0}
   panelContainer: {fileID: 0}
@@ -571,6 +581,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d5c5ca47aa5c01740810b7c66662099f, type: 3}
   m_Name: 
+  m_EditorClassIdentifier: 
   mMat: {fileID: 0}
   mTex: {fileID: 0}
   mColor: {r: 1, g: 1, b: 1, a: 1}
@@ -594,6 +605,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a95ccc63fe67d4e7aa1890ac4467e671, type: 3}
   m_Name: 
+  m_EditorClassIdentifier: 
   Textures:
   - {fileID: 2800000, guid: c6e0767b1f8c34890ac245217f4b9731, type: 3}
   - {fileID: 2800000, guid: bfd675cc0db1d4656b75dc6d6ba91142, type: 3}
@@ -626,6 +638,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5564f499341508a43819ce17743cd92b, type: 3}
   m_Name: 
+  m_EditorClassIdentifier: 
   _childPrefab: {fileID: 11400000, guid: 82b1c56d5c26f3f459bda2ef0c0e499a, type: 2}
   _childAmount: 100
   _spawnSphere: 5.86000013
@@ -695,6 +708,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 64738565b3e7c4e2797705ce4e0e77da, type: 3}
   m_Name: 
+  m_EditorClassIdentifier: 
   EnemyPrefab: {fileID: 100034, guid: 60291c5675d30415d8ccbd33a5538e5e, type: 2}
   Player: {fileID: 0}
   NumberSpawned: 5
@@ -738,6 +752,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 70aca81a980d02644a47c438f68e4cfd, type: 3}
   m_Name: 
+  m_EditorClassIdentifier: 
   port: 7100
   maxConnections: 64
   cleanupAfterPlayers: 1
@@ -810,6 +825,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2a92b5d748695fd44aac9feef17ba415, type: 3}
   m_Name: 
+  m_EditorClassIdentifier: 
   useMouse: 1
   useTouch: 1
   allowMultiTouch: 1
@@ -868,6 +884,7 @@ Camera:
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_HDR: 0
+  m_OcclusionCulling: 1
 --- !u!1 &1515052092
 GameObject:
   m_ObjectHideFlags: 0
@@ -910,6 +927,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2c5ecb5660b11414fb042fb826e03b73, type: 3}
   m_Name: 
+  m_EditorClassIdentifier: 
   automatic: 1
   manualHeight: 800
   minimumHeight: 320
@@ -922,7 +940,7 @@ Transform:
   m_GameObject: {fileID: 1515052092}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: .00625000009, y: .00625000009, z: .00625000009}
+  m_LocalScale: {x: .00260416674, y: .00260416674, z: .00260416674}
   m_Children:
   - {fileID: 1448488995}
   m_Father: {fileID: 0}
@@ -1039,6 +1057,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ae942c9068183dc40a9d01f648273726, type: 3}
   m_Name: 
+  m_EditorClassIdentifier: 
   showInPanelTool: 1
   generateNormals: 0
   depthPass: 0
