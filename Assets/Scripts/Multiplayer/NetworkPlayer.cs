@@ -6,14 +6,19 @@ public class NetworkPlayer : Photon.MonoBehaviour
 	public Renderer PlayerMeshRenderer;
 	public Animator CharacterAnim;
 	public Transform SpineBone;
+	public float LerpPositionSpeed;
+	public float LerpRotationSpeed;
 	
 	Quaternion _lastRotation;
 	Vector3 _lastMoveDirection;
 	Vector3 _lastPosition;
-
+	Vector3 _targetPosition;
+	Vector3 _targetRotation;
 
 	int _idleHash;
 	int _walkHash;
+
+	bool _isFirstFrame = true;
 
 	float _lastSpeed;
 	float _spineRotation = -90;
@@ -37,48 +42,91 @@ public class NetworkPlayer : Photon.MonoBehaviour
 	
 			transform.localPosition = new Vector3(0,.70f,0);
 
-		//	PlayerMeshRenderer.enabled = false;
+			_targetPosition = transform.position;
+			PlayerMeshRenderer.enabled = false;
 		}
 	}
 
 	public void SetMoveDirection(Vector3 moveDir)
 	{
-		if (moveDir != _lastMoveDirection)
-			photonView.RPC("SetCharacterDirection",PhotonTargets.All,moveDir.x,moveDir.y);
-
-		_lastMoveDirection = moveDir;
+//		if (moveDir != _lastMoveDirection)
+//			photonView.RPC("SetCharacterDirection",PhotonTargets.All,moveDir.x,moveDir.y);
+//
+//		_lastMoveDirection = moveDir;
 	}
 	
 	void FixedUpdate()
 	{
-		if (photonView.isMine == false)
-			return;
+		if (photonView.isMine == true)
+			UpdateOwner();
+		else
+			UpdateOthers();
 
-		float speed = Vector3.Distance(transform.parent.position, _lastPosition);
+	}    
 
+	// update non-owners of this network player
+	void UpdateOthers()
+	{
+
+		if (transform.position != _targetPosition)
+			transform.position = Vector3.Slerp(transform.position,_targetPosition,Time.deltaTime * LerpPositionSpeed);
+
+		Debug.Log("updating others " + transform.position + " + target: " + _targetPosition);
+
+		if (transform.forward != _targetRotation)
+			transform.forward = Vector3.RotateTowards(transform.forward,_targetRotation,Time.deltaTime * LerpRotationSpeed,1000);
+
+		Vector3 moveDelta = transform.position - _lastPosition;
+		float speed = moveDelta.magnitude;
+
+		CharacterAnim.SetFloat("Speed",speed);
+
+		// set character animation direction
+		moveDelta.y = 0;
+		float forward = Vector3.Dot( moveDelta.normalized , transform.forward);
+		float right = Vector3.Dot( moveDelta.normalized , transform.right);
+		
+		CharacterAnim.SetFloat("DirectionX",right);
+		CharacterAnim.SetFloat("DirectionZ",forward);
+
+
+
+		_lastPosition = transform.position;
+	}
+
+	void UpdateOwner()
+	{
+		Vector3 moveDelta = transform.parent.position - _lastPosition;
+		float speed = moveDelta.magnitude;
+		
+		// send speed updates
 		if (speed != _lastSpeed)
 		{
-	
+			
 			CharacterAnim.SetFloat("Speed",speed);
-			if (CharacterAnim.IsInTransition(0))
-			{
-				photonView.RPC("SetAnimFloat",PhotonTargets.Others,"Speed",speed);
-			}
+			//			if (CharacterAnim.IsInTransition(0))
+			//			{
+			//				photonView.RPC("SetAnimFloat",PhotonTargets.Others,"Speed",speed);
+			//			}
 		}
-
-
-		if (speed >= 0.05f)
+		
+		// send position updates
+		if (speed >= 0.05f || _isFirstFrame)
 		{
-
+			moveDelta.y = 0;
+			float forward = Vector3.Dot( moveDelta.normalized , transform.forward);
+			float right = Vector3.Dot( moveDelta.normalized , transform.right);
+			
+			CharacterAnim.SetFloat("DirectionX",right);
+			CharacterAnim.SetFloat("DirectionZ",forward);
 			//Save some network bandwidth; only send a RPC when the position has moved more than 0.05f            
-
 			
 			//Send the position Vector3 over to the others; in this case all clients
-			photonView.RPC("SetPosition", PhotonTargets.Others, transform.position);
-
-
+			photonView.RPC("SetTargetPosition", PhotonTargets.Others, transform.position);
+			
+			
 		}
-
+		
 		// set spine rotation 
 		float cameraHeight = Camera.main.transform.forward.y;
 		if (cameraHeight != _lastCameraHeight)
@@ -86,23 +134,23 @@ public class NetworkPlayer : Photon.MonoBehaviour
 			photonView.RPC ("SetSpineRotation",PhotonTargets.All,cameraHeight);
 			_lastCameraHeight = cameraHeight;
 		}
-
-
+		
+		
 		// Now set rotation around the y axis
 		Quaternion currentRotation = Camera.main.transform.rotation;
 		if (currentRotation != _lastRotation)
 		{
 			Vector3 forward = Camera.main.transform.forward;
 			forward.y = 0;
-			photonView.RPC ("SetRotation",PhotonTargets.All,forward);
-
+			photonView.RPC ("SetTargetRotation",PhotonTargets.All,forward);
+			
 			_lastRotation = currentRotation;
 		}
-
+		
 		_lastSpeed = speed;
 		_lastPosition = transform.parent.position;
-	}    
-
+		_isFirstFrame = false;
+	}
 
 	void LateUpdate()
 	{
@@ -111,7 +159,6 @@ public class NetworkPlayer : Photon.MonoBehaviour
 		eulers.z = _spineRotation;
 		SpineBone.rotation = Quaternion.Euler(eulers);
 
-		Debug.Log("camera forward: " + SpineBone.rotation.eulerAngles);
 	}
 
 	void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
@@ -128,8 +175,6 @@ public class NetworkPlayer : Photon.MonoBehaviour
 	[RPC]
 	void SetAnimFloat(string paramName, float value)
 	{
-	
-		Debug.Log("setting " + paramName + " to : " + value);
 		CharacterAnim.SetFloat(paramName,value);
 
 	}
@@ -142,21 +187,21 @@ public class NetworkPlayer : Photon.MonoBehaviour
 	}
 
 	[RPC]
-	void SetPosition(Vector3 newPos)
+	void SetTargetPosition(Vector3 newPos)
 	{
 		//In this case, this function is always ran on the Clients
 		//The server requested all clients to run this function (line 25).
-		
-		transform.position = newPos;
+		Debug.Log("getting target position: " + newPos);
+		_targetPosition = newPos;
 
 //		if (CharacterAnim.clip.name != "gun_run")
 //			CharacterAnim.Play("gun_run");
 	}
 
 	[RPC]
-	void SetRotation(Vector3 forward)
+	void SetTargetRotation(Vector3 forward)
 	{
-		transform.forward = forward;
+		_targetRotation = forward;
 
 	}
 

@@ -2844,6 +2844,8 @@ MonoBehaviour:
   PlayerMeshRenderer: {fileID: 13700002}
   CharacterAnim: {fileID: 9500000}
   SpineBone: {fileID: 400146}
+  LerpPositionSpeed: 1
+  LerpRotationSpeed: 1
 --- !u!1002 &11400003
 EditorExtensionImpl:
   serializedVersion: 6
