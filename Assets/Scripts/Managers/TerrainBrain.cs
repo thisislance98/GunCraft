@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 public class TerrainBrain : MonoBehaviour 
 {
 	public GameObject prefab;
+	public GameObject SavingGameLabel;
 	static TerrainBrain m_instance;
 
     public static float noiseMultiplier = 25.0f;
@@ -153,9 +154,23 @@ public class TerrainBrain : MonoBehaviour
 
 	public void SaveWorld()
 	{
-		m_tcache.SaveWorld();	
+		StartCoroutine(SaveWorldRoutine());
 	}
-	
+
+	IEnumerator SaveWorldRoutine()
+	{
+		m_tcache.SaveWorld();	
+		SavingGameLabel.SetActive(true);
+		
+		while (m_tcache.IsSavingWorld)
+		{
+			Debug.Log("waiting");
+			yield return new WaitForSeconds(.5f);
+		}
+		
+		SavingGameLabel.SetActive(false);
+	}
+
 	int[] getCachedChunkPos(int x, int y, int z)
 	{
 		// returns position in the cache array based on chunk's world location

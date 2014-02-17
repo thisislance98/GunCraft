@@ -145,6 +145,7 @@ class TerrainCache
 		return chunk;
 	}
 	
+
 	public IEnumerator LoadWorld()
 	{
 		ParseQuery<ParseObject> query = ParseObject.GetQuery("World");
@@ -185,6 +186,7 @@ class TerrainCache
 		List<ParseObject> objs = new List<ParseObject>();
 		
 		List<string> coordHashList = new List<string>();
+<<<<<<< HEAD
 		
 		foreach(IntCoords coord in m_modifiedChunks)
 		{
@@ -198,15 +200,16 @@ class TerrainCache
 		List<int> xList = new List<int>();
 		List<int> yList = new List<int>();
 		List<int> zList = new List<int>();
+=======
+>>>>>>> c2764ce... added alien gun
 		
 		foreach(IntCoords coord in m_modifiedChunks)
 		{
-			xList.Add(coord.X);
-			yList.Add(coord.Y);
-			zList.Add(coord.Z);
-			
+			string hash = "x" + coord.X.ToString() + "y" + coord.Y.ToString() + "z" + coord.Z.ToString();
+			coordHashList.Add(hash);
 		}
 		
+<<<<<<< HEAD
 		var query = ParseObject.GetQuery("World").WhereContainedIn("x",xList).WhereContainedIn("y",yList).WhereContainedIn("z",zList);
 		
 		//		ParseQuery<ParseObject> query = ParseObject.GetQuery("World").
@@ -250,6 +253,10 @@ class TerrainCache
 		//	//		PlayerPrefs.SetString(coordString,ChunkToString(chunk));
 		//		}
 		
+=======
+		var query = ParseObject.GetQuery("World").WhereContainedIn("LocationHash",coordHashList);
+
+>>>>>>> c2764ce... added alien gun
 		query.FindAsync().ContinueWith(t =>
 		                               {
 			IEnumerable<ParseObject> allObjs = t.Result;
@@ -278,7 +285,10 @@ class TerrainCache
 				string str = ChunkToString(chunk);
 				
 				ParseObject parseObj = new ParseObject("World");
+<<<<<<< HEAD
 
+=======
+>>>>>>> c2764ce... added alien gun
 				string hash = "x" + coord.X.ToString() + "y" + coord.Y.ToString() + "z" + coord.Z.ToString();
 				parseObj["x"] = coord.X;
 				parseObj["y"] = coord.Y;
@@ -291,12 +301,19 @@ class TerrainCache
 			}
 		}).ContinueWith(t => // now save all the parse objects
 		                {
+<<<<<<< HEAD
+=======
+		
+>>>>>>> c2764ce... added alien gun
 			Task task = ParseObject.SaveAllAsync(objs);
 			task.ContinueWith(q => 
 			                  {
 				Debug.Log("saving complete");
 				IsSavingWorld = false;
+<<<<<<< HEAD
 
+=======
+>>>>>>> c2764ce... added alien gun
 				m_modifiedChunks.Clear();
 			});
 		});

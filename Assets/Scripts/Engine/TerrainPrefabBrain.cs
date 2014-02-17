@@ -544,12 +544,8 @@ public class TerrainPrefabBrain : MonoBehaviour
 		{
 
 			Vector3 center = GetCubeCenterInWorldCoords(posOutHitCube);
-			bool playerIsInBox = _player.collider.bounds.Contains(center);
-
 			Vector3 closestPoint = _player.collider.ClosestPointOnBounds(center);
 			float dist = Vector3.Distance(closestPoint,center);
-
-			Debug.Log("dist: " + dist);
 
 			// dont create cube if it's too close to the player
 			if (dist <= .5f)

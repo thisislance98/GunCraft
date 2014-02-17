@@ -224,6 +224,8 @@ public class vp_FPSPlayer : MonoBehaviour
 			Vector3 moveDir = new Vector3(dir.x,0,dir.y);
 			Vector3 rayDir = Camera.transform.forward;
 			rayDir.y = 0;
+			if (rayDir == Vector3.zero)
+				rayDir = -Camera.transform.up;
 
 			Ray ray = new Ray(collider.bounds.center + Vector3.down*.73f ,rayDir);
 
