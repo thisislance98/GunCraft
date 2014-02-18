@@ -186,7 +186,6 @@ class TerrainCache
 		List<ParseObject> objs = new List<ParseObject>();
 		
 		List<string> coordHashList = new List<string>();
-<<<<<<< HEAD
 		
 		foreach(IntCoords coord in m_modifiedChunks)
 		{
@@ -196,67 +195,6 @@ class TerrainCache
 		
 		var query = ParseObject.GetQuery("World").WhereContainedIn("LocationHash",coordHashList);
 
-=======
-		List<int> xList = new List<int>();
-		List<int> yList = new List<int>();
-		List<int> zList = new List<int>();
-=======
->>>>>>> c2764ce... added alien gun
-		
-		foreach(IntCoords coord in m_modifiedChunks)
-		{
-			string hash = "x" + coord.X.ToString() + "y" + coord.Y.ToString() + "z" + coord.Z.ToString();
-			coordHashList.Add(hash);
-		}
-		
-<<<<<<< HEAD
-		var query = ParseObject.GetQuery("World").WhereContainedIn("x",xList).WhereContainedIn("y",yList).WhereContainedIn("z",zList);
-		
-		//		ParseQuery<ParseObject> query = ParseObject.GetQuery("World").
-		//			WhereEqualTo("x",m_modifiedChunks[0].X);//.
-		//		//		WhereEqualTo("y",m_modifiedChunks[0].Y).
-		//		//		WhereEqualTo("z",m_modifiedChunks[0].Z);
-		
-		//		Debug.Log("1_1");
-		//
-		//		ParseQuery<ParseObject> combinedQuery = null;
-		//		// create a compound query to find all the chunks that have been modified and are in the database
-		//		for (int i=1; i < m_modifiedChunks.Count; i++)
-		//		{
-		//			IntCoords coord = m_modifiedChunks[i];
-		//			Debug.Log("1_11");
-		//			ParseQuery<ParseObject> newQuery = ParseObject.GetQuery("World").
-		//				WhereEqualTo("x",coord.X);//.
-		//		//			WhereEqualTo("y",coord.Y).
-		//	//				WhereEqualTo("z",coord.Z);
-		//			Debug.Log("1_2");
-		//
-		//		
-		//			var lotsOfWins = ParseObject.GetQuery("World")
-		//				.WhereGreaterThan("x", 150);
-		//			
-		//			var fewWins = ParseObject.GetQuery("World")
-		//				.WhereLessThan("y", 5);
-		//			
-		//			ParseQuery<ParseObject> q = lotsOfWins.Or(fewWins);
-		//
-		////			List<ParseQuery<ParseObject>> list = new List<ParseQuery<ParseObject>>();
-		////			list.Add(newQuery);
-		////			list.Add(query);
-		////			ParseQuery<ParseObject> combined = ParseQuery<ParseObject>.Or(new ArrayList({query,newQuery}));
-		////			if (combinedQuery == null)
-		////				combinedQuery = query.Or(newQuery);
-		////			else
-		////				combinedQuery = combinedQuery.Or(newQuery);
-		//	
-		//			Debug.Log("1_3");
-		//	//		PlayerPrefs.SetString(coordString,ChunkToString(chunk));
-		//		}
-		
-=======
-		var query = ParseObject.GetQuery("World").WhereContainedIn("LocationHash",coordHashList);
-
->>>>>>> c2764ce... added alien gun
 		query.FindAsync().ContinueWith(t =>
 		                               {
 			IEnumerable<ParseObject> allObjs = t.Result;
@@ -285,10 +223,6 @@ class TerrainCache
 				string str = ChunkToString(chunk);
 				
 				ParseObject parseObj = new ParseObject("World");
-<<<<<<< HEAD
-
-=======
->>>>>>> c2764ce... added alien gun
 				string hash = "x" + coord.X.ToString() + "y" + coord.Y.ToString() + "z" + coord.Z.ToString();
 				parseObj["x"] = coord.X;
 				parseObj["y"] = coord.Y;
@@ -301,19 +235,12 @@ class TerrainCache
 			}
 		}).ContinueWith(t => // now save all the parse objects
 		                {
-<<<<<<< HEAD
-=======
 		
->>>>>>> c2764ce... added alien gun
 			Task task = ParseObject.SaveAllAsync(objs);
 			task.ContinueWith(q => 
 			                  {
 				Debug.Log("saving complete");
 				IsSavingWorld = false;
-<<<<<<< HEAD
-
-=======
->>>>>>> c2764ce... added alien gun
 				m_modifiedChunks.Clear();
 			});
 		});
