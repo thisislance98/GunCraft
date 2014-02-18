@@ -8,359 +8,6 @@ using Parse;
 using System.Threading.Tasks;
 
 
-class IntCoords : IEquatable<IntCoords>
-{
-    public int X;
-    public int Y;
-    public int Z;
-
-
-
-    public IntCoords(int x, int y, int z)
-    {
-        X = x; Y = y; Z = z;
-    }
-
-	public IntCoords(string coords)
-	{
-		string[] xyzArray = coords.Split(new char[]{','});	
-		X = int.Parse(xyzArray[0]);
-		Y = int.Parse(xyzArray[1]);
-		Z = int.Parse(xyzArray[2]);
-	}
-		
-    public override int GetHashCode()
-    {
-        return X.GetHashCode() ^ Y.GetHashCode() * 27644437 ^ Z.GetHashCode() * 1073676287;
-    }
-
-    public override bool Equals(object obj)
-    {
-        if (obj == null || GetType() != obj.GetType())
-            return false;
-
-        return Equals((IntCoords)obj);
-    }
-
-    public bool Equals(IntCoords other)
-    {
-		if (other == null || GetType() != other.GetType())
-			return false;
-
-        return other.X.Equals(X) && other.Y.Equals(Y) && other.Z.Equals(Z);
-    }
-
-    public override string ToString()
-    {
-        return  X.ToString() + "," + Y.ToString() + "," + Z.ToString();
-    }
-}
-
-class LightCache
-{
-	
-}
-
-class TerrainCache
-{
-    // Caches the density for terrain blocks, will also store updates eventually
-    //Dictionary<Vector3, int[,,]> m_data = new Dictionary<Vector3,int[,,]>();
-    Dictionary<IntCoords, int[, ,]> m_data = new Dictionary<IntCoords, int[, ,]>();
-
-	
-    IntCoords m_lastCoords;
-    int[, ,] m_lastData;
-	List<IntCoords> m_modifiedChunks = new List<IntCoords>();
-	
-	// gets the chunk at the give int world coords.. if it doesn't not exist.. create it
-    public int[,,] getChunk(int x, int y, int z)
-    {
-        IntCoords coords = new IntCoords(x, y, z);
-        if (coords.Equals(m_lastCoords))
-            return m_lastData;
-
-        m_lastCoords = coords;
-
-        if (m_data.ContainsKey(coords))
-        {
-            m_lastData = m_data[coords];
-            return m_lastData;
-        }
-		
-		// has this chunk been modified previously
-		string coordString = coords.ToString();
-		
-//		if (PlayerPrefs.HasKey(coordString))
-//		{
-//
-//			string chunkString = PlayerPrefs.GetString(coordString);
-//			m_lastData = StringToChunk(chunkString);
-//			m_data[coords] = m_lastData;
-//			return m_lastData;
-//		}
-		
-        int chunkSize = TerrainBrain.chunkSize;
-
-        m_lastData = new int[chunkSize, chunkSize, chunkSize];
-        TerrainBrain tb = TerrainBrain.Instance();
-
-        for (int t = 0; t < chunkSize; t++)
-        {
-            for (int u = 0; u < chunkSize; u++)
-            {
-                for (int v = 0; v < chunkSize; v++)
-                {
-                    Vector3 loc = new Vector3((float)(x+t), (float)(y+u), (float)(z+v)) / TerrainBrain.noiseMultiplier;
-                    //Vector3 cpos = new Vector3((float)t, (float)u, (float)v);
-					
-                    m_lastData[t, u, v] = tb.GetRandomDensity(loc);
-					
-					
-                }
-            }
-        }
-
-        //Debug.Log("Stored cache:" + coords.ToString());
-        m_data[coords] = m_lastData;
-		
-		
-			
-        return m_lastData;
-    }
-	
-	string ChunkToString(int[,,] chunk)
-	{
-		int chunkSize = TerrainBrain.chunkSize;
-		byte[] byteArray = new byte[sizeof(int) * chunkSize * chunkSize * chunkSize];
-		Buffer.BlockCopy(chunk,0, byteArray,0, byteArray.Length);
-			
-		return Convert.ToBase64String(byteArray);
-	}
-	
-	int[,,] StringToChunk(string chunkString)
-	{
-		int chunkSize = TerrainBrain.chunkSize;
-		byte[] byteArray = Convert.FromBase64String(chunkString);
-		int[,,] chunk = new int[chunkSize,chunkSize,chunkSize];
-		
-		Buffer.BlockCopy(byteArray,0,chunk,0,byteArray.Length);
-		return chunk;
-	}
-
-	public IEnumerator LoadWorld()
-	{
-		ParseQuery<ParseObject> query = ParseObject.GetQuery("World");
-
-		Task<IEnumerable<ParseObject>> task = query.FindAsync();
-
-		while (!task.IsCompleted) yield return null;
-
-		IEnumerable<ParseObject> allObjs = task.Result;
-		
-		// first update the objects that have been modified and are currently in the database
-		foreach (ParseObject obj in allObjs)
-		{
-			int x = obj.Get<int>("x");
-			int y = obj.Get<int>("y");
-			int z = obj.Get<int>("z");
-			IntCoords coord = new IntCoords(x,y,z);
-			
-			m_data[coord] = StringToChunk(obj.Get<string>("chunk"));
-
-			GameObject chunkObj = TerrainPrefabBrain.findTerrainChunk(x/TerrainBrain.chunkSize,y/TerrainBrain.chunkSize,z/TerrainBrain.chunkSize);
-	
-			
-			if (chunkObj != null)
-				chunkObj.SendMessage("regenerateMesh");
-
-		}
-	}
-	
-	public void SaveWorld()
-	{
-		if (m_modifiedChunks.Count == 0)
-			return;
-
-		Debug.Log("saving started");
-		List<ParseObject> objs = new List<ParseObject>();
-
-		List<int> xList = new List<int>();
-		List<int> yList = new List<int>();
-		List<int> zList = new List<int>();
-
-		foreach(IntCoords coord in m_modifiedChunks)
-		{
-			xList.Add(coord.X);
-			yList.Add(coord.Y);
-			zList.Add(coord.Z);
-
-		}
-
-		var query = ParseObject.GetQuery("World").WhereContainedIn("x",xList).WhereContainedIn("y",yList).WhereContainedIn("z",zList);
-
-//		ParseQuery<ParseObject> query = ParseObject.GetQuery("World").
-//			WhereEqualTo("x",m_modifiedChunks[0].X);//.
-//		//		WhereEqualTo("y",m_modifiedChunks[0].Y).
-//		//		WhereEqualTo("z",m_modifiedChunks[0].Z);
-
-//		Debug.Log("1_1");
-//
-//		ParseQuery<ParseObject> combinedQuery = null;
-//		// create a compound query to find all the chunks that have been modified and are in the database
-//		for (int i=1; i < m_modifiedChunks.Count; i++)
-//		{
-//			IntCoords coord = m_modifiedChunks[i];
-//			Debug.Log("1_11");
-//			ParseQuery<ParseObject> newQuery = ParseObject.GetQuery("World").
-//				WhereEqualTo("x",coord.X);//.
-//		//			WhereEqualTo("y",coord.Y).
-//	//				WhereEqualTo("z",coord.Z);
-//			Debug.Log("1_2");
-//
-//		
-//			var lotsOfWins = ParseObject.GetQuery("World")
-//				.WhereGreaterThan("x", 150);
-//			
-//			var fewWins = ParseObject.GetQuery("World")
-//				.WhereLessThan("y", 5);
-//			
-//			ParseQuery<ParseObject> q = lotsOfWins.Or(fewWins);
-//
-////			List<ParseQuery<ParseObject>> list = new List<ParseQuery<ParseObject>>();
-////			list.Add(newQuery);
-////			list.Add(query);
-////			ParseQuery<ParseObject> combined = ParseQuery<ParseObject>.Or(new ArrayList({query,newQuery}));
-////			if (combinedQuery == null)
-////				combinedQuery = query.Or(newQuery);
-////			else
-////				combinedQuery = combinedQuery.Or(newQuery);
-//	
-//			Debug.Log("1_3");
-//	//		PlayerPrefs.SetString(coordString,ChunkToString(chunk));
-//		}
-
-		Debug.Log("2");
-		query.FindAsync().ContinueWith(t =>
-		{
-			IEnumerable<ParseObject> allObjs = t.Result;
-
-			// first update the objects that have been modified and are currently in the database
-			foreach (ParseObject obj in allObjs)
-			{
-				IntCoords coord = new IntCoords(obj.Get<int>("x"),obj.Get<int>("y"),obj.Get<int>("z"));
-
-				if (m_modifiedChunks.Contains(coord))
-				{
-					int[,,] chunk = m_data[coord];
-					string str = ChunkToString(chunk);
-
-					obj["chunk"] = str;
-					objs.Add(obj);
-					m_modifiedChunks.Remove(coord);
-
-				}
-			}
-			Debug.Log("3");
-			// now add chunks to the database that are new
-			foreach(IntCoords coord in m_modifiedChunks)
-			{
-				int[,,] chunk = m_data[coord];
-				string str = ChunkToString(chunk);
-
-				ParseObject parseObj = new ParseObject("World");
-				parseObj["x"] = coord.X;
-				parseObj["y"] = coord.Y;
-				parseObj["z"] = coord.Z;
-				parseObj["chunk"] = str;
-				
-				objs.Add(parseObj);
-				m_modifiedChunks.Remove(coord);
-			}
-		}).ContinueWith(t => // now save all the parse objects
-		{
-			Debug.Log("4");
-			Task task = ParseObject.SaveAllAsync(objs);
-			task.ContinueWith(q => 
-			                  {
-				Debug.Log("saving complete");
-				m_modifiedChunks.Clear();
-			});
-		});
-
-
-
-
-	}
-	
-	// gets the density of the cube give world coords as ints
-    public int getDensity(int x, int y, int z)
-    {
-        int chunkSize = TerrainBrain.chunkSize;
-
-        int absX = Math.Abs(x);
-        int absY = Math.Abs(y);
-        int absZ = Math.Abs(z);
-
-        int modX = x < 0 ? (chunkSize - absX % chunkSize) % chunkSize : x % chunkSize;
-        int modY = y < 0 ? (chunkSize - absY % chunkSize) % chunkSize : y % chunkSize;
-        int modZ = z < 0 ? (chunkSize - absZ % chunkSize) % chunkSize : z % chunkSize;
-
-        int ciX = x - modX; 
-        int ciY = y - modY; 
-        int ciZ = z - modZ; 
-
-        //Debug.Log(x.ToString() + ", " + y.ToString() + ", " + z.ToString()); 
-        
-	
-        int[,,] chunk = getChunk(ciX, ciY, ciZ);
-        return chunk[modX, modY, modZ];
-    }
-
-//	void OnApplicationPause(bool paused) 
-//	{
-//		if (paused)
-//			SaveWorld();
-//	}
-	
-	public void setDensity(int x, int y, int z)
-	{
-		setDensity(x,y,z,0);	
-	}
-	
-    public void setDensity(int x, int y, int z, int density)
-    {
-        int chunkSize = TerrainBrain.chunkSize;
-
-        int absX = Math.Abs(x);
-        int absY = Math.Abs(y);
-        int absZ = Math.Abs(z);
-
-        int modX = x < 0 ? (chunkSize - absX % chunkSize) % chunkSize : x % chunkSize;
-        int modY = y < 0 ? (chunkSize - absY % chunkSize) % chunkSize : y % chunkSize;
-        int modZ = z < 0 ? (chunkSize - absZ % chunkSize) % chunkSize : z % chunkSize;
-
-        int ciX = x - modX;
-        int ciY = y - modY;
-        int ciZ = z - modZ;
-
-        IntCoords coords = new IntCoords(ciX, ciY, ciZ);
-		if (m_modifiedChunks.Contains (coords) == false)
-			m_modifiedChunks.Add(coords);
-
-        // Shouldn't be altering the density of unloaded chunks anyway, eh?
-        if (!m_data.ContainsKey(coords))
-        {
-            Debug.Log("Couldn't find coords: " + coords.ToString());
-            return;
-        }
-		
-        //Debug.Log("Setting chunk " + coords.ToString() + ", index (" + modX.ToString() + ", " + modY.ToString() + ", " + modZ.ToString() + ") to nil.");
-        m_data[coords][modX, modY, modZ] = density;
-    }
-
-}
-
-
 public class TerrainBrain : MonoBehaviour 
 {
 	public GameObject prefab;
@@ -368,7 +15,6 @@ public class TerrainBrain : MonoBehaviour
 
     public static float noiseMultiplier = 25.0f;
     public static int chunkSize = 10;
-	float startGravity;
 
     Vector3 playerStart = new Vector3(0.5f, 30.5f, 0.5f);
     
@@ -378,6 +24,9 @@ public class TerrainBrain : MonoBehaviour
 	
 	Texture2D groundTexture;
 	Rect[] groundUVs;
+
+	Vector3 startGravity;
+
 	
 	Vector3 currentPos = Vector3.zero;
 	Vector3 lastPos = Vector3.zero;
@@ -426,6 +75,12 @@ public class TerrainBrain : MonoBehaviour
 	void Start () 
 	{
         m_instance = this;
+	
+		if (Application.isEditor || Application.platform == RuntimePlatform.OSXPlayer)
+			Screen.lockCursor = true;
+
+		startGravity = Physics.gravity;
+		Physics.gravity = Vector3.down;
 
 		Application.targetFrameRate = 60;
 
@@ -438,6 +93,7 @@ public class TerrainBrain : MonoBehaviour
 	
 		m_meshCache = new GameObject[blockLoadDistance*2+1,blockLoadDistance*2+1,blockLoadDistance*2+1];
 
+		playerStart = GameObject.FindGameObjectWithTag("Player").transform.position;
 		currentPos = playerStart;
 		currentPos.x = Mathf.Floor(currentPos.x / chunkSize);
 		currentPos.y = Mathf.Floor(currentPos.y / chunkSize);
@@ -455,34 +111,46 @@ public class TerrainBrain : MonoBehaviour
         //GameObject.Instantiate(prefab, new Vector3(0, 0, 0), Quaternion.identity);
         //GameObject.Instantiate(prefab, new Vector3(0, -10, 0), Quaternion.identity);
 		
-		Vector3 scanStart = new Vector3(0,100,0);
-		int d = 0;
-
-		while (d == 0)
-		{
-			scanStart.y--;
-			d = getTerrainDensity(Mathf.RoundToInt(scanStart.x), Mathf.RoundToInt(scanStart.y), Mathf.RoundToInt(scanStart.z));
-
-		}
-
-		scanStart.y+=3;
-		scanStart.x += 0.5f;
-		scanStart.z += 0.5f;
-		playerStart = scanStart;
-		Debug.Log("Start pos = " + scanStart.ToString());
+//		Vector3 scanStart = new Vector3(0,100,0);
+//		int d = 0;
+//
+//		while (d == 0)
+//		{
+//			scanStart.y--;
+//			d = getTerrainDensity(Mathf.RoundToInt(scanStart.x), Mathf.RoundToInt(scanStart.y), Mathf.RoundToInt(scanStart.z));
+//
+//		}
+//
+//		scanStart.y+=3;
+//		scanStart.x += 0.5f;
+//		scanStart.z += 0.5f;
+//		playerStart = scanStart;
+//
+//		Debug.Log("Start pos = " + scanStart.ToString());
 
 //        Camera.main.transform.position = playerStart;
 		GUIText status = GameObject.Find("StatusDisplay").GetComponent<GUIText>();
 		status.text = "Loading...";
+			
 
-		startGravity = Camera.main.transform.parent.GetComponent<vp_FPSController>().PhysicsGravityModifier;
-		Camera.main.transform.parent.GetComponent<vp_FPSController>().PhysicsGravityModifier=0;		
-		Debug.Log("1");
 //        stepLoad();
+
 
 		StartCoroutine( m_tcache.LoadWorld() );
 	}
-	
+
+	bool IsBlockBelowPosition(Vector3 startPos, float distance)
+	{
+		
+		for (float y = startPos.y; y >= startPos.y - distance; y--)
+		{
+			if (getTerrainDensity(Mathf.RoundToInt(startPos.x), Mathf.RoundToInt(y), Mathf.RoundToInt(startPos.z)) != 0)
+				return true;
+		}
+		Debug.Log("block not below: " + startPos);
+		return false;
+	}
+
 	public void SaveWorld()
 	{
 		m_tcache.SaveWorld();	
@@ -630,6 +298,7 @@ public class TerrainBrain : MonoBehaviour
 			newObj.name = "TerrainChunk (" + loc.x.ToString() + ", " + loc.y.ToString() + ", " + loc.z.ToString() + ")";
 			newObj.transform.position = loc*chunkSize;
 			newObj.SendMessage("regenerateMesh");
+		
 
 		}
 
@@ -642,16 +311,22 @@ public class TerrainBrain : MonoBehaviour
 		}
 		else if (m_loaded == 1)// && Time.time - _timeAtLaterGenerate > 2)
 		{
-			Camera.main.transform.parent.GetComponent<vp_FPSController>().PhysicsGravityModifier = startGravity;
+
 			stepLoad();
 			m_loaded = 0;
 			GUIText status = GameObject.Find("StatusDisplay").GetComponent<GUIText>();
 			status.text = "";
 			//	Camera.main.transform.position = playerStart;
 			Camera.main.SendMessage("startRunningFPS");
+
+
 		}
 
-
+		if (Physics.gravity == Vector3.down && IsBlockBelowPosition(GameObject.FindGameObjectWithTag("Player").transform.position,100))
+		{
+			Debug.Log("setting gravity");
+			Physics.gravity = startGravity;
+		}
 		
 		HandleMovement ();
 		
@@ -690,7 +365,7 @@ public class TerrainBrain : MonoBehaviour
 	    int x = Mathf.CeilToInt(cubeWorldPos.x) - 1;
         int y = Mathf.CeilToInt(cubeWorldPos.y) - 1;
         int z = Mathf.CeilToInt(cubeWorldPos.z) - 1;
-		
+
         m_tcache.setDensity(x, y, z, density);
     }
 

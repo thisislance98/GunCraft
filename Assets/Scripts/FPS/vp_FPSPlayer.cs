@@ -75,7 +75,7 @@ public class vp_FPSPlayer : MonoBehaviour
 	///////////////////////////////////////////////////////////
 	void Start()
 	{
-		LockCursor = false;
+	//	LockCursor = false;
 		// set up weapon availability. if a weapon is not in this
 		// list the script won't allow the player to use it. all
 		// weapons are available by default.
@@ -97,7 +97,7 @@ public class vp_FPSPlayer : MonoBehaviour
 			SetWeapon(1);
 
 		InputManager.Instance.AddObserver(gameObject);
-
+		SetWeapon(3);
 	}
 
 
@@ -215,7 +215,6 @@ public class vp_FPSPlayer : MonoBehaviour
 	
 		if (delta.magnitude > 0)
 		{
-			NetworkPlayer.Instance.SetMoveDirection(delta.normalized);
 
 			float walkSpeed = .1f;
 			Vector3 dir = delta.normalized;
@@ -231,7 +230,7 @@ public class vp_FPSPlayer : MonoBehaviour
 			Vector3 newDir = Controller.transform.TransformDirection(moveDir);
 			float angle = Vector3.Angle(newDir,Camera.transform.forward);
 
-			if (Physics.Raycast(ray, .5f) && angle < 45)
+			if (Physics.Raycast(ray, .5f) && angle < 95)
 			{
 		//		Debug.Log("going up");
 				moveDir.y = 1;
@@ -370,7 +369,7 @@ public class vp_FPSPlayer : MonoBehaviour
 
 	public void OnFireUp()
 	{
-		if (Time.time - _fireDownTime < .2f)
+		if (Time.time - _fireDownTime < .15f)
 		{
 			vp_FPSShooter.SetShotType(_doubleTap ? ShotType.Create : ShotType.Destroy);
 

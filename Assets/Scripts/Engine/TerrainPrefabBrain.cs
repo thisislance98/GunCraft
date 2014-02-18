@@ -13,6 +13,7 @@ public class TerrainPrefabBrain : MonoBehaviour
 	public GameObject RewardPrefab;
 	public Material Mat;
     private MeshFilter m_meshFilter;
+	private static Transform _player = null;
 
     //private int[, ,] m_tmpdata;
 
@@ -48,7 +49,8 @@ public class TerrainPrefabBrain : MonoBehaviour
     {
 		/*groundTexture = new Texture2D(2048, 2048);
 		groundUVs = groundTexture.PackTextures(textures, 0, 2048);*/
-		
+		if (_player == null)
+			_player = GameObject.FindGameObjectWithTag("Player").transform;
         chunkSize = TerrainBrain.chunkSize;
         offset = transform.position;
         //m_tmpdata = TerrainBrain.Instance().getTerrainData(transform.position); //new int[10, 10, 10];
@@ -511,112 +513,123 @@ public class TerrainPrefabBrain : MonoBehaviour
 	//	ShootCube(false);  
 	}
 	
+	Vector3 GetCubeCenterInWorldCoords(Vector3 worldPos)
+	{
+		float x = Mathf.Floor(worldPos.x) + .5f;
+		float y = Mathf.Floor(worldPos.y) + .5f;
+		float z = Mathf.Floor(worldPos.z) + .5f;
 
+		return new Vector3(x,y,z);
+	}
 	
     public void OnBulletHit(RaycastHit hit, Ray ray, ShotType shotType,int terrainDensity)
     {
         //float startTime = Time.realtimeSinceStartup;
 		bool destroyCube = (shotType == ShotType.Destroy);
+
+		// if we destroy the cube then we need a point inside of it otherwise we want a point outside
+		// of it so that we can create another cube there			
+   		Vector3 posInHitCube =  hit.point + (.0001f * ray.direction);
+		Vector3 posOutHitCube = hit.point - (.0001f * ray.direction);
+			
+		int hitCubeDensity = TerrainBrain.Instance().getTerrainDensity(posInHitCube);
 		
+		if (destroyCube)
+		{
 
-	//	TerrainBrain.Instance().SaveWorld();
+   	 		TerrainBrain.Instance().setTerrainDensity(posInHitCube,0);
+			
+		}
+		else // create a cube
+		{
+
+			Vector3 center = GetCubeCenterInWorldCoords(posOutHitCube);
+			bool playerIsInBox = _player.collider.bounds.Contains(center);
+
+			Vector3 closestPoint = _player.collider.ClosestPointOnBounds(center);
+			float dist = Vector3.Distance(closestPoint,center);
+
+			Debug.Log("dist: " + dist);
+
+			// dont create cube if it's too close to the player
+			if (dist <= .5f)
+				return;
+		    TerrainBrain.Instance().setTerrainDensity(posOutHitCube,terrainDensity);				
+		}
 		
-        // Grab mouse position on terrain chunk and remove the appropriate cube
-//        Ray ray = Camera.main.ScreenPointToRay(new Vector2(Screen.width/2, Screen.height/2)); //Input.mousePosition);
-//        RaycastHit hit = new RaycastHit();
+    int chunkX = (int)(offset.x / chunkSize);
+    int chunkY = (int)(offset.y / chunkSize);
+    int chunkZ = (int)(offset.z / chunkSize);
 
-//        if (collider.Raycast(ray, out hit, 1000.0f))
-//        {
-			// if we destroy the cube then we need a point inside of it otherwise we want a point outside
-			// of it so that we can create another cube there			
-            Vector3 posInHitCube =  hit.point + (.0001f * ray.direction);
-			Vector3 posOutHitCube = hit.point - (.0001f * ray.direction);
-				
-			int hitCubeDensity = TerrainBrain.Instance().getTerrainDensity(posInHitCube);
+    GameObject n = null;
+    if (posInHitCube.x - offset.x - 1 < 1)
+    {
+        n = findNeighbor(NeighborDir.X_MINUS, chunkX, chunkY, chunkZ); // findTerrainChunk(chunkX - 1, chunkY, chunkZ); // getNeighbor(NeighborDir.X_MINUS);
+        if (n != null) n.SendMessage("regenerateMesh"); //n.GetComponent<TerrainPrefabBrain>().regenerateMesh();
+    }
+    else if (posInHitCube.x - offset.x - 1 > chunkSize - 2)
+    {
+        n = findNeighbor(NeighborDir.X_PLUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX + 1, chunkY, chunkZ);
+        if (n != null) n.SendMessage("regenerateMesh");
+    }
+    if (posInHitCube.y - offset.y - 1 < 1)
+    {
+        n = findNeighbor(NeighborDir.Y_MINUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX, chunkY - 1, chunkZ);
+        if (n != null) n.SendMessage("regenerateMesh");
+    }
+    else if (posInHitCube.y - offset.y - 1 > chunkSize - 2)
+    {
+        n = findNeighbor(NeighborDir.Y_PLUS, chunkX, chunkY, chunkZ); //findTerrainChunk(chunkX, chunkY + 1, chunkZ);
+        if (n != null) n.SendMessage("regenerateMesh");
+    }
+    if (posInHitCube.z - offset.z - 1 < 1)
+    {
+        n = findNeighbor(NeighborDir.Z_MINUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX, chunkY, chunkZ - 1);
+        if (n != null) n.SendMessage("regenerateMesh");
+    }
+    else if (posInHitCube.z - offset.z - 1 > chunkSize - 2)
+    {
+        n = findNeighbor(NeighborDir.Z_PLUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX, chunkY, chunkZ + 1);
+        if (n != null) n.SendMessage("regenerateMesh");
+    }
+
+    regenerateMesh();
+		
+		if (destroyCube)
+		{
 			
-			if (destroyCube)
-			{
-           	 	TerrainBrain.Instance().setTerrainDensity(posInHitCube,0);
-				
-			}
-			else // create a cube
-			{
-				TerrainBrain.Instance().setTerrainDensity(posOutHitCube,terrainDensity);				
-			}
+			Vector3 pos = posInHitCube;
+			pos.x = Mathf.Floor(pos.x) + .5f;
+			pos.y = Mathf.Floor(pos.y) + .5f;
+			pos.z = Mathf.Floor(pos.z) + .5f;
 			
-            int chunkX = (int)(offset.x / chunkSize);
-            int chunkY = (int)(offset.y / chunkSize);
-            int chunkZ = (int)(offset.z / chunkSize);
-
-            GameObject n = null;
-            if (posInHitCube.x - offset.x - 1 < 1)
-            {
-                n = findNeighbor(NeighborDir.X_MINUS, chunkX, chunkY, chunkZ); // findTerrainChunk(chunkX - 1, chunkY, chunkZ); // getNeighbor(NeighborDir.X_MINUS);
-                if (n != null) n.SendMessage("regenerateMesh"); //n.GetComponent<TerrainPrefabBrain>().regenerateMesh();
-            }
-            else if (posInHitCube.x - offset.x - 1 > chunkSize - 2)
-            {
-                n = findNeighbor(NeighborDir.X_PLUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX + 1, chunkY, chunkZ);
-                if (n != null) n.SendMessage("regenerateMesh");
-            }
-            if (posInHitCube.y - offset.y - 1 < 1)
-            {
-                n = findNeighbor(NeighborDir.Y_MINUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX, chunkY - 1, chunkZ);
-                if (n != null) n.SendMessage("regenerateMesh");
-            }
-            else if (posInHitCube.y - offset.y - 1 > chunkSize - 2)
-            {
-                n = findNeighbor(NeighborDir.Y_PLUS, chunkX, chunkY, chunkZ); //findTerrainChunk(chunkX, chunkY + 1, chunkZ);
-                if (n != null) n.SendMessage("regenerateMesh");
-            }
-            if (posInHitCube.z - offset.z - 1 < 1)
-            {
-                n = findNeighbor(NeighborDir.Z_MINUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX, chunkY, chunkZ - 1);
-                if (n != null) n.SendMessage("regenerateMesh");
-            }
-            else if (posInHitCube.z - offset.z - 1 > chunkSize - 2)
-            {
-                n = findNeighbor(NeighborDir.Z_PLUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX, chunkY, chunkZ + 1);
-                if (n != null) n.SendMessage("regenerateMesh");
-            }
-
-            regenerateMesh();
-			
-			if (destroyCube)
-			{
+			Instantiate(smallExplosionPrefab,hit.point,Quaternion.identity);	
 				
-				Vector3 pos = posInHitCube;
-				pos.x = Mathf.Floor(pos.x) + .5f;
-				pos.y = Mathf.Floor(pos.y) + .5f;
-				pos.z = Mathf.Floor(pos.z) + .5f;
-				
-				Instantiate(smallExplosionPrefab,hit.point,Quaternion.identity);	
-					
-				Transform spellPrefab = SpellManager.Instance.GetCurrentSpell();
-				Transform spell = null;
-				if (spellPrefab)
-					spell = (Transform)Instantiate(spellPrefab);
-				
-				GameObject cubePrefab = (spell == null) ? ExplodingCubesPrefab : MagicCubePrefab;
-				
-				if (false)//Random.Range(1,10) == 1)
-					Instantiate(RewardPrefab,pos,Quaternion.identity);
-				else
-				{
-					GameObject cube = (GameObject)Instantiate(cubePrefab,pos,Quaternion.identity);
-
-					cube.SendMessage("SetTexture",hitCubeDensity-1);
-					
-					if (spell != null)
-						spell.parent = cube.transform;
-					else
-						for (int i=0; i < cube.transform.GetChildCount(); i++)
-						{
-							Transform childCube = cube.transform.GetChild(i);
-							childCube.GetComponent<Rigidbody>().AddExplosionForce(1000,hit.point,5);
-						}
-				}
-			}
+//			Transform spellPrefab = SpellManager.Instance.GetCurrentSpell();
+//			Transform spell = null;
+//			if (spellPrefab)
+//				spell = (Transform)Instantiate(spellPrefab);
+//			
+//			GameObject cubePrefab = (spell == null) ? ExplodingCubesPrefab : MagicCubePrefab;
+//			
+//			if (false)//Random.Range(1,10) == 1)
+//				Instantiate(RewardPrefab,pos,Quaternion.identity);
+//			else
+//			{
+//				GameObject cube = (GameObject)Instantiate(cubePrefab,pos,Quaternion.identity);
+//
+//				cube.SendMessage("SetTexture",hitCubeDensity-1);
+//				
+//				if (spell != null)
+//					spell.parent = cube.transform;
+//				else
+//					for (int i=0; i < cube.transform.GetChildCount(); i++)
+//					{
+//						Transform childCube = cube.transform.GetChild(i);
+//						childCube.GetComponent<Rigidbody>().AddExplosionForce(1000,hit.point,5);
+//					}
+//			}
+		}
 
 //        }
 

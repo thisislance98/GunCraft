@@ -27,3 +27,5 @@ EditorBuildSettings:
     path: Assets/Photon Unity Networking/Demos/DemoWorker/DemoWorker-Scene.unity
   - enabled: 0
     path: Assets/Photon Unity Networking/Demos/DemoWorker/DemoWorkerGame-Scene.unity
+  - enabled: 0
+    path: Assets/MoPho Games/uSpeak/Scenes/Example/UnityNetworkExample.unity

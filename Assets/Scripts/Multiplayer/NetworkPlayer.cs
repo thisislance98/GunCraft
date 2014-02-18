@@ -1,9 +1,11 @@
 using UnityEngine;
 using System.Collections;
+using MoPhoGames.USpeak.Interface;
 
-public class NetworkPlayer : Photon.MonoBehaviour
+public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 {
 	public Renderer PlayerMeshRenderer;
+	public Renderer GunRenderer;
 	public Animator CharacterAnim;
 	public Transform SpineBone;
 	public float LerpPositionSpeed;
@@ -26,7 +28,7 @@ public class NetworkPlayer : Photon.MonoBehaviour
 
 	public static NetworkPlayer Instance;
 
-	void Awake()
+	void Start()
 	{
 		Instance = this;
 	//	_cameraTransform = Camera.main.transform;
@@ -36,7 +38,7 @@ public class NetworkPlayer : Photon.MonoBehaviour
 			//            //We aren't the photonView owner, disable this script
 			//            //RPC's and OnPhotonSerializeView will STILL get trough but we prevent Update from running
 			//            enabled = false;
-			
+			gameObject.tag = "NetworkPlayerOwner";
 			GameObject player = GameObject.FindGameObjectWithTag("Player");
 			transform.parent = player.transform;
 	
@@ -44,17 +46,15 @@ public class NetworkPlayer : Photon.MonoBehaviour
 
 			_targetPosition = transform.position;
 			PlayerMeshRenderer.enabled = false;
+			GunRenderer.enabled = false;
+
+			GetComponent<USpeaker>().SpeakerMode = SpeakerMode.Local;
 		}
+		else
+			GetComponent<USpeaker>().SpeakerMode = SpeakerMode.Remote;
 	}
 
-	public void SetMoveDirection(Vector3 moveDir)
-	{
-//		if (moveDir != _lastMoveDirection)
-//			photonView.RPC("SetCharacterDirection",PhotonTargets.All,moveDir.x,moveDir.y);
-//
-//		_lastMoveDirection = moveDir;
-	}
-	
+
 	void FixedUpdate()
 	{
 		if (photonView.isMine == true)
@@ -205,4 +205,35 @@ public class NetworkPlayer : Photon.MonoBehaviour
 
 	}
 
+	#region ISpeechDataHandler Members
+	
+	/// <summary>
+	/// Calls an RPC which passes the data back to USpeaker
+	/// </summary>
+	public void USpeakOnSerializeAudio( byte[] data )
+	{
+		photonView.RPC( "vc", PhotonTargets.All, data );
+	}
+	
+	/// <summary>
+	/// Calls a buffered RPC which passes the settings data to USpeaker
+	/// </summary>
+	public void USpeakInitializeSettings( int data )
+	{
+		photonView.RPC( "init", PhotonTargets.AllBuffered, data );
+	}
+	
+	#endregion
+
+	[RPC]
+	void vc( byte[] data )
+	{
+		GetComponent<USpeaker>().ReceiveAudio( data );
+	}
+	
+	[RPC]
+	void init( int data )
+	{
+		GetComponent<USpeaker>().InitializeSettings( data );
+	}
 }

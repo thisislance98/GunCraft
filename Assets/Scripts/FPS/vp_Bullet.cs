@@ -122,9 +122,9 @@ public class vp_Bullet : MonoBehaviour
 			
 
 			// if bullet is visible (i.e. has a decal), cueue it for deletion later
-			if (gameObject.renderer != null)
-				vp_DecalManager.Add(gameObject);
-			else
+//			if (gameObject.renderer != null)
+//				vp_DecalManager.Add(gameObject);
+//			else
 				vp_Timer.In(1, TryDestroy);		// we have no renderer, so destroy object in 1 sec
 		}
 		else
@@ -139,10 +139,15 @@ public class vp_Bullet : MonoBehaviour
 	///////////////////////////////////////////////////////////
 	private void TryDestroy()
 	{
-		if (!audio.isPlaying)
-			Object.Destroy(gameObject);
-		else
-			vp_Timer.In(1, TryDestroy);
+		Destroy(gameObject);
+
+//		if (!audio.isPlaying)
+//			Object.Destroy(gameObject);
+//		else
+//			vp_Timer.In(1, TryDestroy);
+
+
+
 	}
 
 

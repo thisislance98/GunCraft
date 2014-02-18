@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> cc8108b... moved around a bunch of assets
 /* Copyright (c) 2012 MoPho' Games
  * All Rights Reserved
  * 
@@ -88,6 +92,7 @@ public class DefaultTalkController : MonoBehaviour, IUSpeakTalkController
 	}
 
 	#endregion
+<<<<<<< HEAD
 =======
 
 /* Copyright (c) 2012 MoPho' Games
@@ -175,3 +180,6 @@ public class DefaultTalkController : MonoBehaviour, IUSpeakTalkController
 
 	#endregion
 }
+=======
+}
+>>>>>>> cc8108b... moved around a bunch of assets

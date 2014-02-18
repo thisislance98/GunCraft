@@ -18,48 +18,48 @@ public class NetworkConnect : Photon.MonoBehaviour
     }
 
 
-    void OnGUI()
-    {
-        //Check connection state..
-        if (PhotonNetwork.connectionState == ConnectionState.Disconnected)
-        {
-            //We are currently disconnected
-            GUILayout.Label("Connection status: Disconnected");
-
-            GUILayout.BeginVertical();
-            if (GUILayout.Button("Connect"))
-            {
-                //Connect using the PUN wizard settings (Self-hosted server or Photon cloud)
-                PhotonNetwork.ConnectUsingSettings("1.0");
-            }
-            GUILayout.EndVertical();
-        }
-        else
-        {
-            //We're connected!
-            if (PhotonNetwork.connectionState == ConnectionState.Connected)
-            {
-                GUILayout.Label("Connection status: Connected");
-                if (PhotonNetwork.room != null)
-                {
-                    GUILayout.Label("Room: " + PhotonNetwork.room.name);
-                    GUILayout.Label("Players: " + PhotonNetwork.room.playerCount + "/" + PhotonNetwork.room.maxPlayers);
-
-                }
-                else
-                {
-                    GUILayout.Label("Not inside any room");
-                }
-
-                GUILayout.Label("Ping to server: " + PhotonNetwork.GetPing());
-            }
-            else
-            {
-                //Connecting...
-                GUILayout.Label("Connection status: " + PhotonNetwork.connectionState);
-            }
-        }
-    }
+//    void OnGUI()
+//    {
+//        //Check connection state..
+//        if (PhotonNetwork.connectionState == ConnectionState.Disconnected)
+//        {
+//            //We are currently disconnected
+//            GUILayout.Label("Connection status: Disconnected");
+//
+//            GUILayout.BeginVertical();
+//            if (GUILayout.Button("Connect"))
+//            {
+//                //Connect using the PUN wizard settings (Self-hosted server or Photon cloud)
+//                PhotonNetwork.ConnectUsingSettings("1.0");
+//            }
+//            GUILayout.EndVertical();
+//        }
+//        else
+//        {
+//            //We're connected!
+//            if (PhotonNetwork.connectionState == ConnectionState.Connected)
+//            {
+//                GUILayout.Label("Connection status: Connected");
+//                if (PhotonNetwork.room != null)
+//                {
+//                    GUILayout.Label("Room: " + PhotonNetwork.room.name);
+//                    GUILayout.Label("Players: " + PhotonNetwork.room.playerCount + "/" + PhotonNetwork.room.maxPlayers);
+//
+//                }
+//                else
+//                {
+//                    GUILayout.Label("Not inside any room");
+//                }
+//
+//                GUILayout.Label("Ping to server: " + PhotonNetwork.GetPing());
+//            }
+//            else
+//            {
+//                //Connecting...
+//                GUILayout.Label("Connection status: " + PhotonNetwork.connectionState);
+//            }
+//        }
+//    }
 
     private bool receivedRoomList = false;
 

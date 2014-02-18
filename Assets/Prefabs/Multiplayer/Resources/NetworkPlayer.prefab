@@ -25,6 +25,8 @@ GameObject:
   - 4: {fileID: 400002}
   - 114: {fileID: 11400002}
   - 114: {fileID: 11400000}
+  - 114: {fileID: 11400006}
+  - 114: {fileID: 11400004}
   m_Layer: 0
   m_Name: NetworkPlayer
   m_TagString: Untagged
@@ -2842,13 +2844,50 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PlayerMeshRenderer: {fileID: 13700002}
+  GunRenderer: {fileID: 2300000}
   CharacterAnim: {fileID: 9500000}
   SpineBone: {fileID: 400146}
-  LerpPositionSpeed: 1
-  LerpRotationSpeed: 1
+  LerpPositionSpeed: 5
+  LerpRotationSpeed: 5
 --- !u!1002 &11400003
 EditorExtensionImpl:
   serializedVersion: 6
+--- !u!114 &11400004
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 619cf2edb179b494aa06d35fb25e5f0f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TriggerKey: 304
+  ToggleMode: 0
+--- !u!114 &11400006
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18307a689f828c448850fed128e1343c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SpeakerMode: 0
+  BandwidthMode: 0
+  SendRate: 16
+  SendingMode: 0
+  UseVAD: 0
+  _3DMode: 0
+  DebugPlayback: 0
+  AskPermission: 1
+  Mute: 0
+  SpeakerVolume: 1
+  VolumeThreshold: .00999999978
+  Codec: 0
 --- !u!137 &13700000
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 1
