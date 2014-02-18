@@ -63,6 +63,12 @@ public class NetworkConnect : Photon.MonoBehaviour
 
     private bool receivedRoomList = false;
 
+	void OnJoinedRoom()
+	{
+		vp_FPSPlayer player = GameObject.FindGameObjectWithTag("Player").GetComponent<vp_FPSPlayer>();
+		player.OnPlayerConnected(PhotonNetwork.playerList.Length);
+	}
+
     void OnConnectedToPhoton()
     {
         StartCoroutine(JoinOrCreateRoom());

@@ -71,9 +71,9 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 		if (transform.position != _targetPosition)
 			transform.position = Vector3.Slerp(transform.position,_targetPosition,Time.deltaTime * LerpPositionSpeed);
 
-		Debug.Log("updating others " + transform.position + " + target: " + _targetPosition);
 
-		if (transform.forward != _targetRotation)
+
+		if (transform.forward != _targetRotation && _targetRotation != Vector3.zero)
 			transform.forward = Vector3.RotateTowards(transform.forward,_targetRotation,Time.deltaTime * LerpRotationSpeed,1000);
 
 		Vector3 moveDelta = transform.position - _lastPosition;
@@ -191,7 +191,7 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 	{
 		//In this case, this function is always ran on the Clients
 		//The server requested all clients to run this function (line 25).
-		Debug.Log("getting target position: " + newPos);
+
 		_targetPosition = newPos;
 
 //		if (CharacterAnim.clip.name != "gun_run")

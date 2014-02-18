@@ -1,0 +1,20 @@
+Lances-MacBook-Pro:GunCraft lancehughes$ git log
+commit c2764ce4a3001deebea8d8b326d20a21a3cc4700
+Author: Lance Hughes <thisislance@yahoo.com>
+Date:   Mon Feb 17 10:38:24 2014 -0800
+
+    added alien gun
+
+commit cc8108b65453b0c36e4c8cfe24dc0210c60f088a
+Author: Lance Hughes <thisislance@yahoo.com>
+Date:   Fri Feb 14 16:02:10 2014 -0800
+
+    moved around a bunch of assets
+
+commit 9180c1fae2212cef5a2d6b96709b8f1486fdf9c4
+Author: Lance Hughes <thisislance@yahoo.com>
+Date:   Thu Feb 13 10:17:15 2014 -0800
+
+    added speak
+
+

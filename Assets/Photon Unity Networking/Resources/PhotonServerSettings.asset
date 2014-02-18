@@ -38,4 +38,5 @@ MonoBehaviour:
   - SetTargetRotation
   - vc
   - init
+  - DoScore
   DisableAutoOpenWizard: 0

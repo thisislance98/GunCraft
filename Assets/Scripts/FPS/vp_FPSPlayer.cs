@@ -42,6 +42,7 @@ public class vp_FPSPlayer : MonoBehaviour
 	public float m_Health = 10.0f;							// placeholder health variable, modified by the 'Damage' method
 	protected List<GameObject> m_AvailableWeapons = new List<GameObject>();		// placeholder for your game's actual inventory system.
 	float _startGravityModifier;
+	int _team;
 
 	///////////////////////////////////////////////////////////
 	// properties
@@ -65,9 +66,29 @@ public class vp_FPSPlayer : MonoBehaviour
 		Camera = gameObject.GetComponentInChildren<vp_FPSCamera>();
 		Controller = gameObject.GetComponent<vp_FPSController>();
 		_startGravityModifier = Controller.PhysicsGravityModifier;
+		Controller.PhysicsGravityModifier = 0;
 
 	}
 
+	public void OnPlayerConnected(int numCurrentPlayers)
+	{
+		_team = numCurrentPlayers % 2;
+		Debug.Log("play on team: " + _team);
+		Vector3 pos = FlagGameManager.Instance.GetBasePosition(_team);
+		FlagGameManager.Instance.SetTeam(_team);
+
+		pos.y = transform.position.y;
+		transform.position = pos;
+		Controller.PhysicsGravityModifier = _startGravityModifier;
+	}
+
+	public int GetTeam()
+	{
+		return _team;
+	}
+//	void OnControllerColliderHit(ControllerColliderHit hit) {
+//		hit.gameObject.SendMessage("OnPlayerTouch",this,SendMessageOptions.DontRequireReceiver);
+//	}
 
 	///////////////////////////////////////////////////////////
 	// in 'Start' we do things that potentially depend on all
