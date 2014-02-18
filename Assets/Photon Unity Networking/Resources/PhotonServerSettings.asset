@@ -39,4 +39,6 @@ MonoBehaviour:
   - vc
   - init
   - DoScore
+  - SetTeam
+  - OnHitFlag
   DisableAutoOpenWizard: 0

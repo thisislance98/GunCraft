@@ -23,6 +23,7 @@ using System.Collections.Generic;
 
 public class vp_FPSPlayer : MonoBehaviour
 {
+	public NetworkPlayer NetPlayer;
 	public float MaxWalkSpeed;
 	// components
 	[HideInInspector]
@@ -42,7 +43,7 @@ public class vp_FPSPlayer : MonoBehaviour
 	public float m_Health = 10.0f;							// placeholder health variable, modified by the 'Damage' method
 	protected List<GameObject> m_AvailableWeapons = new List<GameObject>();		// placeholder for your game's actual inventory system.
 	float _startGravityModifier;
-	int _team;
+	int _team = -1;
 
 	///////////////////////////////////////////////////////////
 	// properties
@@ -76,6 +77,7 @@ public class vp_FPSPlayer : MonoBehaviour
 		Debug.Log("play on team: " + _team);
 		Vector3 pos = FlagGameManager.Instance.GetBasePosition(_team);
 		FlagGameManager.Instance.SetTeam(_team);
+		NetPlayer.photonView.RPC("SetTeam",PhotonTargets.AllBuffered,_team);
 
 		pos.y = transform.position.y;
 		transform.position = pos;
@@ -86,9 +88,14 @@ public class vp_FPSPlayer : MonoBehaviour
 	{
 		return _team;
 	}
-//	void OnControllerColliderHit(ControllerColliderHit hit) {
-//		hit.gameObject.SendMessage("OnPlayerTouch",this,SendMessageOptions.DontRequireReceiver);
-//	}
+	void OnControllerColliderHit(ControllerColliderHit hit) {
+
+		if (hit.transform.tag == "Flag" && _team != -1 )
+		{
+
+			NetPlayer.photonView.RPC("OnHitFlag",PhotonTargets.AllBuffered,hit.transform.GetComponent<Flag>().GetTeam());
+		}
+	}
 
 	///////////////////////////////////////////////////////////
 	// in 'Start' we do things that potentially depend on all

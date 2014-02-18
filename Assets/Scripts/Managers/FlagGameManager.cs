@@ -74,6 +74,11 @@ public class FlagGameManager : Photon.MonoBehaviour {
 		return Flags[_theirTeam];
 	}
 
+	public Flag GetFlag(int team)
+	{
+		return Flags[team].GetComponent<Flag>();
+	}
+
 	public Vector3 GetTheirFlagPosition()
 	{
 		return Flags[_theirTeam].position;
@@ -83,6 +88,7 @@ public class FlagGameManager : Photon.MonoBehaviour {
 	{
 		return Flags[_myTeam].position;
 	}
+	
 
 
 }

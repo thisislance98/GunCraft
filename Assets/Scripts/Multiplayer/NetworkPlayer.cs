@@ -17,6 +17,7 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 	Vector3 _targetPosition;
 	Vector3 _targetRotation;
 
+	int _team;
 	int _idleHash;
 	int _walkHash;
 
@@ -54,6 +55,10 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 			GetComponent<USpeaker>().SpeakerMode = SpeakerMode.Remote;
 	}
 
+	public int GetTeam()
+	{
+		return _team;
+	}
 
 	void FixedUpdate()
 	{
@@ -235,5 +240,19 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 	void init( int data )
 	{
 		GetComponent<USpeaker>().InitializeSettings( data );
+	}
+
+	[RPC]
+	void SetTeam(int team)
+	{
+		_team = team;
+	}
+
+	[RPC]
+	void OnHitFlag(int teamOfFlag)
+	{
+		Flag flag = FlagGameManager.Instance.GetFlag(teamOfFlag);
+		flag.OnPlayerTriggerEnter(this);
+
 	}
 }
