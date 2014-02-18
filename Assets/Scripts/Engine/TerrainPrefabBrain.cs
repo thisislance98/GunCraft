@@ -4,12 +4,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public enum ShotType
-{
-	Create,
-	Destroy
-
-}
 
 public class TerrainPrefabBrain : MonoBehaviour 
 {
@@ -37,7 +31,6 @@ public class TerrainPrefabBrain : MonoBehaviour
 
     int chunkSize;
 
-	private static ShotType shotType = ShotType.Destroy;
 
     GameObject[] m_neighbors = new GameObject[6];
     public enum NeighborDir
@@ -86,10 +79,6 @@ public class TerrainPrefabBrain : MonoBehaviour
         this.enabled = true;
 	}
 
-	public static void SetShotType(ShotType type)
-	{
-		shotType = type;
-	}
 
     public void setNeighbor(NeighborDir dir, GameObject tpb)
     {
@@ -472,7 +461,7 @@ public class TerrainPrefabBrain : MonoBehaviour
         GameObject ob = GameObject.Find("TerrainChunk (" + x.ToString() + ", " + y.ToString() + ", " + z.ToString() + ")");
 		if (ob == null)
 		{
-			Debug.LogWarning("Trouble finding chunk " + x.ToString() + ", " + y.ToString() + ", " + z.ToString());
+//			Debug.LogWarning("Trouble finding chunk " + x.ToString() + ", " + y.ToString() + ", " + z.ToString());
 		}
 		return ob;
     }
@@ -524,7 +513,7 @@ public class TerrainPrefabBrain : MonoBehaviour
 	
 
 	
-    void Damage(float damage)
+    public void OnBulletHit(RaycastHit hit, Ray ray, ShotType shotType,int terrainDensity)
     {
         //float startTime = Time.realtimeSinceStartup;
 		bool destroyCube = (shotType == ShotType.Destroy);
@@ -533,11 +522,11 @@ public class TerrainPrefabBrain : MonoBehaviour
 	//	TerrainBrain.Instance().SaveWorld();
 		
         // Grab mouse position on terrain chunk and remove the appropriate cube
-        Ray ray = Camera.main.ScreenPointToRay(new Vector2(Screen.width/2, Screen.height/2)); //Input.mousePosition);
-        RaycastHit hit = new RaycastHit();
+//        Ray ray = Camera.main.ScreenPointToRay(new Vector2(Screen.width/2, Screen.height/2)); //Input.mousePosition);
+//        RaycastHit hit = new RaycastHit();
 
-        if (collider.Raycast(ray, out hit, 1000.0f))
-        {
+//        if (collider.Raycast(ray, out hit, 1000.0f))
+//        {
 			// if we destroy the cube then we need a point inside of it otherwise we want a point outside
 			// of it so that we can create another cube there			
             Vector3 posInHitCube =  hit.point + (.0001f * ray.direction);
@@ -552,7 +541,7 @@ public class TerrainPrefabBrain : MonoBehaviour
 			}
 			else // create a cube
 			{
-				TerrainBrain.Instance().setTerrainDensity(posOutHitCube,TextureManager.Instance.GetTextureIndex()+1);				
+				TerrainBrain.Instance().setTerrainDensity(posOutHitCube,terrainDensity);				
 			}
 			
             int chunkX = (int)(offset.x / chunkSize);
@@ -629,7 +618,7 @@ public class TerrainPrefabBrain : MonoBehaviour
 				}
 			}
 
-        }
+//        }
 
         //Debug.Log("lc time = " + (Time.realtimeSinceStartup - startTime).ToString());
     }

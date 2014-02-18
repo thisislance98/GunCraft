@@ -278,8 +278,9 @@ public class vp_FPSCamera : vp_Component
 	{
 
 		base.Update();
-		
-	//	UpdateMouseLook();
+	
+		if (Application.isEditor || Application.platform == RuntimePlatform.OSXPlayer)
+			UpdateMouseLook(new Touch());
 		
 	}
 
@@ -581,13 +582,7 @@ public class vp_FPSCamera : vp_Component
 //		m_MouseMove.y = attitudeDelta.x;
 
 
-		
 
-//#if UNITY_EDITOR
-//		m_MouseMove.x = Input.GetAxisRaw("Mouse X");
-//		m_MouseMove.y = Input.GetAxisRaw("Mouse Y");
-//
-//#else
 		float screenMultiplier = 1024.0f / Screen.width;
 		Vector3 touchDelta = touch.deltaPosition * screenMultiplier;
 //		Debug.Log("touch delta: " + touchDelta + " pos : " + Input.touches[0].position);
@@ -604,7 +599,12 @@ public class vp_FPSCamera : vp_Component
 
 //#endif
 
-
+		if (Application.isEditor || Application.platform == RuntimePlatform.OSXPlayer)
+		{
+	//		Screen.lockCursor = true;
+			m_MouseMove.x = Input.GetAxisRaw("Mouse X");
+			m_MouseMove.y = -Input.GetAxisRaw("Mouse Y");
+		}
 
 		// --- mouse smoothing ---
 

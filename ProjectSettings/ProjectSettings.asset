@@ -14,8 +14,8 @@ PlayerSettings:
   productName: GunCraft
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
-  defaultScreenWidth: 1024
-  defaultScreenHeight: 768
+  defaultScreenWidth: 800
+  defaultScreenHeight: 600
   defaultScreenWidthWeb: 960
   defaultScreenHeightWeb: 600
   m_RenderingPath: 1
@@ -37,14 +37,14 @@ PlayerSettings:
   defaultIsFullScreen: 0
   defaultIsNativeResolution: 1
   runInBackground: 1
-  captureSingleScreen: 0
+  captureSingleScreen: 1
   Override IPod Music: 0
   Prepare IOS For Recording: 0
   enableHWStatistics: 1
   usePlayerLog: 1
   stripPhysics: 0
   forceSingleInstance: 0
-  resizableWindow: 0
+  resizableWindow: 1
   useMacAppStoreValidation: 0
   gpuSkinning: 0
   xboxPIXTextureCapture: 0
@@ -52,7 +52,7 @@ PlayerSettings:
   xboxEnableKinect: 0
   xboxEnableKinectAutoTracking: 0
   xboxEnableFitness: 0
-  macFullscreenMode: 1
+  macFullscreenMode: 2
   xboxSpeechDB: 0
   xboxEnableHeadOrientation: 0
   xboxEnableGuest: 0

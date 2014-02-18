@@ -115,14 +115,15 @@ public class vp_FPSPlayer : MonoBehaviour
 		// deals with input
 
 		// handle input for moving
-		if (Application.isEditor)
+		if (Application.isEditor || Application.platform == RuntimePlatform.OSXPlayer)
 			InputWalk(new Touch());
 		InputRun();
 		InputJump();
 		InputCrouch();
 
 		// handle input for weapons
-		InputFire();
+		if (Application.isEditor || Application.platform == RuntimePlatform.OSXPlayer)
+			InputFire();
 		InputZoom();
 		InputReload();
 		InputCycleWeapon();
@@ -214,6 +215,8 @@ public class vp_FPSPlayer : MonoBehaviour
 	
 		if (delta.magnitude > 0)
 		{
+			NetworkPlayer.Instance.SetMoveDirection(delta.normalized);
+
 			float walkSpeed = .1f;
 			Vector3 dir = delta.normalized;
 			float speed = delta.magnitude * walkSpeed;
@@ -323,21 +326,23 @@ public class vp_FPSPlayer : MonoBehaviour
 	protected void InputFire()
 	{
 
-#if UNITY_EDITOR
+
 		// fire button pressed / held down
-//		if ( Input.GetMouseButton(0))
-//		{
-//			OnFireDown();
-//		}
-//
-//		// fire button released
-//		if (Input.GetMouseButtonUp(0) || Input.GetMouseButtonUp(1))
-//		{
-//
-//			OnFireUp();
-//
-//		}
-#endif
+		if ( Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
+		{
+			OnFireDown();
+		}
+
+		// fire button released
+		if (Input.GetMouseButtonUp(0) || Input.GetMouseButtonUp(1))
+		{
+			if (Input.GetMouseButtonUp(1))
+				_doubleTap = true;
+
+			OnFireUp();
+
+		}
+
 
 	}
 
@@ -367,8 +372,8 @@ public class vp_FPSPlayer : MonoBehaviour
 	{
 		if (Time.time - _fireDownTime < .2f)
 		{
+			vp_FPSShooter.SetShotType(_doubleTap ? ShotType.Create : ShotType.Destroy);
 
-			TerrainPrefabBrain.SetShotType(_doubleTap ? ShotType.Create : ShotType.Destroy);
 			Fire ();
 		}
 	}

@@ -28,4 +28,10 @@ MonoBehaviour:
   - ServerMove
   - GoodOwnerPos
   - AdjustOwnerPos
+  - SetRotation
+  - FireProjectile
+  - SetAnimation
+  - SetAnimFloat
+  - SetCharacterDirection
+  - SetSpineRotation
   DisableAutoOpenWizard: 0

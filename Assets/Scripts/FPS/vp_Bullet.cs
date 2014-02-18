@@ -48,7 +48,7 @@ public class vp_Bullet : MonoBehaviour
 	// the surface of the first object hit. it then spawns a
 	// number of particle effects and plays a random impact sound.
 	///////////////////////////////////////////////////////////
-	void Start()
+	public void Fire(ShotType shotType, int terrainDensity)
 	{
 
 		Ray ray = new Ray(transform.position, transform.forward);
@@ -116,7 +116,10 @@ public class vp_Bullet : MonoBehaviour
 			}
 
 			// do damage on the target
-			hit.collider.SendMessage(DamageMethodName, Damage, SendMessageOptions.DontRequireReceiver);
+			TerrainPrefabBrain terrain = hit.transform.GetComponent<TerrainPrefabBrain>();
+			if (terrain != null)
+				terrain.OnBulletHit(hit,ray,shotType,terrainDensity);
+			
 
 			// if bullet is visible (i.e. has a decal), cueue it for deletion later
 			if (gameObject.renderer != null)

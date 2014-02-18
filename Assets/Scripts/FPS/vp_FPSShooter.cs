@@ -12,6 +12,14 @@
 using UnityEngine;
 using System.Reflection;
 
+public enum ShotType
+{
+	Create,
+	Destroy
+	
+}
+
+
 [RequireComponent(typeof(vp_FPSWeapon))]
 [RequireComponent(typeof(AudioSource))]
 
@@ -76,7 +84,19 @@ public class vp_FPSShooter : vp_Component
 	public float NextAllowedReloadTime { get { return m_NextAllowedReloadTime; } set { m_NextAllowedReloadTime = value; } }
 	public float NextAllowedFireTime { get { return m_NextAllowedFireTime; } set { m_NextAllowedFireTime = value; } } 
 
+	private static ShotType _shotType = ShotType.Destroy;
+
+	public static void SetShotType(ShotType type)
+	{
+		_shotType = type;
+	}
 	
+	public static ShotType GetShotType()
+	{
+		return _shotType;
+	}
+
+
 	///////////////////////////////////////////////////////////
 	// in 'Awake' we do things that need to be run once at the
 	// very beginning. NOTE: as of Unity 4, gameobject hierarchy
@@ -198,13 +218,17 @@ public class vp_FPSShooter : vp_Component
 		{
 			if (ProjectilePrefab != null)
 			{
-				GameObject p = null;
-				p = (GameObject)Object.Instantiate(ProjectilePrefab, m_Camera.transform.position, m_Camera.transform.rotation);
-				p.transform.localScale = new Vector3(ProjectileScale, ProjectileScale, ProjectileScale);	// preset defined scale
+				photonView.RPC ("FireProjectile",
+				                PhotonTargets.All,m_Camera.transform.position, 
+				                m_Camera.transform.rotation,
+				                ProjectileScale,
+				                (int)_shotType,
+				                TextureManager.Instance.GetTextureIndex()+1);
 
+			
 				// apply conical spread as defined in preset
-				p.transform.Rotate(0, 0, Random.Range(0, 360));									// first, rotate up to 360 degrees around z for circular spread
-				p.transform.Rotate(0, Random.Range(-ProjectileSpread, ProjectileSpread), 0);		// then rotate around y with user defined deviation
+//				p.transform.Rotate(0, 0, Random.Range(0, 360));									// first, rotate up to 360 degrees around z for circular spread
+//				p.transform.Rotate(0, Random.Range(-ProjectileSpread, ProjectileSpread), 0);		// then rotate around y with user defined deviation
 			}
 		}
 
@@ -223,6 +247,18 @@ public class vp_FPSShooter : vp_Component
 
 	}
 
+	
+	[RPC]
+	void FireProjectile(Vector3 startPosition, Quaternion rotation, float scale, int shotType, int terrainDensity)
+	{
+
+		GameObject p = null;
+		p = (GameObject)Object.Instantiate(ProjectilePrefab, startPosition, rotation);
+		p.GetComponent<vp_Bullet>().Fire((ShotType)shotType,terrainDensity);
+		p.transform.localScale = new Vector3(scale, scale, scale);	// preset defined scale
+		
+	}
+	
 
 	///////////////////////////////////////////////////////////
 	// applies a scaled version of the recoil to the weapon to
