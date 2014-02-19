@@ -17,7 +17,7 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 	Vector3 _targetPosition;
 	Vector3 _targetRotation;
 
-	int _team;
+	int _team = -1;
 	int _idleHash;
 	int _walkHash;
 
@@ -29,18 +29,21 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 
 	public static NetworkPlayer Instance;
 
-	void Start()
+	IEnumerator Start()
 	{
 		Instance = this;
 	//	_cameraTransform = Camera.main.transform;
 
 		if (photonView.isMine)
 		{
+			Debug.Log("my view started");
+			FlagGameManager.Instance.SetMyPlayer(this);
 			//            //We aren't the photonView owner, disable this script
 			//            //RPC's and OnPhotonSerializeView will STILL get trough but we prevent Update from running
 			//            enabled = false;
 			gameObject.tag = "NetworkPlayerOwner";
 			GameObject player = GameObject.FindGameObjectWithTag("Player");
+			player.GetComponent<vp_FPSPlayer>().SetNetworkPlayer(this);
 			transform.parent = player.transform;
 	
 			transform.localPosition = new Vector3(0,.70f,0);
@@ -50,9 +53,25 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 			GunRenderer.enabled = false;
 
 			GetComponent<USpeaker>().SpeakerMode = SpeakerMode.Local;
+
+			yield return new WaitForSeconds(.3f);
+
+			photonView.RPC ("SetTeam",PhotonTargets.AllBuffered,vp_FPSPlayer.Instance.GetTeam());
 		}
 		else
 			GetComponent<USpeaker>().SpeakerMode = SpeakerMode.Remote;
+
+		yield return null;
+	}
+
+	public bool IsHoldingFlag()
+	{
+		return (transform.FindChild("Flag") != null);
+	}
+
+	public Transform GetHeldFlag()
+	{
+		return transform.FindChild("Flag");
 	}
 
 	public int GetTeam()
@@ -245,12 +264,26 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 	[RPC]
 	void SetTeam(int team)
 	{
+		Debug.Log("setting team: " + team + " ismine: " + photonView.isMine);
 		_team = team;
+
+	}
+
+	public void HitFlag(int teamOfFlag)
+	{
+
+		photonView.RPC("OnHitFlag",PhotonTargets.All,teamOfFlag);
 	}
 
 	[RPC]
 	void OnHitFlag(int teamOfFlag)
 	{
+	//	Debug.Log("hit flag: " + teamOfFlag + " ismine: " + photonView.isMine + " my team: " + _team + " flag team: " + teamOfFlag);
+		if (_team == -1)
+			return;
+
+//		if (photonView.isMine)
+			
 		Flag flag = FlagGameManager.Instance.GetFlag(teamOfFlag);
 		flag.OnPlayerTriggerEnter(this);
 

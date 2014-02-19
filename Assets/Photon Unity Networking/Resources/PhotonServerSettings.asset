@@ -41,4 +41,5 @@ MonoBehaviour:
   - DoScore
   - SetTeam
   - OnHitFlag
+  - SetTeamRPC
   DisableAutoOpenWizard: 0

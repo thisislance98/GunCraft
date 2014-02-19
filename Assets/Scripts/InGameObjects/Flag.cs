@@ -18,26 +18,34 @@ public class Flag : MonoBehaviour {
 
 	public void OnPlayerTriggerEnter(NetworkPlayer player)
 	{
-
+//		Debug.Log("our team: " + player.GetTeam() + " flag team: " + TeamBase.Team + " is holding: " + player.IsHoldingFlag() + " ismine: " + player.photonView.isMine);
 		if (player.GetTeam() == TeamBase.Team)
 		{
 			// did we just score
-			if (FlagGameManager.Instance.IsHoldingFlag)
+			if (player.IsHoldingFlag())
 			{
-				Transform theirFlag = FlagGameManager.Instance.GetTheirFlag();
-				theirFlag.position = FlagGameManager.Instance.GetTheirBasePosition();
-				theirFlag.parent = FlagGameManager.Instance.GetTheirBase().transform;
-				theirFlag.collider.enabled = true;
-				FlagGameManager.Instance.IsHoldingFlag = false;
-				FlagGameManager.Instance.OnScore();
+			
+				int otherTeam = (player.GetTeam() + 1) % 2;
+
+				Transform flag = FlagGameManager.Instance.GetFlag(otherTeam).transform;
+
+				flag.parent = FlagGameManager.Instance.GetBase(otherTeam).transform;
+				flag.localPosition = Vector3.zero;
+
+				flag.collider.enabled = true;
+
+				FlagGameManager.Instance.OnScore(player.GetTeam());
+				FlagGameManager.Instance.OnFlagStateChange();
 			}
 		}
 		else // just took their flag
 		{
+			Debug.Log("took their flag");
 			collider.enabled = false;
 			transform.parent = player.transform;
 			transform.localPosition = Vector3.zero;
-			FlagGameManager.Instance.IsHoldingFlag = true;
+			FlagGameManager.Instance.OnFlagStateChange();
+
 		}
 
 	}

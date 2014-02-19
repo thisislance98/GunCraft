@@ -23,7 +23,7 @@ using System.Collections.Generic;
 
 public class vp_FPSPlayer : MonoBehaviour
 {
-	public NetworkPlayer NetPlayer;
+
 	public float MaxWalkSpeed;
 	// components
 	[HideInInspector]
@@ -44,6 +44,7 @@ public class vp_FPSPlayer : MonoBehaviour
 	protected List<GameObject> m_AvailableWeapons = new List<GameObject>();		// placeholder for your game's actual inventory system.
 	float _startGravityModifier;
 	int _team = -1;
+	NetworkPlayer _netPlayer;
 
 	///////////////////////////////////////////////////////////
 	// properties
@@ -54,13 +55,14 @@ public class vp_FPSPlayer : MonoBehaviour
 	public vp_FPSShooter CurrentShooter { get { return Camera.CurrentShooter; } }
 	public int WeaponCount { get { return Camera.Weapons.Count; } }
 
+	public static vp_FPSPlayer Instance;
 
 	///////////////////////////////////////////////////////////
 	// 
 	///////////////////////////////////////////////////////////
 	void Awake()
 	{
-
+		Instance = this;
 		// get hold of the vp_FPSCamera and vp_FPSController attached to
 		// this game object. NOTE: vp_FPSWeapons and vp_FPSShooters are
 		// accessed via 'CurrentWeapon' and 'CurrentShooter'
@@ -71,29 +73,34 @@ public class vp_FPSPlayer : MonoBehaviour
 
 	}
 
+	public int GetTeam()
+	{
+		return _team;
+	}
+
+	public void SetNetworkPlayer(NetworkPlayer player)
+	{
+		_netPlayer = player;
+	}
+
 	public void OnPlayerConnected(int numCurrentPlayers)
 	{
 		_team = numCurrentPlayers % 2;
-		Debug.Log("play on team: " + _team);
+
+		Debug.Log("num players: " + numCurrentPlayers + " team: " + _team);
 		Vector3 pos = FlagGameManager.Instance.GetBasePosition(_team);
 		FlagGameManager.Instance.SetTeam(_team);
-		NetPlayer.photonView.RPC("SetTeam",PhotonTargets.AllBuffered,_team);
 
 		pos.y = transform.position.y;
 		transform.position = pos;
 		Controller.PhysicsGravityModifier = _startGravityModifier;
 	}
-
-	public int GetTeam()
-	{
-		return _team;
-	}
+	
 	void OnControllerColliderHit(ControllerColliderHit hit) {
 
-		if (hit.transform.tag == "Flag" && _team != -1 )
+		if (hit.transform.tag == "Flag" && _team != -1 && _netPlayer != null)
 		{
-
-			NetPlayer.photonView.RPC("OnHitFlag",PhotonTargets.AllBuffered,hit.transform.GetComponent<Flag>().GetTeam());
+			_netPlayer.HitFlag(hit.transform.GetComponent<Flag>().GetTeam());
 		}
 	}
 

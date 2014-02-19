@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class FlagGameManager : Photon.MonoBehaviour {
 
@@ -9,8 +10,10 @@ public class FlagGameManager : Photon.MonoBehaviour {
 	public UILabel MyScoreLabel;
 
 	public static FlagGameManager Instance;
+	
+	List<GameObject> _flagObservers = new List<GameObject>();
 
-	public bool IsHoldingFlag;
+	NetworkPlayer _myPlayer;
 	int _myTeam;
 	int _theirTeam;
 	int _myTeamScore;
@@ -22,15 +25,32 @@ public class FlagGameManager : Photon.MonoBehaviour {
 
 	}
 
-	public void OnScore()
+	public void AddFlagObserver(GameObject observer)
 	{
-		photonView.RPC("DoScore",PhotonTargets.All);
+		_flagObservers.Add(observer);
 	}
 
-	[RPC]
-	void DoScore()
+	public void OnFlagStateChange()
 	{
-		if (photonView.isMine)
+		foreach(GameObject observer in _flagObservers)
+		{
+			observer.SendMessage("OnFlagStateChange");
+		}
+	}
+
+	public NetworkPlayer GetMyPlayer()
+	{
+		return _myPlayer;
+	}
+
+	public void SetMyPlayer(NetworkPlayer player)
+	{
+		_myPlayer = player;
+	}
+
+	public void OnScore(int scoringTeam)
+	{
+		if (FlagGameManager.Instance.GetMyPlayer().GetTeam() == scoringTeam)
 		{
 			_myTeamScore++;
 			MyScoreLabel.text = "Your Score: " + _myTeamScore;
@@ -40,8 +60,8 @@ public class FlagGameManager : Photon.MonoBehaviour {
 			_theirScore++;
 			TheirScoreLabel.text = "Their Score: " + _theirScore;
 		}
-
 	}
+	
 
 	public void SetTeam(int team)
 	{
@@ -54,6 +74,10 @@ public class FlagGameManager : Photon.MonoBehaviour {
 		return Bases[_theirTeam];
 	}
 
+	public Base GetBase(int team)
+	{
+		return Bases[team];
+	}
 	public Vector3 GetBasePosition(int team)
 	{
 		return Bases[team].transform.position;

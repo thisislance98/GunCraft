@@ -65,6 +65,7 @@ public class NetworkConnect : Photon.MonoBehaviour
 
 	void OnJoinedRoom()
 	{
+		Debug.Log("joined room " + PhotonNetwork.playerList.Length);
 		vp_FPSPlayer player = GameObject.FindGameObjectWithTag("Player").GetComponent<vp_FPSPlayer>();
 		player.OnPlayerConnected(PhotonNetwork.playerList.Length);
 	}
