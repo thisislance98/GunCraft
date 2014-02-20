@@ -65,6 +65,7 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 		else
 			GetComponent<USpeaker>().SpeakerMode = SpeakerMode.Remote;
 
+		
 		yield return null;
 	}
 
@@ -301,8 +302,12 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 	[RPC]
 	void SetTeam(int team)
 	{
-		Debug.Log("setting team: " + team + " ismine: " + photonView.isMine);
 		_team = team;
+
+		if (team == vp_FPSPlayer.Instance.GetTeam())
+			PlayerMeshRenderer.material.SetColor("_Color",Color.green);
+		else
+			PlayerMeshRenderer.material.SetColor("_Color",Color.red);
 
 	}
 
@@ -339,7 +344,9 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 	[RPC]
 	void SetTerrainDensity(Vector3 worldPos, int density)
 	{
-		TerrainBrain.Instance().setTerrainDensity(worldPos,density);
+	//	if (TerrainBrain.Instance().getTerrainDensity(worldPos) != density)
+			TerrainBrain.Instance().setTerrainDensity(worldPos,density);
+
 	}
 
 }

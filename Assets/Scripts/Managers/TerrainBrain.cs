@@ -140,6 +140,11 @@ public class TerrainBrain : MonoBehaviour
 		StartCoroutine( m_tcache.LoadWorld() );
 	}
 
+	public float GetViewDistance()
+	{
+		return viewDistance;
+	}
+
 	bool IsBlockBelowPosition(Vector3 startPos, float distance)
 	{
 		

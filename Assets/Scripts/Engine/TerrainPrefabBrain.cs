@@ -563,43 +563,43 @@ public class TerrainPrefabBrain : MonoBehaviour
 		   			
 		}
 		
-    int chunkX = (int)(offset.x / chunkSize);
-    int chunkY = (int)(offset.y / chunkSize);
-    int chunkZ = (int)(offset.z / chunkSize);
+	    int chunkX = (int)(offset.x / chunkSize);
+	    int chunkY = (int)(offset.y / chunkSize);
+	    int chunkZ = (int)(offset.z / chunkSize);
 
-    GameObject n = null;
-    if (posInHitCube.x - offset.x - 1 < 1)
-    {
-        n = findNeighbor(NeighborDir.X_MINUS, chunkX, chunkY, chunkZ); // findTerrainChunk(chunkX - 1, chunkY, chunkZ); // getNeighbor(NeighborDir.X_MINUS);
-        if (n != null) n.SendMessage("regenerateMesh"); //n.GetComponent<TerrainPrefabBrain>().regenerateMesh();
-    }
-    else if (posInHitCube.x - offset.x - 1 > chunkSize - 2)
-    {
-        n = findNeighbor(NeighborDir.X_PLUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX + 1, chunkY, chunkZ);
-        if (n != null) n.SendMessage("regenerateMesh");
-    }
-    if (posInHitCube.y - offset.y - 1 < 1)
-    {
-        n = findNeighbor(NeighborDir.Y_MINUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX, chunkY - 1, chunkZ);
-        if (n != null) n.SendMessage("regenerateMesh");
-    }
-    else if (posInHitCube.y - offset.y - 1 > chunkSize - 2)
-    {
-        n = findNeighbor(NeighborDir.Y_PLUS, chunkX, chunkY, chunkZ); //findTerrainChunk(chunkX, chunkY + 1, chunkZ);
-        if (n != null) n.SendMessage("regenerateMesh");
-    }
-    if (posInHitCube.z - offset.z - 1 < 1)
-    {
-        n = findNeighbor(NeighborDir.Z_MINUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX, chunkY, chunkZ - 1);
-        if (n != null) n.SendMessage("regenerateMesh");
-    }
-    else if (posInHitCube.z - offset.z - 1 > chunkSize - 2)
-    {
-        n = findNeighbor(NeighborDir.Z_PLUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX, chunkY, chunkZ + 1);
-        if (n != null) n.SendMessage("regenerateMesh");
-    }
+	    GameObject n = null;
+	    if (posInHitCube.x - offset.x - 1 < 1)
+	    {
+	        n = findNeighbor(NeighborDir.X_MINUS, chunkX, chunkY, chunkZ); // findTerrainChunk(chunkX - 1, chunkY, chunkZ); // getNeighbor(NeighborDir.X_MINUS);
+	        if (n != null) n.SendMessage("regenerateMesh"); //n.GetComponent<TerrainPrefabBrain>().regenerateMesh();
+	    }
+	    else if (posInHitCube.x - offset.x - 1 > chunkSize - 2)
+	    {
+	        n = findNeighbor(NeighborDir.X_PLUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX + 1, chunkY, chunkZ);
+	        if (n != null) n.SendMessage("regenerateMesh");
+	    }
+	    if (posInHitCube.y - offset.y - 1 < 1)
+	    {
+	        n = findNeighbor(NeighborDir.Y_MINUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX, chunkY - 1, chunkZ);
+	        if (n != null) n.SendMessage("regenerateMesh");
+	    }
+	    else if (posInHitCube.y - offset.y - 1 > chunkSize - 2)
+	    {
+	        n = findNeighbor(NeighborDir.Y_PLUS, chunkX, chunkY, chunkZ); //findTerrainChunk(chunkX, chunkY + 1, chunkZ);
+	        if (n != null) n.SendMessage("regenerateMesh");
+	    }
+	    if (posInHitCube.z - offset.z - 1 < 1)
+	    {
+	        n = findNeighbor(NeighborDir.Z_MINUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX, chunkY, chunkZ - 1);
+	        if (n != null) n.SendMessage("regenerateMesh");
+	    }
+	    else if (posInHitCube.z - offset.z - 1 > chunkSize - 2)
+	    {
+	        n = findNeighbor(NeighborDir.Z_PLUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX, chunkY, chunkZ + 1);
+	        if (n != null) n.SendMessage("regenerateMesh");
+	    }
 
-    regenerateMesh();
+	    regenerateMesh();
 		
 		if (destroyCube)
 		{
