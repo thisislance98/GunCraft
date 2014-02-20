@@ -522,7 +522,7 @@ public class TerrainPrefabBrain : MonoBehaviour
 		return new Vector3(x,y,z);
 	}
 	
-    public void OnBulletHit(RaycastHit hit, Ray ray, ShotType shotType,int terrainDensity)
+    public void OnBulletHit(RaycastHit hit, Ray ray, ShotType shotType,int terrainDensity, bool isMyBullet)
     {
         //float startTime = Time.realtimeSinceStartup;
 		bool destroyCube = (shotType == ShotType.Destroy);
@@ -537,7 +537,10 @@ public class TerrainPrefabBrain : MonoBehaviour
 		if (destroyCube)
 		{
 
-   	 		TerrainBrain.Instance().setTerrainDensity(posInHitCube,0);
+			TerrainBrain.Instance().setTerrainDensity(posInHitCube,0);
+			if (isMyBullet)
+				NetworkPlayer.Instance.photonView.RPC("SetTerrainDensity",PhotonTargets.AllBuffered,posInHitCube,0);
+
 			
 		}
 		else // create a cube
@@ -550,7 +553,14 @@ public class TerrainPrefabBrain : MonoBehaviour
 			// dont create cube if it's too close to the player
 			if (dist <= .5f)
 				return;
-		    TerrainBrain.Instance().setTerrainDensity(posOutHitCube,terrainDensity);				
+
+
+			TerrainBrain.Instance().setTerrainDensity(posOutHitCube,terrainDensity);
+
+			if (isMyBullet)
+				NetworkPlayer.Instance.photonView.RPC("SetTerrainDensity",PhotonTargets.AllBuffered,posOutHitCube,terrainDensity);
+
+		   			
 		}
 		
     int chunkX = (int)(offset.x / chunkSize);

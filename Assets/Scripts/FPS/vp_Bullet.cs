@@ -118,7 +118,7 @@ public class vp_Bullet : MonoBehaviour
 			// do damage on the target
 			TerrainPrefabBrain terrain = hit.transform.GetComponent<TerrainPrefabBrain>();
 			if (terrain != null)
-				terrain.OnBulletHit(hit,ray,shotType,terrainDensity);
+				terrain.OnBulletHit(hit,ray,shotType,terrainDensity,isMine);
 			else if (hit.transform.tag == "NetworkPlayer" && hit.transform.parent == null && isMine)
 			{
 				hit.transform.GetComponent<NetworkPlayer>().OnBulletHit();

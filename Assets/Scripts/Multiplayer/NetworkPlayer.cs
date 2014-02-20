@@ -85,7 +85,7 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 
 		if (photonView.ownerId == ownerId && transform.parent != null)
 		{
-			iTween.MoveTo(transform.parent.gameObject,FlagGameManager.Instance.GetBasePosition(_team),5);
+			iTween.MoveTo(transform.parent.gameObject,FlagGameManager.Instance.GetBasePosition(_team) + Vector3.up * 10,5);
 		//	transform.parent.position = FlagGameManager.Instance.GetBasePosition(_team);
 		}
 
@@ -334,6 +334,12 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 		p = (GameObject)Object.Instantiate(ProjectilePrefab, startPosition, rotation);
 		p.GetComponent<vp_Bullet>().Fire((ShotType)shotType,terrainDensity,photonView.isMine);
 		p.transform.localScale = new Vector3(scale, scale, scale);	// preset defined scale
+	}
+
+	[RPC]
+	void SetTerrainDensity(Vector3 worldPos, int density)
+	{
+		TerrainBrain.Instance().setTerrainDensity(worldPos,density);
 	}
 
 }

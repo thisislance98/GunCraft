@@ -44,4 +44,6 @@ MonoBehaviour:
   - SetTeamRPC
   - OnBulletHitRPC
   - DropFlag
+  - setTerrainDensity
+  - SetTerrainDensity
   DisableAutoOpenWizard: 0

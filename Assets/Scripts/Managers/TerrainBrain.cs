@@ -375,6 +375,7 @@ public class TerrainBrain : MonoBehaviour
         //return chunk[x % 10, y % 10, z % 10];
     }
 
+
     public void setTerrainDensity(Vector3 cubeWorldPos, int density)
     {
 	    int x = Mathf.CeilToInt(cubeWorldPos.x) - 1;

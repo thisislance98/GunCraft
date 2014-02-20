@@ -5,6 +5,7 @@ public class ArrowToBase : MonoBehaviour {
 
 	public bool PointToMyFlag;
 	bool amHoldingFlag;
+	bool areTheyHoldingOurFlag;
 
 	// Use this for initialization
 	void Start () {
@@ -15,6 +16,7 @@ public class ArrowToBase : MonoBehaviour {
 	void OnFlagStateChange()
 	{
 		amHoldingFlag = FlagGameManager.Instance.GetMyPlayer().IsHoldingFlag();
+		areTheyHoldingOurFlag = FlagGameManager.Instance.GetFlag(FlagGameManager.Instance.GetMyPlayer().GetTeam()).transform.parent.tag != "Base";
 	}
 
 	// Update is called once per frame
@@ -22,12 +24,12 @@ public class ArrowToBase : MonoBehaviour {
 	{
 		Vector3 dir;
 
-		if (PointToMyFlag)
+		if (PointToMyFlag) // is arrow to my flag
 		{
-			renderer.enabled = amHoldingFlag;
+			renderer.enabled = amHoldingFlag || areTheyHoldingOurFlag;
 			dir = (FlagGameManager.Instance.GetMyFlagPosition() - transform.position);
 		}
-		else
+		else // is arrow to their flag
 		{
 			renderer.enabled = !amHoldingFlag;
 

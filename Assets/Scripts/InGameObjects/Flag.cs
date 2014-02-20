@@ -29,6 +29,7 @@ public class Flag : MonoBehaviour {
 
 				FlagGameManager.Instance.OnScore(player.GetTeam());
 
+
 			}
 		}
 		else // just took their flag

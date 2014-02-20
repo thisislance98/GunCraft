@@ -302,14 +302,16 @@ class TerrainCache
 		int ciZ = z - modZ;
 		
 		IntCoords coords = new IntCoords(ciX, ciY, ciZ);
+
 		if (m_modifiedChunks.Contains (coords) == false)
 			m_modifiedChunks.Add(coords);
 		
 		// Shouldn't be altering the density of unloaded chunks anyway, eh?
 		if (!m_data.ContainsKey(coords))
 		{
-			Debug.Log("Couldn't find coords: " + coords.ToString());
-			return;
+			getDensity(x,y,z);
+//			Debug.Log("Couldn't find coords: " + coords.ToString());
+//			return;
 		}
 		
 		//Debug.Log("Setting chunk " + coords.ToString() + ", index (" + modX.ToString() + ", " + modY.ToString() + ", " + modZ.ToString() + ") to nil.");
