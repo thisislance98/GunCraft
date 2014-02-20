@@ -284,8 +284,8 @@ class TerrainCache
 	{
 		setDensity(x,y,z,0);	
 	}
-	
-	public void setDensity(int x, int y, int z, int density)
+
+	IntCoords GetChunkCoordsFromWorldPos(int x, int y, int z)
 	{
 		int chunkSize = TerrainBrain.chunkSize;
 		
@@ -301,6 +301,26 @@ class TerrainCache
 		int ciY = y - modY;
 		int ciZ = z - modZ;
 		
+		return new IntCoords(ciX, ciY, ciZ);
+	}
+	
+
+	public void setDensity(int x, int y, int z, int density)
+	{
+		int chunkSize = TerrainBrain.chunkSize;
+		
+		int absX = Math.Abs(x);
+		int absY = Math.Abs(y);
+		int absZ = Math.Abs(z);
+		
+		int modX = x < 0 ? (chunkSize - absX % chunkSize) % chunkSize : x % chunkSize;
+		int modY = y < 0 ? (chunkSize - absY % chunkSize) % chunkSize : y % chunkSize;
+		int modZ = z < 0 ? (chunkSize - absZ % chunkSize) % chunkSize : z % chunkSize;
+		
+		int ciX = x - modX;
+		int ciY = y - modY;
+		int ciZ = z - modZ;
+
 		IntCoords coords = new IntCoords(ciX, ciY, ciZ);
 
 		if (m_modifiedChunks.Contains (coords) == false)

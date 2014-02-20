@@ -380,6 +380,14 @@ public class TerrainBrain : MonoBehaviour
         //return chunk[x % 10, y % 10, z % 10];
     }
 
+	public bool IsChunkVisibleAtPos(Vector3 worldPos)
+	{
+		int chunkX = (int)(worldPos.x / chunkSize);
+		int chunkY = (int)(worldPos.y / chunkSize);
+		int chunkZ = (int)(worldPos.z / chunkSize);
+
+		return (TerrainPrefabBrain.findTerrainChunk(chunkX,chunkY,chunkZ) != null);
+	}
 
     public void setTerrainDensity(Vector3 cubeWorldPos, int density)
     {

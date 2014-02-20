@@ -12,8 +12,14 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-[RequireComponent(typeof(AudioSource))]
+public enum HitType
+{
+	Cube,
+	Player,
+	Nothing,
+}
 
+[RequireComponent(typeof(AudioSource))]
 public class vp_Bullet : MonoBehaviour
 {
 	
@@ -39,6 +45,27 @@ public class vp_Bullet : MonoBehaviour
 	public List<AudioClip> m_ImpactSounds = new List<AudioClip>();	// list of impact sounds to be randomly played
 	public Vector2 SoundImpactPitch = new Vector2(1.0f, 1.5f);	// random pitch range for impact sounds
 
+
+	public HitType GetHitType()
+	{
+		Ray ray = new Ray(transform.position, transform.forward);
+		RaycastHit hit;
+		
+		// raycast against everything except the player itself and
+		// debris such as shell cases
+		if(Physics.Raycast(ray, out hit, Range, ~((1 << vp_Layer.Player) | (1 << vp_Layer.Debris))))
+		{
+			TerrainPrefabBrain terrain = hit.transform.GetComponent<TerrainPrefabBrain>();
+			if (terrain != null)
+				return HitType.Cube;
+			else if (hit.transform.tag == "NetworkPlayer" && hit.transform.parent == null)
+			{
+				return HitType.Player;
+			}
+		}
+
+		return HitType.Nothing;
+	}
 
 	///////////////////////////////////////////////////////////
 	// everything happens in the Start method. the script that
@@ -78,12 +105,12 @@ public class vp_Bullet : MonoBehaviour
 			}
 
 			// if hit object has physics, add the bullet force to it
-			Rigidbody body = hit.collider.attachedRigidbody;
-			if (body != null && !body.isKinematic)
-			{
-				Vector3 pushDir = ray.direction * Force;
-				body.AddForceAtPosition(pushDir, hit.point);
-			}
+//			Rigidbody body = hit.collider.attachedRigidbody;
+//			if (body != null && !body.isKinematic)
+//			{
+//				Vector3 pushDir = ray.direction * Force;
+//				body.AddForceAtPosition(pushDir, hit.point);
+//			}
 
 			// spawn impact effect
 			if (m_ImpactPrefab != null)
@@ -135,6 +162,7 @@ public class vp_Bullet : MonoBehaviour
 			Object.Destroy(gameObject);	// hit nothing, so self destruct immediately
 
 	}
+
 
 
 	///////////////////////////////////////////////////////////
