@@ -218,7 +218,7 @@ public class vp_FPSShooter : vp_Component
 		{
 			if (ProjectilePrefab != null)
 			{
-				photonView.RPC ("FireProjectile",
+			    NetworkPlayer.Instance.photonView.RPC ("FireProjectile",
 				                PhotonTargets.All,m_Camera.transform.position, 
 				                m_Camera.transform.rotation,
 				                ProjectileScale,
@@ -246,19 +246,8 @@ public class vp_FPSShooter : vp_Component
 			m_MuzzleFlashComponent.Shoot();
 
 	}
-
 	
-	[RPC]
-	void FireProjectile(Vector3 startPosition, Quaternion rotation, float scale, int shotType, int terrainDensity)
-	{
 
-		GameObject p = null;
-		p = (GameObject)Object.Instantiate(ProjectilePrefab, startPosition, rotation);
-		p.GetComponent<vp_Bullet>().Fire((ShotType)shotType,terrainDensity);
-		p.transform.localScale = new Vector3(scale, scale, scale);	// preset defined scale
-		
-	}
-	
 
 	///////////////////////////////////////////////////////////
 	// applies a scaled version of the recoil to the weapon to

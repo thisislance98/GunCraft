@@ -4,6 +4,7 @@ using MoPhoGames.USpeak.Interface;
 
 public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 {
+	public GameObject ProjectilePrefab;
 	public Renderer PlayerMeshRenderer;
 	public Renderer GunRenderer;
 	public Animator CharacterAnim;
@@ -31,12 +32,15 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 
 	IEnumerator Start()
 	{
-		Instance = this;
+
 	//	_cameraTransform = Camera.main.transform;
+
 
 		if (photonView.isMine)
 		{
+			Instance = this;
 			Debug.Log("my view started");
+			collider.enabled = false;
 			FlagGameManager.Instance.SetMyPlayer(this);
 			//            //We aren't the photonView owner, disable this script
 			//            //RPC's and OnPhotonSerializeView will STILL get trough but we prevent Update from running
@@ -64,6 +68,39 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 		yield return null;
 	}
 
+	public void OnBulletHit()
+	{
+		Debug.Log("sending bullet hit id: " + photonView.ownerId + " pos : " + transform.position);
+		bool shooterIsOwner = (transform.parent != null);
+		photonView.RPC("OnBulletHitRPC",PhotonTargets.All, photonView.ownerId);
+
+//		if (IsHoldingFlag())
+//			photonView.RPC("DropFlag",PhotonTargets.All);
+	}
+	
+	[RPC]
+	void OnBulletHitRPC(int ownerId)
+	{
+		Debug.Log("on bullet hit ismine: " + photonView.isMine + " pos " + transform.position + " ownerId: " + photonView.ownerId);
+
+		if (photonView.ownerId == ownerId && transform.parent != null)
+		{
+			iTween.MoveTo(transform.parent.gameObject,FlagGameManager.Instance.GetBasePosition(_team),5);
+		//	transform.parent.position = FlagGameManager.Instance.GetBasePosition(_team);
+		}
+
+		if (IsHoldingFlag())
+			GetHeldFlag().SendMessage("OnDroppedFlag",this);
+
+	}
+
+	[RPC]
+	void DropFlag()
+	{
+		GetHeldFlag().SendMessage("OnDroppedFlag",this);
+	}
+
+	
 	public bool IsHoldingFlag()
 	{
 		return (transform.FindChild("Flag") != null);
@@ -288,4 +325,15 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 		flag.OnPlayerTriggerEnter(this);
 
 	}
+
+	[RPC]
+	void FireProjectile(Vector3 startPosition, Quaternion rotation, float scale, int shotType, int terrainDensity)
+	{
+		
+		GameObject p = null;
+		p = (GameObject)Object.Instantiate(ProjectilePrefab, startPosition, rotation);
+		p.GetComponent<vp_Bullet>().Fire((ShotType)shotType,terrainDensity,photonView.isMine);
+		p.transform.localScale = new Vector3(scale, scale, scale);	// preset defined scale
+	}
+
 }

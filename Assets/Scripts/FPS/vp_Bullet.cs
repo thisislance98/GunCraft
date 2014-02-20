@@ -48,7 +48,7 @@ public class vp_Bullet : MonoBehaviour
 	// the surface of the first object hit. it then spawns a
 	// number of particle effects and plays a random impact sound.
 	///////////////////////////////////////////////////////////
-	public void Fire(ShotType shotType, int terrainDensity)
+	public void Fire(ShotType shotType, int terrainDensity, bool isMine)
 	{
 
 		Ray ray = new Ray(transform.position, transform.forward);
@@ -119,6 +119,10 @@ public class vp_Bullet : MonoBehaviour
 			TerrainPrefabBrain terrain = hit.transform.GetComponent<TerrainPrefabBrain>();
 			if (terrain != null)
 				terrain.OnBulletHit(hit,ray,shotType,terrainDensity);
+			else if (hit.transform.tag == "NetworkPlayer" && hit.transform.parent == null && isMine)
+			{
+				hit.transform.GetComponent<NetworkPlayer>().OnBulletHit();
+			}
 			
 
 			// if bullet is visible (i.e. has a decal), cueue it for deletion later

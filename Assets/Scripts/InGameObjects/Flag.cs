@@ -25,17 +25,10 @@ public class Flag : MonoBehaviour {
 			if (player.IsHoldingFlag())
 			{
 			
-				int otherTeam = (player.GetTeam() + 1) % 2;
-
-				Transform flag = FlagGameManager.Instance.GetFlag(otherTeam).transform;
-
-				flag.parent = FlagGameManager.Instance.GetBase(otherTeam).transform;
-				flag.localPosition = Vector3.zero;
-
-				flag.collider.enabled = true;
+				ReturnFlagToOtherBase(player);
 
 				FlagGameManager.Instance.OnScore(player.GetTeam());
-				FlagGameManager.Instance.OnFlagStateChange();
+
 			}
 		}
 		else // just took their flag
@@ -47,6 +40,25 @@ public class Flag : MonoBehaviour {
 			FlagGameManager.Instance.OnFlagStateChange();
 
 		}
+
+	}
+
+	void ReturnFlagToOtherBase(NetworkPlayer player)
+	{
+		int otherTeam = (player.GetTeam() + 1) % 2;
+		
+		Transform flag = FlagGameManager.Instance.GetFlag(otherTeam).transform;
+		
+		flag.parent = FlagGameManager.Instance.GetBase(otherTeam).transform;
+		flag.localPosition = Vector3.zero;
+		
+		flag.collider.enabled = true;
+		FlagGameManager.Instance.OnFlagStateChange();
+	}
+
+	void OnDroppedFlag(NetworkPlayer player)
+	{
+		ReturnFlagToOtherBase(player);
 
 	}
 

@@ -4,8 +4,8 @@ using System.Collections.Generic;
 
 public class FlagGameManager : Photon.MonoBehaviour {
 
-	public Base[] Bases;
-	public Transform[] Flags;
+	Base[] Bases = new Base[2];
+	Transform[] Flags = new Transform[2];
 	public UILabel TheirScoreLabel;
 	public UILabel MyScoreLabel;
 
@@ -22,7 +22,10 @@ public class FlagGameManager : Photon.MonoBehaviour {
 	// Use this for initialization
 	void Awake () {
 		Instance = this;
-
+		Bases[0] = GameObject.Find("Base0").GetComponent<Base>();
+		Flags[0] = Bases[0].transform.FindChild("Flag");
+		Bases[1] = GameObject.Find("Base1").GetComponent<Base>();
+		Flags[1] = Bases[1].transform.FindChild("Flag");
 	}
 
 	public void AddFlagObserver(GameObject observer)

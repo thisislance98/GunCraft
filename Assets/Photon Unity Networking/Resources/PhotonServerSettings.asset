@@ -42,4 +42,6 @@ MonoBehaviour:
   - SetTeam
   - OnHitFlag
   - SetTeamRPC
+  - OnBulletHitRPC
+  - DropFlag
   DisableAutoOpenWizard: 0
