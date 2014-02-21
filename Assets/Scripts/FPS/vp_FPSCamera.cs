@@ -250,6 +250,24 @@ public class vp_FPSCamera : vp_Component
 		InputManager.Instance.AddObserver(gameObject);
 	}
 
+
+	public void TweenFOV(float to, float time)
+	{
+		Hashtable ht = iTween.Hash("from",camera.fieldOfView,"to",to,"time",time,"onupdate","SetFOV");
+		
+		//make iTween call:
+		iTween.ValueTo(gameObject,ht);
+	}
+
+
+
+
+	//since our ValueTo() iscalculating floats the "onupdate" callback will expect a float as well:
+	void SetFOV(float newValue){
+
+		camera.fieldOfView = newValue;
+	}
+
 	
 	///////////////////////////////////////////////////////////
 	// in 'Init' we do things that must be run once at the

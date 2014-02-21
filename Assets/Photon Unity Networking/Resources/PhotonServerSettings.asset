@@ -46,4 +46,7 @@ MonoBehaviour:
   - DropFlag
   - setTerrainDensity
   - SetTerrainDensity
+  - OnHitCube
+  - OnPlayerDied
+  - OnPlayerResurrect
   DisableAutoOpenWizard: 0

@@ -379,16 +379,8 @@ public class TerrainBrain : MonoBehaviour
         //int[, ,] chunk = m_tcache.getChunk(x - (x % 10), y - (y % 10), z - (z % 10));
         //return chunk[x % 10, y % 10, z % 10];
     }
-
-	public bool IsChunkVisibleAtPos(Vector3 worldPos)
-	{
-		int chunkX = (int)(worldPos.x / chunkSize);
-		int chunkY = (int)(worldPos.y / chunkSize);
-		int chunkZ = (int)(worldPos.z / chunkSize);
-
-		return (TerrainPrefabBrain.findTerrainChunk(chunkX,chunkY,chunkZ) != null);
-	}
-
+	
+	
     public void setTerrainDensity(Vector3 cubeWorldPos, int density)
     {
 	    int x = Mathf.CeilToInt(cubeWorldPos.x) - 1;

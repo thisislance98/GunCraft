@@ -92,11 +92,6 @@ public class TerrainPrefabBrain : MonoBehaviour
         return m_neighbors[(int)dir];
     }
 	
-	// Update is called once per frame
-	void Update () 
-    {
-        
-	}
 
     void OnMouseOver()
     {
@@ -458,7 +453,16 @@ public class TerrainPrefabBrain : MonoBehaviour
         mesh.tangents = tangents;
     }
 
-    public static GameObject findTerrainChunk(int x, int y, int z)
+	public static GameObject findTerrainChunk(Vector3 worldPos)
+	{
+		int chunkX = (int)(worldPos.x / TerrainBrain.chunkSize);
+		int chunkY = (int)(worldPos.y / TerrainBrain.chunkSize);
+		int chunkZ = (int)(worldPos.z / TerrainBrain.chunkSize);
+
+		return findTerrainChunk(chunkX,chunkY,chunkZ);
+	}
+	
+	public static GameObject findTerrainChunk(int x, int y, int z)
     {
         GameObject ob = GameObject.Find("TerrainChunk (" + x.ToString() + ", " + y.ToString() + ", " + z.ToString() + ")");
 		if (ob == null)
@@ -506,7 +510,7 @@ public class TerrainPrefabBrain : MonoBehaviour
                 return null;
         }
     }
-	
+
 	void doRightClick()
 	{
 	
@@ -522,45 +526,36 @@ public class TerrainPrefabBrain : MonoBehaviour
 		return new Vector3(x,y,z);
 	}
 	
-    public void OnBulletHit(RaycastHit hit, Ray ray, ShotType shotType,int terrainDensity, bool isMyBullet)
+    public bool OnBulletHit(Vector3 hitPos, ShotType shotType,int terrainDensity)
     {
         //float startTime = Time.realtimeSinceStartup;
 		bool destroyCube = (shotType == ShotType.Destroy);
-
-		// if we destroy the cube then we need a point inside of it otherwise we want a point outside
-		// of it so that we can create another cube there			
-   		Vector3 posInHitCube =  hit.point + (.0001f * ray.direction);
-		Vector3 posOutHitCube = hit.point - (.0001f * ray.direction);
-			
-		int hitCubeDensity = TerrainBrain.Instance().getTerrainDensity(posInHitCube);
+		bool didModify = false;
+					
+		int hitCubeDensity = TerrainBrain.Instance().getTerrainDensity(hitPos);
 		
 		if (destroyCube)
 		{
 
-			TerrainBrain.Instance().setTerrainDensity(posInHitCube,0);
-			if (isMyBullet)
-				NetworkPlayer.Instance.photonView.RPC("SetTerrainDensity",PhotonTargets.AllBuffered,posInHitCube,0);
+			TerrainBrain.Instance().setTerrainDensity(hitPos,0);
+			didModify = true;
 
-			
 		}
 		else // create a cube
 		{
 
-			Vector3 center = GetCubeCenterInWorldCoords(posOutHitCube);
+			Vector3 center = GetCubeCenterInWorldCoords(hitPos);
 			Vector3 closestPoint = _player.collider.ClosestPointOnBounds(center);
 			float dist = Vector3.Distance(closestPoint,center);
 
 			// dont create cube if it's too close to the player
 			if (dist <= .5f)
-				return;
+				return false;
 
 
-			TerrainBrain.Instance().setTerrainDensity(posOutHitCube,terrainDensity);
+			didModify = true;
+			TerrainBrain.Instance().setTerrainDensity(hitPos,terrainDensity);
 
-			if (isMyBullet)
-				NetworkPlayer.Instance.photonView.RPC("SetTerrainDensity",PhotonTargets.AllBuffered,posOutHitCube,terrainDensity);
-
-		   			
 		}
 		
 	    int chunkX = (int)(offset.x / chunkSize);
@@ -568,32 +563,32 @@ public class TerrainPrefabBrain : MonoBehaviour
 	    int chunkZ = (int)(offset.z / chunkSize);
 
 	    GameObject n = null;
-	    if (posInHitCube.x - offset.x - 1 < 1)
+		if (hitPos.x - offset.x - 1 < 1)
 	    {
 	        n = findNeighbor(NeighborDir.X_MINUS, chunkX, chunkY, chunkZ); // findTerrainChunk(chunkX - 1, chunkY, chunkZ); // getNeighbor(NeighborDir.X_MINUS);
 	        if (n != null) n.SendMessage("regenerateMesh"); //n.GetComponent<TerrainPrefabBrain>().regenerateMesh();
 	    }
-	    else if (posInHitCube.x - offset.x - 1 > chunkSize - 2)
+		else if (hitPos.x - offset.x - 1 > chunkSize - 2)
 	    {
 	        n = findNeighbor(NeighborDir.X_PLUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX + 1, chunkY, chunkZ);
 	        if (n != null) n.SendMessage("regenerateMesh");
 	    }
-	    if (posInHitCube.y - offset.y - 1 < 1)
+		if (hitPos.y - offset.y - 1 < 1)
 	    {
 	        n = findNeighbor(NeighborDir.Y_MINUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX, chunkY - 1, chunkZ);
 	        if (n != null) n.SendMessage("regenerateMesh");
 	    }
-	    else if (posInHitCube.y - offset.y - 1 > chunkSize - 2)
+		else if (hitPos.y - offset.y - 1 > chunkSize - 2)
 	    {
 	        n = findNeighbor(NeighborDir.Y_PLUS, chunkX, chunkY, chunkZ); //findTerrainChunk(chunkX, chunkY + 1, chunkZ);
 	        if (n != null) n.SendMessage("regenerateMesh");
 	    }
-	    if (posInHitCube.z - offset.z - 1 < 1)
+		if (hitPos.z - offset.z - 1 < 1)
 	    {
 	        n = findNeighbor(NeighborDir.Z_MINUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX, chunkY, chunkZ - 1);
 	        if (n != null) n.SendMessage("regenerateMesh");
 	    }
-	    else if (posInHitCube.z - offset.z - 1 > chunkSize - 2)
+		else if (hitPos.z - offset.z - 1 > chunkSize - 2)
 	    {
 	        n = findNeighbor(NeighborDir.Z_PLUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX, chunkY, chunkZ + 1);
 	        if (n != null) n.SendMessage("regenerateMesh");
@@ -604,42 +599,16 @@ public class TerrainPrefabBrain : MonoBehaviour
 		if (destroyCube)
 		{
 			
-			Vector3 pos = posInHitCube;
+			Vector3 pos = hitPos;
 			pos.x = Mathf.Floor(pos.x) + .5f;
 			pos.y = Mathf.Floor(pos.y) + .5f;
 			pos.z = Mathf.Floor(pos.z) + .5f;
 			
-			Instantiate(smallExplosionPrefab,hit.point,Quaternion.identity);	
+			Instantiate(smallExplosionPrefab,hitPos,Quaternion.identity);	
 				
-//			Transform spellPrefab = SpellManager.Instance.GetCurrentSpell();
-//			Transform spell = null;
-//			if (spellPrefab)
-//				spell = (Transform)Instantiate(spellPrefab);
-//			
-//			GameObject cubePrefab = (spell == null) ? ExplodingCubesPrefab : MagicCubePrefab;
-//			
-//			if (false)//Random.Range(1,10) == 1)
-//				Instantiate(RewardPrefab,pos,Quaternion.identity);
-//			else
-//			{
-//				GameObject cube = (GameObject)Instantiate(cubePrefab,pos,Quaternion.identity);
-//
-//				cube.SendMessage("SetTexture",hitCubeDensity-1);
-//				
-//				if (spell != null)
-//					spell.parent = cube.transform;
-//				else
-//					for (int i=0; i < cube.transform.GetChildCount(); i++)
-//					{
-//						Transform childCube = cube.transform.GetChild(i);
-//						childCube.GetComponent<Rigidbody>().AddExplosionForce(1000,hit.point,5);
-//					}
-//			}
+
 		}
-
-//        }
-
-        //Debug.Log("lc time = " + (Time.realtimeSinceStartup - startTime).ToString());
+		return didModify;
     }
 	
 

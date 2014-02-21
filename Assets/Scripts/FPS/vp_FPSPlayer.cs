@@ -17,6 +17,7 @@
 
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 
 
 [RequireComponent(typeof(vp_FPSController))]
@@ -40,7 +41,11 @@ public class vp_FPSPlayer : MonoBehaviour
 	protected vp_Timer m_DoneReloadingTimer = null;			// timer for disabling the reload state when done reloading
 
 	// player info
-	public float m_Health = 10.0f;							// placeholder health variable, modified by the 'Damage' method
+	public float MaxHealth = 10;
+	public float m_Health;							// placeholder health variable, modified by the 'Damage' method
+	public float HealthRegenRate = 3;
+	public float HitDamage = 4;
+	bool m_IsDead = false;
 	protected List<GameObject> m_AvailableWeapons = new List<GameObject>();		// placeholder for your game's actual inventory system.
 	float _startGravityModifier;
 	int _team = -1;
@@ -70,6 +75,7 @@ public class vp_FPSPlayer : MonoBehaviour
 		Controller = gameObject.GetComponent<vp_FPSController>();
 		_startGravityModifier = Controller.PhysicsGravityModifier;
 		Controller.PhysicsGravityModifier = 0;
+		m_Health = MaxHealth;
 
 	}
 
@@ -141,6 +147,13 @@ public class vp_FPSPlayer : MonoBehaviour
 	///////////////////////////////////////////////////////////
 	void Update()
 	{
+
+		if (m_Health < MaxHealth && m_IsDead == false)
+		{
+			m_Health += HealthRegenRate * Time.deltaTime;
+			if (m_Health > MaxHealth)
+				m_Health = MaxHealth;
+		}
 
 		// if the 'LockCursor' property is set on the player, hide
 		// mouse cursor and center it every frame 
@@ -406,6 +419,9 @@ public class vp_FPSPlayer : MonoBehaviour
 
 	public void OnFireUp()
 	{
+		if (m_IsDead)
+			return;
+
 		if (Time.time - _fireDownTime < .15f)
 		{
 			vp_FPSShooter.SetShotType(_doubleTap ? ShotType.Create : ShotType.Destroy);
@@ -418,6 +434,8 @@ public class vp_FPSPlayer : MonoBehaviour
 
 	void Fire()
 	{
+		if (m_IsDead)
+			return;
 
 		if (CurrentWeapon != null)
 		{
@@ -843,31 +861,68 @@ public class vp_FPSPlayer : MonoBehaviour
 	public void Damage(float damage)
 	{
 
-		//m_Health -= damage;
-		//Debug.Log("Health = " + m_Health);
-		//if (m_Health < 0.0f)
-		//{
-		//	Debug.Log("Player died.");
-		//	// NOTE: remember to restore the m_Health variable after respawn
-		//	// TIP: if health goes far below zero, gib the player!
-		//}
+		m_Health -= damage;
+		Debug.Log("Health = " + m_Health);
+		if (m_Health <= 0.0f)
+		{
+			Debug.Log("Player died.");
+			m_IsDead = true;
 
+			Transform fpsCamera = transform.FindChild("FPSCamera");
+			fpsCamera.GetComponent<vp_FPSCamera>().TweenFOV(130,.3f);
+			GameObject weaponCamera = fpsCamera.FindChild("WeaponCamera").gameObject;
+			weaponCamera.SetActive(false);
+			StartCoroutine(LiveAfterDelay());
+	//		iTween.MoveTo(gameObject,FlagGameManager.Instance.GetBasePosition(_team) + Vector3.up * 10,5);
+			// NOTE: remember to restore the m_Health variable after respawn
+			// TIP: if health goes far below zero, gib the player!
+			m_Health = 0;
+		}
+
+	}
+
+
+
+	IEnumerator LiveAfterDelay()
+	{
+		yield return new WaitForSeconds(10);
+
+		Transform fpsCamera = transform.FindChild("FPSCamera");
+		fpsCamera.GetComponent<vp_FPSCamera>().TweenFOV(60,.3f);
+
+		NetworkPlayer.Instance.photonView.RPC ("OnPlayerResurrect",PhotonTargets.All);
+
+		// give some time to show getting up animation
+		yield return new WaitForSeconds(1);
+
+		float animTime = 5;
+		iTween.MoveTo(gameObject,FlagGameManager.Instance.GetMyBasePosition() + Vector3.up * 10,animTime);
+		yield return new WaitForSeconds(animTime);
+
+		GameObject weaponCamera = fpsCamera.FindChild("WeaponCamera").gameObject;
+		weaponCamera.SetActive(true);
+		m_IsDead = false;
+	}
+
+	public void OnGotHit()
+	{
+		Damage(HitDamage);
 	}
 
 
 	///////////////////////////////////////////////////////////
 	//
 	///////////////////////////////////////////////////////////
-	void OnGUI()
-	{
-
-		// uncomment this snippet to display a simple 'Health' HUD
-		//GUI.Box(new Rect(10, Screen.height - 30, 100, 20), "Health: " + (int)(m_Health * 10) + "%");
-
-		// uncomment this snippet to display a simple 'Ammo' HUD
-		//GUI.Box(new Rect(Screen.width - 110, Screen.height - 30, 100, 20), "Ammo: " + CurrentShooter.AmmoCount);
-
-	}
+//	void OnGUI()
+//	{
+//
+//		// uncomment this snippet to display a simple 'Health' HUD
+//		//GUI.Box(new Rect(10, Screen.height - 30, 100, 20), "Health: " + (int)(m_Health * 10) + "%");
+//
+//		// uncomment this snippet to display a simple 'Ammo' HUD
+//		//GUI.Box(new Rect(Screen.width - 110, Screen.height - 30, 100, 20), "Ammo: " + CurrentShooter.AmmoCount);
+//
+//	}
 
 
 }

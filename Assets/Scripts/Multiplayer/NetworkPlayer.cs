@@ -32,7 +32,7 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 
 	IEnumerator Start()
 	{
-
+		CharacterAnim.SetFloat("Health",1);
 	//	_cameraTransform = Camera.main.transform;
 
 
@@ -69,31 +69,6 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 		yield return null;
 	}
 
-	public void OnBulletHit()
-	{
-		Debug.Log("sending bullet hit id: " + photonView.ownerId + " pos : " + transform.position);
-		bool shooterIsOwner = (transform.parent != null);
-		photonView.RPC("OnBulletHitRPC",PhotonTargets.All, photonView.ownerId);
-
-//		if (IsHoldingFlag())
-//			photonView.RPC("DropFlag",PhotonTargets.All);
-	}
-	
-	[RPC]
-	void OnBulletHitRPC(int ownerId)
-	{
-		Debug.Log("on bullet hit ismine: " + photonView.isMine + " pos " + transform.position + " ownerId: " + photonView.ownerId);
-
-		if (photonView.ownerId == ownerId && transform.parent != null)
-		{
-			iTween.MoveTo(transform.parent.gameObject,FlagGameManager.Instance.GetBasePosition(_team) + Vector3.up * 10,5);
-		//	transform.parent.position = FlagGameManager.Instance.GetBasePosition(_team);
-		}
-
-		if (IsHoldingFlag())
-			GetHeldFlag().SendMessage("OnDroppedFlag",this);
-
-	}
 
 	[RPC]
 	void DropFlag()
@@ -331,26 +306,77 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 
 	}
 
-	[RPC]
-	void FireProjectile(Vector3 startPosition, Quaternion rotation, float scale, int shotType, int terrainDensity)
+
+	public void FireProjectile(Vector3 startPosition, Quaternion rotation, float scale, int shotType, int terrainDensity)
 	{
-		
-		GameObject p = null;
-		p = (GameObject)Object.Instantiate(ProjectilePrefab, startPosition, rotation);
+
+		vp_Bullet bullet = ((GameObject)Object.Instantiate(ProjectilePrefab, startPosition, rotation)).GetComponent<vp_Bullet>();
+
+		HitType hitType; 
+
+		Vector3 hitPos = bullet.Fire((ShotType)shotType,terrainDensity, out hitType);
+
+		if (hitType == HitType.Cube)
+		{
+			photonView.RPC("OnHitCube",PhotonTargets.OthersBuffered,hitPos,shotType,terrainDensity);
+		}
 
 
-		p.GetComponent<vp_Bullet>().Fire((ShotType)shotType,terrainDensity,photonView.isMine);
-
-
-		p.transform.localScale = new Vector3(scale, scale, scale);	// preset defined scale
+		bullet.transform.localScale = new Vector3(scale, scale, scale);	// preset defined scale
 	}
 
 	[RPC]
-	void SetTerrainDensity(Vector3 worldPos, int density)
+	void OnHitCube(Vector3 hitPos, int shotType, int density)
 	{
-	//	if (TerrainBrain.Instance().getTerrainDensity(worldPos) != density)
-			TerrainBrain.Instance().setTerrainDensity(worldPos,density);
+		GameObject chunkObj = TerrainPrefabBrain.findTerrainChunk(hitPos);
 
+		if ( chunkObj != null )
+		{
+			vp_Bullet bullet = ((GameObject)Object.Instantiate(ProjectilePrefab)).GetComponent<vp_Bullet>();
+			bullet.HitCube(hitPos,shotType,density,chunkObj.GetComponent<TerrainPrefabBrain>());
+		}
+		else
+			TerrainBrain.Instance().setTerrainDensity(hitPos,density);
+	}
+
+	
+	public void OnBulletHit(Vector3 hitDirection)
+	{
+		photonView.RPC("OnBulletHitRPC",PhotonTargets.All, photonView.ownerId, hitDirection);
+	}
+	
+	[RPC]
+	void OnBulletHitRPC(int ownerId, Vector3 hitDirection)
+	{
+		if (photonView.ownerId == ownerId && transform.parent != null) // owner
+		{
+			vp_FPSPlayer player = transform.parent.gameObject.GetComponent<vp_FPSPlayer>();
+			player.OnGotHit();
+
+			if (player.m_Health <= 0)
+				photonView.RPC("OnPlayerDied",PhotonTargets.All);
+
+		}
+		else // non owner
+		{
+
+		}
+		
+		if (IsHoldingFlag())
+			GetHeldFlag().SendMessage("OnDroppedFlag",this);
+		
+	}
+
+	[RPC]
+	void OnPlayerDied()
+	{
+		CharacterAnim.SetFloat("Health",0);
+	}
+
+	[RPC]
+	void OnPlayerResurrect()
+	{
+		CharacterAnim.SetFloat("Health",1);
 	}
 
 }

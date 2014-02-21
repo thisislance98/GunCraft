@@ -218,12 +218,8 @@ public class vp_FPSShooter : vp_Component
 		{
 			if (ProjectilePrefab != null)
 			{
-			    NetworkPlayer.Instance.photonView.RPC ("FireProjectile",
-				                PhotonTargets.All,m_Camera.transform.position, 
-				                m_Camera.transform.rotation,
-				                ProjectileScale,
-				                (int)_shotType,
-				                TextureManager.Instance.GetTextureIndex()+1);
+				int terrainDensity = (_shotType == ShotType.Create) ? TextureManager.Instance.GetTextureIndex()+1 : 0;
+				NetworkPlayer.Instance.FireProjectile(m_Camera.transform.position,m_Camera.transform.rotation,ProjectileScale,(int)_shotType,terrainDensity);
 
 			
 				// apply conical spread as defined in preset
