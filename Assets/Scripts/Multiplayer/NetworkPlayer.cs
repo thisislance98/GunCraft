@@ -337,7 +337,11 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 		
 		GameObject p = null;
 		p = (GameObject)Object.Instantiate(ProjectilePrefab, startPosition, rotation);
+
+
 		p.GetComponent<vp_Bullet>().Fire((ShotType)shotType,terrainDensity,photonView.isMine);
+
+
 		p.transform.localScale = new Vector3(scale, scale, scale);	// preset defined scale
 	}
 
