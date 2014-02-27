@@ -15,6 +15,10 @@ public class ArrowToBase : MonoBehaviour {
 
 	void OnFlagStateChange()
 	{
+		if (FlagGameManager.Instance == null)
+			return;
+
+
 		amHoldingFlag = FlagGameManager.Instance.GetMyPlayer().IsHoldingFlag();
 		areTheyHoldingOurFlag = FlagGameManager.Instance.GetFlag(FlagGameManager.Instance.GetMyPlayer().GetTeam()).transform.parent.tag != "Base";
 	}

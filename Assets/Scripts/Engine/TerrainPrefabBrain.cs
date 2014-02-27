@@ -14,6 +14,8 @@ public class TerrainPrefabBrain : MonoBehaviour
 	public Material Mat;
     private MeshFilter m_meshFilter;
 	private static Transform _player = null;
+	private static Dictionary<IntCoords,int> _blockDamage = new Dictionary<IntCoords, int>();
+	private static int[] _blockTypeHitCounts = new int[] {0,1,1,5,2,30,10};
 
     //private int[, ,] m_tmpdata;
 
@@ -74,7 +76,7 @@ public class TerrainPrefabBrain : MonoBehaviour
 		renderer.material.shader = Shader.Find("Mobile/Diffuse");
     
 	//	   renderer.material.shader = shader;
-        renderer.material.mainTexture = TerrainBrain.Instance().getGroundTexture(); //groundTexture;
+       	 renderer.material.mainTexture = TerrainBrain.Instance().getGroundTexture(); //groundTexture;
 	//	renderer.material = Mat;
   //      renderer.material.SetFloat("_LightPower", 0.5f);
 
@@ -455,9 +457,9 @@ public class TerrainPrefabBrain : MonoBehaviour
 
 	public static GameObject findTerrainChunk(Vector3 worldPos)
 	{
-		int chunkX = (int)(worldPos.x / TerrainBrain.chunkSize);
-		int chunkY = (int)(worldPos.y / TerrainBrain.chunkSize);
-		int chunkZ = (int)(worldPos.z / TerrainBrain.chunkSize);
+		int chunkX = (int)Mathf.Floor( (worldPos.x / TerrainBrain.chunkSize));
+		int chunkY = (int)Mathf.Floor( (worldPos.y / TerrainBrain.chunkSize));
+		int chunkZ = (int)Mathf.Floor( (worldPos.z / TerrainBrain.chunkSize));
 
 		return findTerrainChunk(chunkX,chunkY,chunkZ);
 	}
@@ -526,19 +528,54 @@ public class TerrainPrefabBrain : MonoBehaviour
 		return new Vector3(x,y,z);
 	}
 	
-    public bool OnBulletHit(Vector3 hitPos, ShotType shotType,int terrainDensity)
+    public bool OnBulletHit(Vector3 hitPos, ShotType shotType,int terrainDensity, bool applyDamage)
     {
         //float startTime = Time.realtimeSinceStartup;
 		bool destroyCube = (shotType == ShotType.Destroy);
 		bool didModify = false;
 					
 		int hitCubeDensity = TerrainBrain.Instance().getTerrainDensity(hitPos);
-		
+
+
 		if (destroyCube)
 		{
+			int blockHitCount = _blockTypeHitCounts[hitCubeDensity];
+		
+			// just destroy the block if its hit count is 1 
+			if (blockHitCount <= 1 || applyDamage == false)
+			{
+				TerrainBrain.Instance().setTerrainDensity(hitPos,0);
+				didModify = true;
+			}
+			else // otherwise check hits damagage
+			{
+				IntCoords blockCoords = TerrainBrain.GetCubeCoords(hitPos);
 
-			TerrainBrain.Instance().setTerrainDensity(hitPos,0);
-			didModify = true;
+
+				// has the block already taken damage
+				if (_blockDamage.ContainsKey(blockCoords))
+				{
+					int damage = _blockDamage[blockCoords];
+					damage++;
+
+					// if the block has taken enough damage destroy it
+					if (damage >= blockHitCount)
+					{
+						TerrainBrain.Instance().setTerrainDensity(hitPos,0);
+						didModify = true;
+						_blockDamage.Remove(blockCoords);
+					}
+					else // otherwise just increase it's damage
+						_blockDamage[blockCoords] = damage;
+
+				}
+				else // this was the first hit on a block that has more than 1 for hit count so just set its damage to 1
+				{
+					_blockDamage[blockCoords] = 1;
+				}
+			}
+
+
 
 		}
 		else // create a cube
@@ -557,55 +594,83 @@ public class TerrainPrefabBrain : MonoBehaviour
 			TerrainBrain.Instance().setTerrainDensity(hitPos,terrainDensity);
 
 		}
-		
-	    int chunkX = (int)(offset.x / chunkSize);
-	    int chunkY = (int)(offset.y / chunkSize);
-	    int chunkZ = (int)(offset.z / chunkSize);
 
-	    GameObject n = null;
-		if (hitPos.x - offset.x - 1 < 1)
-	    {
-	        n = findNeighbor(NeighborDir.X_MINUS, chunkX, chunkY, chunkZ); // findTerrainChunk(chunkX - 1, chunkY, chunkZ); // getNeighbor(NeighborDir.X_MINUS);
-	        if (n != null) n.SendMessage("regenerateMesh"); //n.GetComponent<TerrainPrefabBrain>().regenerateMesh();
-	    }
-		else if (hitPos.x - offset.x - 1 > chunkSize - 2)
-	    {
-	        n = findNeighbor(NeighborDir.X_PLUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX + 1, chunkY, chunkZ);
-	        if (n != null) n.SendMessage("regenerateMesh");
-	    }
-		if (hitPos.y - offset.y - 1 < 1)
-	    {
-	        n = findNeighbor(NeighborDir.Y_MINUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX, chunkY - 1, chunkZ);
-	        if (n != null) n.SendMessage("regenerateMesh");
-	    }
-		else if (hitPos.y - offset.y - 1 > chunkSize - 2)
-	    {
-	        n = findNeighbor(NeighborDir.Y_PLUS, chunkX, chunkY, chunkZ); //findTerrainChunk(chunkX, chunkY + 1, chunkZ);
-	        if (n != null) n.SendMessage("regenerateMesh");
-	    }
-		if (hitPos.z - offset.z - 1 < 1)
-	    {
-	        n = findNeighbor(NeighborDir.Z_MINUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX, chunkY, chunkZ - 1);
-	        if (n != null) n.SendMessage("regenerateMesh");
-	    }
-		else if (hitPos.z - offset.z - 1 > chunkSize - 2)
-	    {
-	        n = findNeighbor(NeighborDir.Z_PLUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX, chunkY, chunkZ + 1);
-	        if (n != null) n.SendMessage("regenerateMesh");
-	    }
+		if (didModify)
+		{
+		    int chunkX = (int)(offset.x / chunkSize);
+		    int chunkY = (int)(offset.y / chunkSize);
+		    int chunkZ = (int)(offset.z / chunkSize);
 
-	    regenerateMesh();
+
+//			Debug.Log("center pos: " + GetCubeCenterInWorldCoords(hitPos) + "offset : " + offset.x + "," + offset.y + "," + offset.z );
+		    GameObject n = null;
+
+			if (hitPos.x - offset.x < 1)
+		    {
+		        n = findNeighbor(NeighborDir.X_MINUS, chunkX, chunkY, chunkZ); // findTerrainChunk(chunkX - 1, chunkY, chunkZ); // getNeighbor(NeighborDir.X_MINUS);
+//		       	if (n != null)
+//					Debug.Log ("regen left");
+//				else
+//					Debug.Log("coulnt find left");
+
+
+				if (n != null) n.SendMessage("regenerateMesh"); //n.GetComponent<TerrainPrefabBrain>().regenerateMesh();
+		    }
+			else if (hitPos.x - offset.x > chunkSize - 1)
+		    {
+		        n = findNeighbor(NeighborDir.X_PLUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX + 1, chunkY, chunkZ);
+		        if (n != null) n.SendMessage("regenerateMesh");
+//				if (n != null)
+//					Debug.Log ("regen right");
+//				else
+//					Debug.Log("coulnt find right");
+		    }
+			if (hitPos.y - offset.y < 1)
+		    {
+		        n = findNeighbor(NeighborDir.Y_MINUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX, chunkY - 1, chunkZ);
+		        if (n != null) n.SendMessage("regenerateMesh");
+//				if (n != null)
+//					Debug.Log ("regen down");
+//				else
+//					Debug.Log("coulnt find down");
+		    }
+			else if (hitPos.y - offset.y > chunkSize - 1)
+		    {
+		        n = findNeighbor(NeighborDir.Y_PLUS, chunkX, chunkY, chunkZ); //findTerrainChunk(chunkX, chunkY + 1, chunkZ);
+		        if (n != null) n.SendMessage("regenerateMesh");
+//				if (n != null)
+//					Debug.Log ("regen up");
+//				else
+//					Debug.Log("coulnt find up");
+		    }
+			if (hitPos.z - offset.z < 1)
+		    {
+		        n = findNeighbor(NeighborDir.Z_MINUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX, chunkY, chunkZ - 1);
+		        if (n != null) n.SendMessage("regenerateMesh");
+//				if (n != null)
+//					Debug.Log ("regen back");
+//				else
+//					Debug.Log("coulnt find back");
+		    }
+			else if (hitPos.z - offset.z > chunkSize - 1)
+		    {
+		        n = findNeighbor(NeighborDir.Z_PLUS, chunkX, chunkY, chunkZ);  //findTerrainChunk(chunkX, chunkY, chunkZ + 1);
+		        if (n != null) n.SendMessage("regenerateMesh");
+//				if (n != null)
+//					Debug.Log ("regen forward");
+//				else
+//					Debug.Log("coulnt find forward");
+		    }
+
+			bool regenerating = (n != null);
+
+
+		    regenerateMesh();
+		}
 		
 		if (destroyCube)
 		{
-			
-			Vector3 pos = hitPos;
-			pos.x = Mathf.Floor(pos.x) + .5f;
-			pos.y = Mathf.Floor(pos.y) + .5f;
-			pos.z = Mathf.Floor(pos.z) + .5f;
-			
 			Instantiate(smallExplosionPrefab,hitPos,Quaternion.identity);	
-				
 
 		}
 		return didModify;

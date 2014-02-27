@@ -91,21 +91,22 @@ public class vp_Bullet : MonoBehaviour
 
 			// do damage on the target
 			TerrainPrefabBrain terrain = hit.transform.GetComponent<TerrainPrefabBrain>();
-			if (terrain != null)
+			if (terrain != null) // did the bullet hit terrain
 			{
 				// if we destroy the cube then we need a point inside of it otherwise we want a point outside
 				// of it so that we can create another cube there			
 				Vector3 posInHitCube =  hit.point + (.0001f * ray.direction);
 				Vector3 posOutHitCube = hit.point - (.0001f * ray.direction);
 
+		
 				hitPos = (shotType == ShotType.Destroy) ? posInHitCube : posOutHitCube;
-				bool didModify = terrain.OnBulletHit(hitPos,shotType,terrainDensity);
+				bool didModify = terrain.OnBulletHit(hitPos,shotType,terrainDensity,true);
 				hitType = (didModify) ? HitType.Cube : HitType.Nothing;
 
 			}
-			else if (hit.transform.tag == "NetworkPlayer" && hit.transform.parent == null)
+			else if (hit.transform.tag == "NetworkPlayer" && hit.transform.parent == null) // did the bullet hit a player
 			{
-				hit.transform.GetComponent<NetworkPlayer>().OnBulletHit(ray.direction);
+				hit.transform.GetComponent<NetworkPlayer>().OnBulletHitPlayer(ray.direction,hit.point,hit.normal);
 				hitType = HitType.Player;
 			}
 			
@@ -160,6 +161,19 @@ public class vp_Bullet : MonoBehaviour
 		if (m_DebrisPrefab != null)
 			Object.Instantiate(m_DebrisPrefab, transform.position, transform.rotation);
 		
+		PlayImpactSound();
+	}
+
+	public void HitCube(Vector3 hitPos, int shotType, int density, TerrainPrefabBrain terrain)
+	{
+		transform.position = hitPos;
+		PlayImpactSound();
+		terrain.OnBulletHit(hitPos,(ShotType)shotType,density,false);
+		vp_Timer.In(1, TryDestroy);
+	}
+
+	void PlayImpactSound()
+	{
 		// play impact sound
 		if (m_ImpactSounds.Count > 0)
 		{
@@ -169,15 +183,10 @@ public class vp_Bullet : MonoBehaviour
 			audio.dopplerLevel = 0.0f;
 			audio.pitch = Random.Range(SoundImpactPitch.x, SoundImpactPitch.y);
 			audio.PlayOneShot(m_ImpactSounds[(int)Random.Range(0, (m_ImpactSounds.Count))]);
+			
 		}
 	}
 
-	public void HitCube(Vector3 hitPos, int shotType, int density, TerrainPrefabBrain terrain)
-	{
-		terrain.OnBulletHit(hitPos,(ShotType)shotType,density);
-		vp_Timer.In(1, TryDestroy);
-	}
-	
 	///////////////////////////////////////////////////////////
 	// sees if the impact sound is still playing and, if not,
 	// destroys the object. otherwise tries again in 1 sec

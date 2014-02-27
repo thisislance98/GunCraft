@@ -12,7 +12,7 @@ public class NetworkConnect : Photon.MonoBehaviour
      * Via OnConnectedToPhoton(); we will either join an existing room (if any), otherwise create one. 
      */
 
-    void Awake()
+    void Start()
     {
         PhotonNetwork.ConnectUsingSettings("1.0");
     }

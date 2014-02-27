@@ -9,7 +9,10 @@ public class FlagGameManager : Photon.MonoBehaviour {
 	public UILabel TheirScoreLabel;
 	public UILabel MyScoreLabel;
 
+
 	public static FlagGameManager Instance;
+
+
 	
 	List<GameObject> _flagObservers = new List<GameObject>();
 
@@ -19,13 +22,15 @@ public class FlagGameManager : Photon.MonoBehaviour {
 	int _myTeamScore;
 	int _theirScore;
 
-	// Use this for initialization
-	void Awake () {
+
+	void Awake()
+	{
 		Instance = this;
 		Bases[0] = GameObject.Find("Base0").GetComponent<Base>();
 		Flags[0] = Bases[0].transform.FindChild("Flag");
 		Bases[1] = GameObject.Find("Base1").GetComponent<Base>();
 		Flags[1] = Bases[1].transform.FindChild("Flag");
+
 	}
 
 	public void AddFlagObserver(GameObject observer)

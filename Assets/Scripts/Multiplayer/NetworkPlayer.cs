@@ -4,6 +4,7 @@ using MoPhoGames.USpeak.Interface;
 
 public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 {
+	public GameObject BloodParticlePrefab;
 	public GameObject ProjectilePrefab;
 	public Renderer PlayerMeshRenderer;
 	public Renderer GunRenderer;
@@ -289,20 +290,29 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 	public void HitFlag(int teamOfFlag)
 	{
 
-		photonView.RPC("OnHitFlag",PhotonTargets.All,teamOfFlag);
+		photonView.RPC("OnHitFlag",PhotonTargets.AllBuffered,teamOfFlag);
 	}
 
 	[RPC]
-	void OnHitFlag(int teamOfFlag)
+	IEnumerator OnHitFlag(int teamOfFlag)
 	{
-	//	Debug.Log("hit flag: " + teamOfFlag + " ismine: " + photonView.isMine + " my team: " + _team + " flag team: " + teamOfFlag);
-		if (_team == -1)
-			return;
 
-//		if (photonView.isMine)
-			
-		Flag flag = FlagGameManager.Instance.GetFlag(teamOfFlag);
-		flag.OnPlayerTriggerEnter(this);
+		while (FlagGameManager.Instance == null || FlagGameManager.Instance.GetMyPlayer() == null)
+		{
+			yield return new WaitForSeconds(1);
+		}
+	//	Debug.Log("hit flag: " + teamOfFlag + " ismine: " + photonView.isMine + " my team: " + _team + " flag team: " + teamOfFlag);
+		if (_team != -1)
+		{
+
+	//		if (photonView.isMine)
+				
+
+			Flag flag = FlagGameManager.Instance.GetFlag(teamOfFlag);
+			flag.OnPlayerTriggerEnter(this);
+		}
+
+		yield return null;
 
 	}
 
@@ -318,7 +328,7 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 
 		if (hitType == HitType.Cube)
 		{
-			photonView.RPC("OnHitCube",PhotonTargets.OthersBuffered,hitPos,shotType,terrainDensity);
+			photonView.RPC("OnHitCube",PhotonTargets.All,hitPos,shotType,terrainDensity);
 		}
 
 
@@ -330,24 +340,29 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 	{
 		GameObject chunkObj = TerrainPrefabBrain.findTerrainChunk(hitPos);
 
+
 		if ( chunkObj != null )
 		{
 			vp_Bullet bullet = ((GameObject)Object.Instantiate(ProjectilePrefab)).GetComponent<vp_Bullet>();
 			bullet.HitCube(hitPos,shotType,density,chunkObj.GetComponent<TerrainPrefabBrain>());
 		}
 		else
+		{
+			Debug.Log("couldn't find terrain at hit pos: " + hitPos);
 			TerrainBrain.Instance().setTerrainDensity(hitPos,density);
+		}
 	}
 
 	
-	public void OnBulletHit(Vector3 hitDirection)
+	public void OnBulletHitPlayer(Vector3 hitDirection, Vector3 hitPos, Vector3 hitNormal)
 	{
-		photonView.RPC("OnBulletHitRPC",PhotonTargets.All, photonView.ownerId, hitDirection);
+		photonView.RPC("OnBulletHitPlayerRPC",PhotonTargets.All, photonView.ownerId, hitDirection,hitPos,hitNormal);
 	}
-	
+
 	[RPC]
-	void OnBulletHitRPC(int ownerId, Vector3 hitDirection)
+	void OnBulletHitPlayerRPC(int ownerId, Vector3 hitDirection, Vector3 hitPos, Vector3 hitNormal)
 	{
+
 		if (photonView.ownerId == ownerId && transform.parent != null) // owner
 		{
 			vp_FPSPlayer player = transform.parent.gameObject.GetComponent<vp_FPSPlayer>();
@@ -359,24 +374,30 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 		}
 		else // non owner
 		{
-
+//			GameObject blood = (GameObject)Instantiate(BloodParticlePrefab,hitPos,Quaternion.LookRotation(hitNormal,Vector3.up));
+//			blood.transform.parent = transform;
 		}
-		
-		if (IsHoldingFlag())
-			GetHeldFlag().SendMessage("OnDroppedFlag",this);
-		
+
 	}
 
 	[RPC]
 	void OnPlayerDied()
 	{
 		CharacterAnim.SetFloat("Health",0);
+		if (IsHoldingFlag())
+			GetHeldFlag().SendMessage("OnDroppedFlag",this);
 	}
 
 	[RPC]
 	void OnPlayerResurrect()
 	{
 		CharacterAnim.SetFloat("Health",1);
+	}
+
+	void OnDestroy()
+	{
+		if (IsHoldingFlag())
+			GetHeldFlag().SendMessage("OnDroppedFlag",this);
 	}
 
 }

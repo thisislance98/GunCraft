@@ -115,6 +115,7 @@ GameObject:
   m_Component:
   - 4: {fileID: 20}
   - 114: {fileID: 33}
+  - 114: {fileID: 15}
   m_Layer: 0
   m_Name: TerrainManager
   m_TagString: Untagged
@@ -122,6 +123,26 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &15
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 14}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  subId: 5
+  ownerId: 0
+  group: 0
+  prefixBackup: -1
+  observed: {fileID: 0}
+  synchronization: 0
+  onSerializeTransformOption: 3
+  onSerializeRigidBodyOption: 2
+  instantiationId: 0
 --- !u!4 &17
 Transform:
   m_ObjectHideFlags: 0
@@ -683,7 +704,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 58077694}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 507.5, y: -287.5, z: 0}
+  m_LocalPosition: {x: 381.5, y: -251.5, z: 0}
   m_LocalScale: {x: 1.20848, y: 1.20848, z: 1.20848}
   m_Children:
   - {fileID: 1252870856}
@@ -849,7 +870,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 103541730}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 507.5, y: 287.5, z: 0}
+  m_LocalPosition: {x: 381.5, y: 251.5, z: 0}
   m_LocalScale: {x: 1.20848107, y: 1.20848107, z: 1.20848107}
   m_Children:
   - {fileID: 1872861798}
@@ -1188,8 +1209,8 @@ MonoBehaviour:
   Controller: {fileID: 0}
   MaxHealth: 10
   m_Health: 10
-  HealthRegenRate: 3
-  HitDamage: 4
+  HealthRegenRate: 1
+  HitDamage: 2
 --- !u!114 &182180411
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1366,6 +1387,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ec037f2bafb048808b15006b86c6884, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  BloodParticlePrefab: {fileID: 100000, guid: fbaf627fdec25db4c8d2376d4f7116b3, type: 2}
   ProjectilePrefab: {fileID: 100000, guid: 8e0eede1a84a3d44a859ca0304834df5, type: 2}
   PlayerMeshRenderer: {fileID: 103857964}
   GunRenderer: {fileID: 1879274212}
@@ -2899,7 +2921,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 472356758}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -507.5, y: 287.5, z: 0}
+  m_LocalPosition: {x: -381.499939, y: 251.5, z: 0}
   m_LocalScale: {x: 1.20845926, y: 1.20845926, z: 1.20845926}
   m_Children:
   - {fileID: 1904220050}
@@ -3447,6 +3469,10 @@ Prefab:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 11400002, guid: 72543b3910ffaa644b43ef2759173fb4, type: 2}
+      propertyPath: BloodParticlePrefab
+      value: 
+      objectReference: {fileID: 100000, guid: fbaf627fdec25db4c8d2376d4f7116b3, type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 72543b3910ffaa644b43ef2759173fb4, type: 2}
   m_RootGameObject: {fileID: 194010496}
@@ -4149,7 +4175,7 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
-  mShader: {fileID: 10752, guid: 0000000000000000f000000000000000, type: 0}
+  mShader: {fileID: 10752, guid: 0000000000000000f000000000000000, type: 3}
   mTexture: {fileID: 2800000, guid: 38d5f60f093a4ac4dbc6a4830d27577e, type: 3}
 --- !u!65 &784554098
 BoxCollider:
@@ -4529,7 +4555,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 897415206}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -507.5, y: -287.5, z: 0}
+  m_LocalPosition: {x: -381.499939, y: -251.5, z: 0}
   m_LocalScale: {x: 1.20848107, y: 1.20848107, z: 1.20848107}
   m_Children:
   - {fileID: 581032136}
@@ -6275,7 +6301,7 @@ Transform:
   m_GameObject: {fileID: 1350244967}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: .00347826094, y: .00347826094, z: .00347826094}
+  m_LocalScale: {x: .00397614297, y: .00397614297, z: .00397614297}
   m_Children:
   - {fileID: 1846613171}
   m_Father: {fileID: 0}
@@ -7981,7 +8007,6 @@ GameObject:
   m_Component:
   - 4: {fileID: 1790364962}
   - 114: {fileID: 1790364963}
-  - 114: {fileID: 1790364964}
   m_Layer: 0
   m_Name: FlagGameManager
   m_TagString: Untagged
@@ -8013,26 +8038,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TheirScoreLabel: {fileID: 845471822}
   MyScoreLabel: {fileID: 1459105441}
---- !u!114 &1790364964
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1790364961}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  subId: 5
-  ownerId: 0
-  group: 0
-  prefixBackup: -1
-  observed: {fileID: 0}
-  synchronization: 0
-  onSerializeTransformOption: 3
-  onSerializeRigidBodyOption: 2
-  instantiationId: 0
 --- !u!1 &1815042725
 GameObject:
   m_ObjectHideFlags: 0
@@ -8171,7 +8176,7 @@ AudioSource:
     type: 2}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1824504204}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1

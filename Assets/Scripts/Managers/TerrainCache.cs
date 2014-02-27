@@ -5,7 +5,7 @@ using System;
 using Parse;
 using System.Threading.Tasks;
 
-class IntCoords : IEquatable<IntCoords>
+public class IntCoords : IEquatable<IntCoords>
 {
 	public int X;
 	public int Y;
@@ -125,6 +125,13 @@ class TerrainCache
 		
 		return m_lastData;
 	}
+
+	public string GetChunkString(IntCoords coords)
+	{
+		int[,,] chunk = m_data[coords];
+		string str = ChunkToString(chunk);
+		return str;
+	}
 	
 	string ChunkToString(int[,,] chunk)
 	{
@@ -144,6 +151,11 @@ class TerrainCache
 		Buffer.BlockCopy(byteArray,0,chunk,0,byteArray.Length);
 		return chunk;
 	}
+
+	public List<IntCoords> GetModifiedChunks()
+	{
+		return m_modifiedChunks;
+	}
 	
 
 	public IEnumerator LoadWorld()
@@ -162,17 +174,27 @@ class TerrainCache
 			int x = obj.Get<int>("x");
 			int y = obj.Get<int>("y");
 			int z = obj.Get<int>("z");
-			IntCoords coord = new IntCoords(x,y,z);
-			
-			m_data[coord] = StringToChunk(obj.Get<string>("chunk"));
-			
-			GameObject chunkObj = TerrainPrefabBrain.findTerrainChunk(x/TerrainBrain.chunkSize,y/TerrainBrain.chunkSize,z/TerrainBrain.chunkSize);
-			
-			
-			if (chunkObj != null)
-				chunkObj.SendMessage("regenerateMesh");
+
+			SetChunkFromString(x,y,z,obj.Get<string>("chunk"));
 			
 		}
+
+	}
+
+	public void SetChunkFromString(int x, int y, int z, string chunkString)
+	{
+		IntCoords coord = new IntCoords(x,y,z);
+		
+		m_data[coord] = StringToChunk( chunkString );
+		
+		GameObject chunkObj = TerrainPrefabBrain.findTerrainChunk(x/TerrainBrain.chunkSize,y/TerrainBrain.chunkSize,z/TerrainBrain.chunkSize);
+		
+		if (m_modifiedChunks.Contains(coord) == false)
+			m_modifiedChunks.Add(coord);
+
+		if (chunkObj != null)
+			chunkObj.SendMessage("regenerateMesh");
+
 	}
 	
 	public void SaveWorld()

@@ -100,6 +100,10 @@ public class vp_FPSPlayer : MonoBehaviour
 		pos.y = transform.position.y;
 		transform.position = pos;
 		Controller.PhysicsGravityModifier = _startGravityModifier;
+
+		
+		if (PhotonNetwork.isMasterClient == false)
+			TerrainBrain.Instance().GetWorldFromMasterClient();
 	}
 	
 	void OnControllerColliderHit(ControllerColliderHit hit) {
@@ -392,6 +396,12 @@ public class vp_FPSPlayer : MonoBehaviour
 
 		}
 
+		if (Application.isEditor || Application.platform == RuntimePlatform.OSXPlayer)
+			if (Input.GetMouseButton(0))
+				Fire(ShotType.Destroy);
+			else if (Input.GetMouseButton(1))
+				Fire (ShotType.Create);
+
 
 	}
 
@@ -419,23 +429,23 @@ public class vp_FPSPlayer : MonoBehaviour
 
 	public void OnFireUp()
 	{
-		if (m_IsDead)
+		if (m_IsDead || Application.isEditor || Application.platform == RuntimePlatform.OSXPlayer)
 			return;
 
 		if (Time.time - _fireDownTime < .15f)
 		{
-			vp_FPSShooter.SetShotType(_doubleTap ? ShotType.Create : ShotType.Destroy);
-
-			Fire ();
+			Fire (_doubleTap ? ShotType.Create : ShotType.Destroy);
 		}
 	}
 
 
 
-	void Fire()
+	void Fire(ShotType shotType)
 	{
 		if (m_IsDead)
 			return;
+
+		vp_FPSShooter.SetShotType(shotType);
 
 		if (CurrentWeapon != null)
 		{

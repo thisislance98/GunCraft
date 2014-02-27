@@ -49,4 +49,7 @@ MonoBehaviour:
   - OnHitCube
   - OnPlayerDied
   - OnPlayerResurrect
+  - OnBulletHitPlayerRPC
+  - OnRecievedChunkFromMaster
+  - OnRequestWorld
   DisableAutoOpenWizard: 0

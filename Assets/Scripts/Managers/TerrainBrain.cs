@@ -8,7 +8,7 @@ using Parse;
 using System.Threading.Tasks;
 
 
-public class TerrainBrain : MonoBehaviour 
+public class TerrainBrain : Photon.MonoBehaviour 
 {
 	public GameObject prefab;
 	public GameObject SavingGameLabel;
@@ -138,6 +138,30 @@ public class TerrainBrain : MonoBehaviour
 
 
 		StartCoroutine( m_tcache.LoadWorld() );
+	}
+
+	public void GetWorldFromMasterClient()
+	{
+		photonView.RPC("OnRequestWorld",PhotonNetwork.masterClient,PhotonNetwork.player);
+	}
+
+	[RPC]
+	void OnRecievedChunkFromMaster(int x,int y, int z, string chunkString)
+	{
+		m_tcache.SetChunkFromString(x,y,z,chunkString);
+	}
+
+	[RPC]
+	void OnRequestWorld(PhotonPlayer requestingPlayer)
+	{
+
+		foreach (IntCoords coord in m_tcache.GetModifiedChunks())
+		{
+		
+			photonView.RPC ("OnRecievedChunkFromMaster",requestingPlayer,coord.X,coord.Y,coord.Z,m_tcache.GetChunkString(coord));
+
+		}
+
 	}
 
 	public float GetViewDistance()
@@ -379,15 +403,23 @@ public class TerrainBrain : MonoBehaviour
         //int[, ,] chunk = m_tcache.getChunk(x - (x % 10), y - (y % 10), z - (z % 10));
         //return chunk[x % 10, y % 10, z % 10];
     }
-	
+
+	public static IntCoords GetCubeCoords(Vector3 worldPos)
+	{
+		int x = Mathf.CeilToInt(worldPos.x) - 1;
+		int y = Mathf.CeilToInt(worldPos.y) - 1;
+		int z = Mathf.CeilToInt(worldPos.z) - 1;
+
+		IntCoords coords = new IntCoords(x,y,z);
+		return coords;
+
+	}
 	
     public void setTerrainDensity(Vector3 cubeWorldPos, int density)
     {
-	    int x = Mathf.CeilToInt(cubeWorldPos.x) - 1;
-        int y = Mathf.CeilToInt(cubeWorldPos.y) - 1;
-        int z = Mathf.CeilToInt(cubeWorldPos.z) - 1;
+		IntCoords coords = GetCubeCoords(cubeWorldPos);
 
-        m_tcache.setDensity(x, y, z, density);
+		m_tcache.setDensity(coords.X, coords.Y, coords.Z, density);
     }
 
     public int GetRandomDensity(Vector3 loc)
