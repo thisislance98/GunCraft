@@ -70,6 +70,8 @@ public class vp_FPSShooter : vp_Component
 	public Vector2 SoundFirePitch = new Vector2(1.0f, 1.0f);	// random pitch range for firing sound
 	
 	// ammo
+	public bool IsAmmoUnlimited = false;
+
 	public int AmmoMaxCount = 10;						// the maximum amount of bullets that this weapon can hold
 	public float AmmoReloadTime = 1.5f;					// for how long to prevent firing upon reload
 	protected int m_AmmoCount = 0;						// current ammo count
@@ -90,7 +92,20 @@ public class vp_FPSShooter : vp_Component
 	{
 		_shotType = type;
 	}
-	
+
+	public int _totalAmmo = 200;
+	public int TotalAmmo 
+	{
+		get { 
+			return _totalAmmo;
+		}
+
+		set {
+			Debug.Log("setting total ammo");
+			_totalAmmo = value;
+		}
+	}
+
 	public static ShotType GetShotType()
 	{
 		return _shotType;
@@ -118,7 +133,8 @@ public class vp_FPSShooter : vp_Component
 		m_NextAllowedFireTime = Time.time;
 		m_NextAllowedReloadTime = Time.time;
 
-		m_AmmoCount = AmmoMaxCount;
+		m_AmmoCount = Mathf.Min( AmmoMaxCount, TotalAmmo);
+
 
 	}
 
@@ -156,7 +172,11 @@ public class vp_FPSShooter : vp_Component
 
 	}
 
-
+//	void OnEnable()
+//	{
+//		Debug.Log("total ammo: " + m_AmmoCount);
+//		m_AmmoCount = Mathf.Min( AmmoMaxCount, TotalAmmo);
+//	}
 	///////////////////////////////////////////////////////////
 	// 
 	///////////////////////////////////////////////////////////
@@ -183,16 +203,22 @@ public class vp_FPSShooter : vp_Component
 		if (Time.time < m_NextAllowedFireTime)
 			return;
 
+		if (AmmoCount == 1)
+			TotalAmmo -= AmmoMaxCount;
+
 		if (AmmoCount < 1)
 		{
+
 			DryFire();
 			return;
 		}
+
 
 		m_NextAllowedFireTime = Time.time + ProjectileFiringRate;
 		m_NextAllowedReloadTime = Time.time;
 
 		m_AmmoCount--;
+
 
 		// return the weapon to its forward looking state by certain
 		// position, rotation and velocity factors
@@ -219,7 +245,8 @@ public class vp_FPSShooter : vp_Component
 			if (ProjectilePrefab != null)
 			{
 				int terrainDensity = (_shotType == ShotType.Create) ? TextureManager.Instance.GetTextureIndex()+1 : 0;
-				NetworkPlayer.Instance.FireProjectile(m_Camera.transform.position,m_Camera.transform.rotation,ProjectileScale,(int)_shotType,terrainDensity);
+				if (TextureManager.Instance.GetAvaiableBlocks(terrainDensity) > 0)
+					NetworkPlayer.Instance.FireProjectile(m_Camera.transform.position,m_Camera.transform.rotation,ProjectileScale,(int)_shotType,terrainDensity);
 
 			
 				// apply conical spread as defined in preset
@@ -242,8 +269,24 @@ public class vp_FPSShooter : vp_Component
 			m_MuzzleFlashComponent.Shoot();
 
 	}
-	
 
+	public string GetAmmoText()
+	{
+		if (IsAmmoUnlimited)
+			return  "";
+		else
+		{
+			int ammoInClip = TotalAmmo - AmmoMaxCount;
+			ammoInClip = Mathf.Clamp(ammoInClip,0,ammoInClip);
+
+			return AmmoCount + " / " + ammoInClip;
+		}
+	}
+	
+	public bool HasAmmo()
+	{
+		return (TotalAmmo > 0 || IsAmmoUnlimited);
+	}
 
 	///////////////////////////////////////////////////////////
 	// applies a scaled version of the recoil to the weapon to
@@ -268,21 +311,30 @@ public class vp_FPSShooter : vp_Component
 	}
 
 
+	public void AddAmmo(int ammo)
+	{
+		TotalAmmo += ammo;
+
+		m_AmmoCount = Mathf.Min(AmmoMaxCount,TotalAmmo);
+	}
+
 	///////////////////////////////////////////////////////////
 	// fills the ammo parameter up to 'ammoCount', but only if
 	// we are currently allowed to reload
 	///////////////////////////////////////////////////////////
-	public void Reload(int ammoCount)
+	public bool Reload(int ammoCount)
 	{
 
-		if (Time.time < m_NextAllowedReloadTime)
-			return;
+		if (Time.time < m_NextAllowedReloadTime || (TotalAmmo <= 0 && IsAmmoUnlimited == false))
+			return true;
 
 		m_NextAllowedReloadTime = Time.time + AmmoReloadTime;
 
 		m_AmmoCount += ammoCount;
 		m_AmmoCount = Mathf.Min(AmmoMaxCount, m_AmmoCount);
-		
+		m_AmmoCount = Mathf.Min(TotalAmmo, m_AmmoCount);
+
+
 		if (audio != null)
 		{
 			audio.pitch = 1.0f;
@@ -290,6 +342,8 @@ public class vp_FPSShooter : vp_Component
 			m_NextAllowedFireTime = Time.time + AmmoReloadTime + (AmmoReloadTime * 0.2f);
 		}
 
+
+		return true;
 	}
 
 

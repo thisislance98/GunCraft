@@ -95,6 +95,7 @@ public class vp_FPSCamera : vp_Component
 
 	// list of weapon objects
 	protected List<GameObject> m_Weapons = new List<GameObject>();
+	public List<vp_FPSShooter> m_Shooters = new List<vp_FPSShooter>();
 	protected int m_CurrentWeaponID = 0;
 	protected vp_FPSWeapon m_CurrentWeapon = null;
 	protected vp_FPSShooter m_CurrentShooter = null;
@@ -207,6 +208,12 @@ public class vp_FPSCamera : vp_Component
 		IComparer comparer = new WeaponComparer();
 		m_Weapons.Sort(comparer.Compare);
 
+
+		for (int i=0; i < m_Weapons.Count; i++)
+		{
+			m_Shooters.Add(m_Weapons[i].GetComponent<vp_FPSShooter>());
+
+		}
 		// create springs for camera motion
 
 		// primary position spring
@@ -297,7 +304,7 @@ public class vp_FPSCamera : vp_Component
 
 		base.Update();
 	
-		if (Application.isEditor || Application.platform == RuntimePlatform.OSXPlayer)
+		if (Application.platform != RuntimePlatform.IPhonePlayer)
 			UpdateMouseLook(new Touch());
 		
 	}
@@ -617,7 +624,7 @@ public class vp_FPSCamera : vp_Component
 
 //#endif
 
-		if (Application.isEditor || Application.platform == RuntimePlatform.OSXPlayer)
+		if (Application.platform != RuntimePlatform.IPhonePlayer)
 		{
 	//		Screen.lockCursor = true;
 			m_MouseMove.x = Input.GetAxisRaw("Mouse X");
@@ -1178,6 +1185,14 @@ public class vp_FPSCamera : vp_Component
 
 	}
 
+	public vp_FPSShooter GetShooter(int weaponId)
+	{
+		if (m_Shooters[weaponId-1] == null)
+			Debug.Log("shooter is null: " + weaponId);
+
+		return m_Shooters[weaponId - 1];
+
+	}
 
 	///////////////////////////////////////////////////////////
 	// any child objects to the FPSCamera component are treated

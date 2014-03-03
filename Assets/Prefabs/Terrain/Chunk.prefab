@@ -37,6 +37,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 50dd4446a21ba47d991ca93a432a5fb7, type: 3}
   m_Name: 
+  m_EditorClassIdentifier: 
   CubePrefab: {fileID: 100000, guid: 6b470e5a9134f48a1a1494dbd0b41c1b, type: 2}
   ChunkMat: {fileID: 2100000, guid: adfbb5c3cae6a48929162eb196ee222f, type: 2}
 --- !u!1001 &100100000

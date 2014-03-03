@@ -14,6 +14,10 @@ public class NetworkConnect : Photon.MonoBehaviour
 
     void Start()
     {
+
+		PhotonNetwork.playerName = "Guest" + Random.Range(1, 9999);
+
+
         PhotonNetwork.ConnectUsingSettings("1.0");
     }
 

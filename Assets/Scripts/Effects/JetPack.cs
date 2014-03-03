@@ -38,7 +38,7 @@ public class JetPack : MonoBehaviour {
 	void AddJumpForce()
 	{
 	
-		gameObject.SendMessage("AddForce",new Vector3(0,1.5f,0) * Time.deltaTime,SendMessageOptions.DontRequireReceiver);	
+//		gameObject.SendMessage("AddForce",new Vector3(0,1.5f,0) * Time.deltaTime,SendMessageOptions.DontRequireReceiver);	
 
 	}
 }

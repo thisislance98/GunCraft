@@ -193,7 +193,8 @@ public class vp_Bullet : MonoBehaviour
 	///////////////////////////////////////////////////////////
 	private void TryDestroy()
 	{
-		Destroy(gameObject);
+
+		Object.Destroy(gameObject);
 
 //		if (!audio.isPlaying)
 //			Object.Destroy(gameObject);

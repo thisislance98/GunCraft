@@ -9,15 +9,13 @@ GameObject:
   m_Component:
   - 4: {fileID: 400000}
   - 33: {fileID: 3300000}
-  - 65: {fileID: 6500000}
+  - 136: {fileID: 13600000}
   - 23: {fileID: 2300000}
   - 54: {fileID: 5400000}
   - 114: {fileID: 11400000}
-  - 114: {fileID: 11400002}
-  - 114: {fileID: 11400004}
   m_Layer: 0
-  m_Name: MagicCube
-  m_TagString: Cube
+  m_Name: Missle
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -29,8 +27,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 100000}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 15.5000019, z: -4.5}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_Children: []
   m_Father: {fileID: 0}
 --- !u!23 &2300000
@@ -45,19 +43,22 @@ Renderer:
   m_LightmapIndex: 255
   m_LightmapTilingOffset: {x: 1, y: 1, z: 0, w: 0}
   m_Materials:
-  - {fileID: 2100000, guid: adfbb5c3cae6a48929162eb196ee222f, type: 2}
+  - {fileID: 2100000, guid: 37d523b2b377c453b941c89e940aa534, type: 2}
   m_SubsetIndices: 
   m_StaticBatchRoot: {fileID: 0}
   m_UseLightProbes: 0
   m_LightProbeAnchor: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_SortingLayerID: 0
 --- !u!33 &3300000
 MeshFilter:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 100000}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!54 &5400000
 Rigidbody:
   m_ObjectHideFlags: 1
@@ -68,23 +69,11 @@ Rigidbody:
   m_Mass: 1
   m_Drag: 0
   m_AngularDrag: .0500000007
-  m_UseGravity: 1
-  m_IsKinematic: 0
+  m_UseGravity: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 0
---- !u!65 &6500000
-BoxCollider:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 100000}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_CollisionDetection: 2
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -93,29 +82,37 @@ MonoBehaviour:
   m_GameObject: {fileID: 100000}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a5a39cfc8dc9b4bb5a4221842270f9b3, type: 3}
+  m_Script: {fileID: 11500000, guid: 778739487ac3d44758f1270afdedec73, type: 3}
   m_Name: 
---- !u!114 &11400002
-MonoBehaviour:
+  m_EditorClassIdentifier: 
+  speed: 80
+  radius: 5
+  Bombs:
+  - {fileID: 100000, guid: 8e02e06584f51ab42986fd44c73d976e, type: 2}
+  - {fileID: 100000, guid: 809320482fb694b6e8149a226202b86a, type: 2}
+  - {fileID: 100000, guid: c8fd86fe5050dc04bb501b291c30f591, type: 2}
+  - {fileID: 100000, guid: 2a6951ec14b27ed4da27d13818dbebd2, type: 2}
+  - {fileID: 100000, guid: 49ee383306650b645b8a12b582a38b10, type: 2}
+  - {fileID: 100000, guid: dc533b4ca16d3cd4d94b4d9e8b3376f0, type: 2}
+  - {fileID: 100000, guid: 13266a9cf8da28e41bfa61b378dfabc5, type: 2}
+  - {fileID: 100000, guid: 2d036894dd2a9024a978924c521444bf, type: 2}
+  - {fileID: 100000, guid: b9dd5ecd168e0b54295932b5b107b983, type: 2}
+  - {fileID: 100000, guid: 67e5b9f09995840449c988b145cc1d7b, type: 2}
+  - {fileID: 100000, guid: 7514e3ecececf4075a101607065d0ea5, type: 2}
+  - {fileID: 100000, guid: f600b4a5a289d0548842df7f27d883ea, type: 2}
+--- !u!136 &13600000
+CapsuleCollider:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 100000}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 891d7800dc7334f988dc6a92677c9ccc, type: 3}
-  m_Name: 
---- !u!114 &11400004
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 100000}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: af8864fe70e9e44369c674819d5888fb, type: 3}
-  m_Name: 
-  force: 30
+  m_Radius: .500000119
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 5.96046448e-08, y: 0, z: -8.94069672e-08}
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1

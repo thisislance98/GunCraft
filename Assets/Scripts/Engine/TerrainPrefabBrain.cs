@@ -527,13 +527,20 @@ public class TerrainPrefabBrain : MonoBehaviour
 
 		return new Vector3(x,y,z);
 	}
+
+	void DestroyCubeFromHit(Vector3 hitPos, Vector3 centerPos, int hitCubeDensity)
+	{
+		TerrainBrain.Instance().setTerrainDensity(hitPos,0);
+		PickupManager.Instance.OnBlockDestoyed(centerPos,hitCubeDensity);
+		TextureManager.Instance.OnDestroyedBlock(hitCubeDensity);
+	}
 	
     public bool OnBulletHit(Vector3 hitPos, ShotType shotType,int terrainDensity, bool applyDamage)
     {
         //float startTime = Time.realtimeSinceStartup;
 		bool destroyCube = (shotType == ShotType.Destroy);
 		bool didModify = false;
-					
+		Vector3 center = GetCubeCenterInWorldCoords(hitPos);
 		int hitCubeDensity = TerrainBrain.Instance().getTerrainDensity(hitPos);
 
 
@@ -544,7 +551,7 @@ public class TerrainPrefabBrain : MonoBehaviour
 			// just destroy the block if its hit count is 1 
 			if (blockHitCount <= 1 || applyDamage == false)
 			{
-				TerrainBrain.Instance().setTerrainDensity(hitPos,0);
+				DestroyCubeFromHit(hitPos,center,hitCubeDensity);
 				didModify = true;
 			}
 			else // otherwise check hits damagage
@@ -561,7 +568,7 @@ public class TerrainPrefabBrain : MonoBehaviour
 					// if the block has taken enough damage destroy it
 					if (damage >= blockHitCount)
 					{
-						TerrainBrain.Instance().setTerrainDensity(hitPos,0);
+						DestroyCubeFromHit(hitPos,center,hitCubeDensity);
 						didModify = true;
 						_blockDamage.Remove(blockCoords);
 					}
@@ -581,7 +588,7 @@ public class TerrainPrefabBrain : MonoBehaviour
 		else // create a cube
 		{
 
-			Vector3 center = GetCubeCenterInWorldCoords(hitPos);
+
 			Vector3 closestPoint = _player.collider.ClosestPointOnBounds(center);
 			float dist = Vector3.Distance(closestPoint,center);
 
@@ -591,6 +598,8 @@ public class TerrainPrefabBrain : MonoBehaviour
 
 
 			didModify = true;
+
+			TextureManager.Instance.OnCreatedBlock(terrainDensity);
 			TerrainBrain.Instance().setTerrainDensity(hitPos,terrainDensity);
 
 		}

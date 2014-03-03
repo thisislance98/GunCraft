@@ -279,12 +279,19 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 	void SetTeam(int team)
 	{
 		_team = team;
+		Color teamColor;
 
 		if (team == vp_FPSPlayer.Instance.GetTeam())
-			PlayerMeshRenderer.material.SetColor("_Color",Color.green);
+			teamColor = Color.green;
 		else
-			PlayerMeshRenderer.material.SetColor("_Color",Color.red);
+			teamColor = Color.red;
 
+		PlayerMeshRenderer.material.SetColor("_Color",teamColor);
+
+		for (int i=0; i < transform.childCount; i++)
+		{
+			transform.GetChild(i).SendMessage("SetTeamColor",teamColor,SendMessageOptions.DontRequireReceiver);
+		}
 	}
 
 	public void HitFlag(int teamOfFlag)
@@ -328,7 +335,7 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 
 		if (hitType == HitType.Cube)
 		{
-			photonView.RPC("OnHitCube",PhotonTargets.All,hitPos,shotType,terrainDensity);
+			photonView.RPC("OnHitCube",PhotonTargets.Others,hitPos,shotType,terrainDensity);
 		}
 
 

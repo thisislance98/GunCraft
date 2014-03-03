@@ -14,22 +14,22 @@ public class UIManager : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
-		if(Input.GetKeyDown(KeyCode.E))
-		{
-			
-			InGameUI.SetActiveRecursively(!InGameUI.activeSelf);
-			StoreUI.SetActiveRecursively(!StoreUI.activeSelf);
-			
-			
-		//	Time.timeScale = (StoreUI.activeSelf) ? 0 : 1;
-			mainCamera.SetActive(InGameUI.activeSelf);
-			
-			GameObject.FindGameObjectWithTag("Player").GetComponent<vp_FPSPlayer>().LockCursor = InGameUI.activeSelf;
-			
-			
-//						if (player.activeSelf)
-//				player.GetComponent<vp_FPSPlayer>().LockCursor = InGameUI.activeSelf;
-		}
-	}
+//	void Update () {
+//		if(Input.GetKeyDown(KeyCode.E))
+//		{
+//			
+//			InGameUI.SetActiveRecursively(!InGameUI.activeSelf);
+//			StoreUI.SetActiveRecursively(!StoreUI.activeSelf);
+//			
+//			
+//		//	Time.timeScale = (StoreUI.activeSelf) ? 0 : 1;
+//			mainCamera.SetActive(InGameUI.activeSelf);
+//			
+//			GameObject.FindGameObjectWithTag("Player").GetComponent<vp_FPSPlayer>().LockCursor = InGameUI.activeSelf;
+//			
+//			
+////						if (player.activeSelf)
+////				player.GetComponent<vp_FPSPlayer>().LockCursor = InGameUI.activeSelf;
+//		}
+//	}
 }

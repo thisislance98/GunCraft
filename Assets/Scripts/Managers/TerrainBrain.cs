@@ -77,7 +77,7 @@ public class TerrainBrain : Photon.MonoBehaviour
 	{
         m_instance = this;
 	
-		if (Application.isEditor || Application.platform == RuntimePlatform.OSXPlayer)
+		if (Application.platform != RuntimePlatform.IPhonePlayer)
 			Screen.lockCursor = true;
 
 		startGravity = Physics.gravity;

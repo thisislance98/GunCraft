@@ -76,7 +76,7 @@ public class vp_FPSWeapon : vp_Component
 	public AudioClip SoundUnWield = null;						// sound for putting the weapon away
 	
 	// weapon switching
-	public Vector3 PositionExitOffset = new Vector3(0.0f, -1.0f, 0.0f);		// used by the camera when switching the weapon out of view
+	public Vector3 PositionExitOffset = new Vector3(0.0f, -1.0f, 0.0f);	// used by the camera when switching the weapon out of view
 	public Vector3 RotationExitOffset = new Vector3(40.0f, 0.0f, 0.0f);
 
 

@@ -303,7 +303,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d5205209ad5144048738c4a8e5a6355, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Team: 1
+  TeamBase: {fileID: 0}
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1

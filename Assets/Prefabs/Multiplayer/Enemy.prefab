@@ -978,9 +978,6 @@ Animation:
   m_PlayAutomatically: 1
   m_AnimatePhysics: 0
   m_CullingType: 1
-  m_UserAABB:
-    m_Center: {x: .0439293385, y: 1.01837122, z: .222780347}
-    m_Extent: {x: 1.47163892, y: 1.38821065, z: 1.97947466}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -991,6 +988,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8aa87e0cf20f94ba6b848f7bcf6a4b17, type: 3}
   m_Name: 
+  m_EditorClassIdentifier: 
   textures:
   - {fileID: 2800000, guid: 59d14f783147a4567b92b0bed1fa98a0, type: 3}
   - {fileID: 2800000, guid: 3a39dd14fce1f40a99c879a97f8d47b5, type: 3}
@@ -1151,6 +1149,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 52f188e65372946e798ebf69670e6684, type: 3}
   m_Name: 
+  m_EditorClassIdentifier: 
   ExplosionPrefab: {fileID: 100000, guid: b5aa57d4bf54d5d4cb8a2bcc8eec4389, type: 2}
 --- !u!137 &13700000
 SkinnedMeshRenderer:
@@ -1170,6 +1169,9 @@ SkinnedMeshRenderer:
   m_UseLightProbes: 0
   m_LightProbeAnchor: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_SortingLayerID: 0
   serializedVersion: 2
   m_Quality: 0
   m_UpdateWhenOffscreen: 0
@@ -1204,6 +1206,7 @@ SkinnedMeshRenderer:
   - {fileID: 400002}
   - {fileID: 400030}
   - {fileID: 400000}
+  m_BlendShapeWeights: []
   m_RootBone: {fileID: 400012}
   m_AABB:
     m_Center: {x: -.0222146511, y: .13958168, z: -.00543403625}

@@ -142,7 +142,7 @@ public class vp_FPSPlayer : MonoBehaviour
 			SetWeapon(1);
 
 		InputManager.Instance.AddObserver(gameObject);
-		SetWeapon(3);
+
 	}
 
 
@@ -167,14 +167,14 @@ public class vp_FPSPlayer : MonoBehaviour
 		// deals with input
 
 		// handle input for moving
-		if (Application.isEditor || Application.platform == RuntimePlatform.OSXPlayer)
+		if (Application.platform != RuntimePlatform.IPhonePlayer)
 			InputWalk(new Touch());
 		InputRun();
 		InputJump();
 		InputCrouch();
 
 		// handle input for weapons
-		if (Application.isEditor || Application.platform == RuntimePlatform.OSXPlayer)
+		if (Application.platform != RuntimePlatform.IPhonePlayer)
 			InputFire();
 		InputZoom();
 		InputReload();
@@ -340,7 +340,7 @@ public class vp_FPSPlayer : MonoBehaviour
 	protected void InputJump()
 	{
 
-		if (Input.GetKeyDown(KeyCode.Space))
+		if (Input.GetKey(KeyCode.Space))
 			Controller.Jump();
 
 	}
@@ -396,7 +396,7 @@ public class vp_FPSPlayer : MonoBehaviour
 
 		}
 
-		if (Application.isEditor || Application.platform == RuntimePlatform.OSXPlayer)
+		if (Application.platform != RuntimePlatform.IPhonePlayer)
 			if (Input.GetMouseButton(0))
 				Fire(ShotType.Destroy);
 			else if (Input.GetMouseButton(1))
@@ -429,7 +429,7 @@ public class vp_FPSPlayer : MonoBehaviour
 
 	public void OnFireUp()
 	{
-		if (m_IsDead || Application.isEditor || Application.platform == RuntimePlatform.OSXPlayer)
+		if (m_IsDead || Application.platform != RuntimePlatform.IPhonePlayer)
 			return;
 
 		if (Time.time - _fireDownTime < .15f)
@@ -442,8 +442,18 @@ public class vp_FPSPlayer : MonoBehaviour
 
 	void Fire(ShotType shotType)
 	{
+
 		if (m_IsDead)
 			return;
+
+		if (CurrentShooter.HasAmmo() == false)
+		{
+			Debug.Log("switching weapon " + CurrentShooter.name);
+			SetWeapon(1);
+
+			return;
+		}
+
 
 		vp_FPSShooter.SetShotType(shotType);
 
@@ -475,7 +485,7 @@ public class vp_FPSPlayer : MonoBehaviour
 		// Old On mouse button up ************************
 
 		// schedule to reenable 'Crouch' and / or 'Run' in half a second
-		ReenableWeaponStatesIn(0.5f);
+	//	ReenableWeaponStatesIn(0.5f);
 		
 		// disregard refire delay when firing with no ammo
 		if (CurrentShooter != null)
@@ -513,7 +523,13 @@ public class vp_FPSPlayer : MonoBehaviour
 		if (Input.GetKeyDown(KeyCode.R) || (CurrentShooter != null && CurrentShooter.AmmoCount == 0))
 		{
 			if(CurrentShooter != null)
-				Reload(CurrentShooter.AmmoMaxCount);
+			{
+
+				if (CurrentShooter.HasAmmo() == true)
+				{
+					Reload(CurrentShooter.AmmoMaxCount);
+				}
+			}
 		}
 
 	}
@@ -527,8 +543,8 @@ public class vp_FPSPlayer : MonoBehaviour
 	{
 
 		if ((WeaponCount > 0) && (Input.GetKeyDown(KeyCode.Alpha1))) SetWeapon(1);
-		if ((WeaponCount > 1) && (Input.GetKeyDown(KeyCode.Alpha2)) && PlayerPrefs.GetInt("Revolver") > 0) SetWeapon(2);
-		if ((WeaponCount > 2) && (Input.GetKeyDown(KeyCode.Alpha3)) && PlayerPrefs.GetInt("MachineGun") > 0) SetWeapon(3);
+		if ((WeaponCount > 1) && (Input.GetKeyDown(KeyCode.Alpha2)))  SetWeapon(2);
+		if ((WeaponCount > 2) && (Input.GetKeyDown(KeyCode.Alpha3))) SetWeapon(3);
 		if ((WeaponCount > 3) && (Input.GetKeyDown(KeyCode.Alpha4))) SetWeapon(4);
 		if ((WeaponCount > 4) && (Input.GetKeyDown(KeyCode.Alpha5))) SetWeapon(5);
 		if ((WeaponCount > 5) && (Input.GetKeyDown(KeyCode.Alpha6))) SetWeapon(6);
@@ -556,6 +572,26 @@ public class vp_FPSPlayer : MonoBehaviour
 
 	}
 
+	public void OnFoundAmmo(int weapon, int ammo)
+	{
+
+
+
+		vp_FPSShooter shooter = Camera.GetShooter(weapon);
+
+		if (shooter == null)
+			Debug.Log("shooter is null");
+
+		shooter.AddAmmo(ammo);
+
+
+		if (weapon > CurrentWeaponID)
+			SetWeapon(weapon);
+
+		SetState("Reload", false);
+		ReenableWeaponStatesIn(0.5f);
+
+	}
 
 	///////////////////////////////////////////////////////////
 	// toggles to the previous weapon, if currently available,
@@ -617,13 +653,24 @@ public class vp_FPSPlayer : MonoBehaviour
 	///////////////////////////////////////////////////////////
 	public bool SetWeapon(int weapon)
 	{
+		if (Camera.GetShooter(weapon).HasAmmo() == false)
+		{
+			Debug.Log("weapon on of ammo: " + weapon);
+			return false;
+		}
 
 		// return if the player cannot currently wield this weapon
 		if (weapon > 0 && !WeaponAvailable(weapon))
+		{
+			Debug.Log("weapon not available: " + weapon);
 			return false;
+		}
 
 		if (weapon == CurrentWeaponID)
+		{
+			Debug.Log("switching to same weapon: " + weapon);
 			return false;
+		}
 
 		SetState("Reload", false);
 
@@ -645,8 +692,10 @@ public class vp_FPSPlayer : MonoBehaviour
 		if (CurrentShooter == null)
 			return;
 
+
 		if (Time.time < CurrentShooter.NextAllowedReloadTime)
 			return;
+
 
 		if (m_ReenableWeaponStatesTimer != null)
 			m_ReenableWeaponStatesTimer.Cancel();
@@ -655,12 +704,15 @@ public class vp_FPSPlayer : MonoBehaviour
 	
 		CurrentShooter.Reload(amount);
 
+
 		if (m_DoneReloadingTimer != null)
 			m_DoneReloadingTimer.Cancel();
+
 		m_DoneReloadingTimer = vp_Timer.In(CurrentShooter.AmmoReloadTime, delegate()
 		{
 			SetState("Reload", false);
 		});
+
 
 	}
 
