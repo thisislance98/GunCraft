@@ -970,6 +970,11 @@ public class vp_FPSPlayer : MonoBehaviour
 		Damage(HitDamage);
 	}
 
+	public void OnGotHit(float damage)
+	{
+		Damage(damage);
+	}
+
 
 	///////////////////////////////////////////////////////////
 	//

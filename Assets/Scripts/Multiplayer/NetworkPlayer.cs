@@ -355,7 +355,7 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 
 		if (hitType == HitType.Cube)
 		{
-			photonView.RPC("OnHitCube",PhotonTargets.Others,hitPos,shotType,terrainDensity);
+			photonView.RPC("OnBulletHitCube",PhotonTargets.Others,hitPos,shotType,terrainDensity);
 		}
 
 
@@ -363,7 +363,32 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 	}
 
 	[RPC]
-	void OnHitCube(Vector3 hitPos, int shotType, int density)
+	public void HitCube(Vector3 hitPos, int shotType, int density)
+	{
+
+		GameObject chunkObj = TerrainPrefabBrain.findTerrainChunk(hitPos);
+		
+		
+		if ( chunkObj != null )
+		{
+			int hitCubeDensity = TerrainBrain.Instance().getTerrainDensity(hitPos);
+			if (hitCubeDensity > 0)
+			{
+				TerrainPrefabBrain terrain = chunkObj.GetComponent<TerrainPrefabBrain>();
+				terrain.OnBulletHit(hitPos,(ShotType)shotType,density,false);
+			}
+		}
+		else
+		{
+			Debug.Log("couldn't find terrain at hit pos: " + hitPos);
+			TerrainBrain.Instance().setTerrainDensity(hitPos,density);
+		}
+
+
+	}
+
+	[RPC]
+	void OnBulletHitCube(Vector3 hitPos, int shotType, int density)
 	{
 		GameObject chunkObj = TerrainPrefabBrain.findTerrainChunk(hitPos);
 
@@ -381,19 +406,19 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 	}
 
 	
-	public void OnBulletHitPlayer()
+	public void OnBulletHitPlayer(float damage)
 	{
-		photonView.RPC("OnBulletHitPlayerRPC",PhotonTargets.All, photonView.ownerId);
+		photonView.RPC("OnBulletHitPlayerRPC",PhotonTargets.All, photonView.ownerId,damage);
 	}
 
 	[RPC]
-	void OnBulletHitPlayerRPC(int ownerId)
+	void OnBulletHitPlayerRPC(int ownerId,float damage)
 	{
 
 		if (photonView.ownerId == ownerId && transform.parent != null) // owner
 		{
 			vp_FPSPlayer player = transform.parent.gameObject.GetComponent<vp_FPSPlayer>();
-			player.OnGotHit();
+			player.OnGotHit(damage);
 
 			if (player.m_Health <= 0)
 				photonView.RPC("OnPlayerDied",PhotonTargets.All);

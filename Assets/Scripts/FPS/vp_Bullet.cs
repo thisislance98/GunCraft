@@ -26,7 +26,7 @@ public class vp_Bullet : MonoBehaviour
 	// gameplay
 	public float Range = 100.0f;			// max travel distance of this type of bullet in meters
 	public float Force = 100.0f;			// force applied to any rigidbody hit by the bullet
-	public float Damage = 1.0f;				// the damage transmitted to target by the bullet
+	public float Damage = 4.0f;				// the damage transmitted to target by the bullet
 	public string DamageMethodName = "Damage";	// user defined name of damage method on target
 												// TIP: this can be used to apply different types of damage, i.e
 												// magical, freezing, poison, electric
@@ -106,7 +106,7 @@ public class vp_Bullet : MonoBehaviour
 			}
 			else if (hit.transform.tag == "NetworkPlayer" && hit.transform.parent == null) // did the bullet hit a player
 			{
-				hit.transform.GetComponent<NetworkPlayer>().OnBulletHitPlayer();
+				hit.transform.GetComponent<NetworkPlayer>().OnBulletHitPlayer(Damage);
 				hitType = HitType.Player;
 			}
 			

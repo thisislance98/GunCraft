@@ -251,7 +251,7 @@ public class vp_FPSShooter : vp_Component
 				if (isRocket)
 				{
 					Vector3 startPos = transform.FindChild("Mesh").position + Vector3.up * .1f;
-					NetworkPlayer.Instance.FireRocket(startPos,m_Camera.transform.rotation,10);
+					NetworkPlayer.Instance.FireRocket(m_Camera.transform.position,m_Camera.transform.rotation,10);
 				}
 				else if (TextureManager.Instance.GetAvaiableBlocks(terrainDensity) > 0)
 				{
