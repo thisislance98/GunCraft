@@ -6,6 +6,7 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 {
 	public GameObject BloodParticlePrefab;
 	public GameObject ProjectilePrefab;
+	public GameObject RocketPrefab;
 	public Renderer PlayerMeshRenderer;
 	public Renderer GunRenderer;
 	public Animator CharacterAnim;
@@ -323,6 +324,25 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 
 	}
 
+	public void FireRocket(Vector3 startPos, Quaternion rotation, float speed)
+	{
+		float startTime = (float)PhotonNetwork.time;
+
+		photonView.RPC("FireRocketRPC",PhotonTargets.All,startPos,rotation,speed,startTime);
+	
+	}
+
+	[RPC]
+	void FireRocketRPC(Vector3 startPos, Quaternion rotation, float speed, float startTime)
+	{
+
+		GameObject rocket = (GameObject)Instantiate(RocketPrefab,startPos,rotation);
+
+		float timeDelta = (float)PhotonNetwork.time - startTime;
+		rocket.transform.position += rocket.transform.forward * speed * timeDelta;
+		rocket.SendMessage("Fire",speed);
+
+	}
 
 	public void FireProjectile(Vector3 startPosition, Quaternion rotation, float scale, int shotType, int terrainDensity)
 	{
@@ -361,13 +381,13 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 	}
 
 	
-	public void OnBulletHitPlayer(Vector3 hitDirection, Vector3 hitPos, Vector3 hitNormal)
+	public void OnBulletHitPlayer()
 	{
-		photonView.RPC("OnBulletHitPlayerRPC",PhotonTargets.All, photonView.ownerId, hitDirection,hitPos,hitNormal);
+		photonView.RPC("OnBulletHitPlayerRPC",PhotonTargets.All, photonView.ownerId);
 	}
 
 	[RPC]
-	void OnBulletHitPlayerRPC(int ownerId, Vector3 hitDirection, Vector3 hitPos, Vector3 hitNormal)
+	void OnBulletHitPlayerRPC(int ownerId)
 	{
 
 		if (photonView.ownerId == ownerId && transform.parent != null) // owner

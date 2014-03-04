@@ -1,0 +1,7 @@
+Binoculars v.1.0
+
+This low poly 3d model (1364 tris) can be used as a FPP/TPP melee weapon.
+The package comes with 1 material with 512x512 base texture (specular on alpha channel) 
++ 512x512 normal map in uncompressed TGA format and model in FBX format. 
+Ready to use prefabs - drag and drop to your scene. 
+A demo scene is also included.

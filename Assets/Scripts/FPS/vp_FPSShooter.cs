@@ -242,12 +242,20 @@ public class vp_FPSShooter : vp_Component
 		// spawn projectiles
 		for (int v = 0; v < ProjectileCount; v++)
 		{
+
 			if (ProjectilePrefab != null)
 			{
+				bool isRocket = (ProjectilePrefab.tag == "Rocket");
 				int terrainDensity = (_shotType == ShotType.Create) ? TextureManager.Instance.GetTextureIndex()+1 : 0;
-				if (TextureManager.Instance.GetAvaiableBlocks(terrainDensity) > 0)
-					NetworkPlayer.Instance.FireProjectile(m_Camera.transform.position,m_Camera.transform.rotation,ProjectileScale,(int)_shotType,terrainDensity);
 
+				if (isRocket)
+				{
+					NetworkPlayer.Instance.FireRocket(m_Camera.transform.position,m_Camera.transform.rotation,10);
+				}
+				else if (TextureManager.Instance.GetAvaiableBlocks(terrainDensity) > 0)
+				{
+					NetworkPlayer.Instance.FireProjectile(m_Camera.transform.position,m_Camera.transform.rotation,ProjectileScale,(int)_shotType,terrainDensity);
+				}
 			
 				// apply conical spread as defined in preset
 //				p.transform.Rotate(0, 0, Random.Range(0, 360));									// first, rotate up to 360 degrees around z for circular spread

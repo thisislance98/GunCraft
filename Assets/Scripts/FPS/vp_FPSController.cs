@@ -20,8 +20,10 @@ public class vp_FPSController : vp_Component
 	// motor
 	public float MotorAcceleration = 0.5f;
 	public float MotorDamping = 0.1f;
-	public float MotorJumpForce = 0.25f;
+	public float MotorJetForce = 0.25f;
+	public float MaxJetSpeed = 3;
 	public float MotorAirSpeed = 0.7f;
+	public float MotorJumpForce = 2;
 	public float MotorSlopeSpeedUp = 1.0f;
 	public float MotorSlopeSpeedDown = 1.0f;
 	protected float m_MoveFactor = 1.0f;
@@ -100,7 +102,10 @@ public class vp_FPSController : vp_Component
 
 	}
 
-
+	public bool IsGrounded()
+	{
+		return m_Controller.isGrounded;
+	}
 	//////////////////////////////////////////////////////////
 	// 
 	//////////////////////////////////////////////////////////
@@ -132,7 +137,7 @@ public class vp_FPSController : vp_Component
 		m_ExternalForce /= physDamp;
 
 		// --- apply gravity ---
-		if (m_Controller.isGrounded && m_FallSpeed <= 0)
+		if (m_Controller.isGrounded && m_FallSpeed <= 0 && Input.GetKey(KeyCode.Space) == false)
 			m_FallSpeed = ((Physics.gravity.y * (PhysicsGravityModifier * 0.002f)));	// grounded
 		else
 			m_FallSpeed += ((Physics.gravity.y * (PhysicsGravityModifier * 0.002f)) * Delta);	// flying
@@ -159,7 +164,7 @@ public class vp_FPSController : vp_Component
 		// walking down slopes or stairs. the strength of this effect is
 		// determined by the character controller's 'Step Offset'
 		float antiBumpOffset = 0.0f;
-		if (m_Controller.isGrounded && m_MotorThrottle.y <= 0.001f)
+		if (m_Controller.isGrounded && m_MotorThrottle.y <= 0.001f && Input.GetKey(KeyCode.Space) == false)
 		{
 			antiBumpOffset = Mathf.Max(m_Controller.stepOffset,
 										new Vector3(moveDirection.x, 0, moveDirection.z).magnitude); 
@@ -175,6 +180,8 @@ public class vp_FPSController : vp_Component
 		moveDirection.x = double.IsNaN(moveDirection.x) ? 0.0f : moveDirection.x;
 		moveDirection.y = double.IsNaN(moveDirection.y) ? 0.0f : moveDirection.y;
 		moveDirection.z = double.IsNaN(moveDirection.z) ? 0.0f : moveDirection.z;
+
+		Debug.Log("fall speed: " + m_FallSpeed);
 
 		// move the charactercontroller
 		m_Controller.Move(moveDirection);
@@ -222,6 +229,7 @@ public class vp_FPSController : vp_Component
 				CharacterController.center = m_NormalCenter;
 			}
 		}
+
 
 	}
 
@@ -274,6 +282,7 @@ public class vp_FPSController : vp_Component
 
 	public void MoveInDirection(Vector3 dir, float speed)
 	{
+
 		m_MotorThrottle = transform.TransformDirection(dir * speed * (MotorAcceleration * 0.1f) * m_MoveFactor);
 
 	}
@@ -351,13 +360,17 @@ public class vp_FPSController : vp_Component
 	// applies the jump force upwards. returns false if jump
 	// failed, so you know whether to play some jump sound
 	///////////////////////////////////////////////////////////
-	public bool Jump()
+	public bool ApplyJetpack()
 	{
 
-		if (!m_Controller.isGrounded)
+		if (JetPack.Instance.OnFuelUsed() == false)
 			return false;
 
-		m_MotorThrottle += new Vector3(0, MotorJumpForce, 0);
+		m_FallSpeed += MotorJetForce * Time.deltaTime;// MotorJumpForce;
+
+		m_FallSpeed = Mathf.Min(m_FallSpeed,MaxJetSpeed);
+
+
 
 		return true;
 

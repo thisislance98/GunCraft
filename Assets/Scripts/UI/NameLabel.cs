@@ -6,6 +6,7 @@ public class NameLabel : MonoBehaviour {
 	Transform mainCamera;
 	NetworkPlayer player;
 	TextMesh textMesh;
+	Color _labelColor;
 
 	// Use this for initialization
 	void Start () {
@@ -24,6 +25,7 @@ public class NameLabel : MonoBehaviour {
 
 	void SetTeamColor(Color color)
 	{
+		_labelColor = color;
 		renderer.material.color = color;
 		if (color == Color.red)
 			renderer.enabled = false;
@@ -34,6 +36,9 @@ public class NameLabel : MonoBehaviour {
 		transform.forward = transform.position - mainCamera.position;
 
 		textMesh.text = (player.IsHoldingFlag()) ? player.photonView.owner.name + " has flag!" : player.photonView.owner.name;
+
+		if (_labelColor == Color.red)
+			renderer.enabled = XRay.Instance.IsActive();
 
 	}
 }

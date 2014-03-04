@@ -170,7 +170,7 @@ public class vp_FPSPlayer : MonoBehaviour
 		if (Application.platform != RuntimePlatform.IPhonePlayer)
 			InputWalk(new Touch());
 		InputRun();
-		InputJump();
+		Inputjetpack();
 		InputCrouch();
 
 		// handle input for weapons
@@ -264,7 +264,6 @@ public class vp_FPSPlayer : MonoBehaviour
 		if (Input.GetKey(KeyCode.S)) { delta += Vector3.down*100; }
 		if (Input.GetKey(KeyCode.D)) { delta += Vector3.right*100; }
 	
-	
 		if (delta.magnitude > 0)
 		{
 
@@ -337,11 +336,11 @@ public class vp_FPSPlayer : MonoBehaviour
 	// jump on 'SPACE'. the current controller preset determines
 	// the jump force
 	///////////////////////////////////////////////////////////
-	protected void InputJump()
+	protected void Inputjetpack()
 	{
 
 		if (Input.GetKey(KeyCode.Space))
-			Controller.Jump();
+			Controller.ApplyJetpack();
 
 	}
 

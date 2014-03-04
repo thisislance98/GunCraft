@@ -12,6 +12,14 @@ TagManager:
   - Flag
   - NetworkPlayer
   - Base
+  - Rocket
+  - 
+  - missile
+  - explosion
+  - shield
+  - ground
+  - breath
+  - Terrain
   - 
   Builtin Layer 0: Default
   Builtin Layer 1: TransparentFX

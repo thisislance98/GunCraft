@@ -76,7 +76,9 @@ public class vp_FPSControllerEditor : Editor
 
 				m_Component.MotorAcceleration = EditorGUILayout.Slider("Acceleration", m_Component.MotorAcceleration, 0, 1);
 				m_Component.MotorDamping = EditorGUILayout.Slider("Damping", m_Component.MotorDamping, 0, 1);
-				m_Component.MotorJumpForce = EditorGUILayout.Slider("Jump Force", m_Component.MotorJumpForce, 0, 10);
+				m_Component.MotorJetForce = EditorGUILayout.Slider("Jet Force", m_Component.MotorJetForce, 0, 10);
+				m_Component.MaxJetSpeed = EditorGUILayout.Slider("Max Jet Speed", m_Component.MaxJetSpeed, 0, 10);
+
 				m_Component.MotorAirSpeed = EditorGUILayout.Slider("Air Speed", m_Component.MotorAirSpeed, 0, 1);
 				m_Component.MotorSlopeSpeedUp = EditorGUILayout.Slider("Slope Speed Up", m_Component.MotorSlopeSpeedUp, 0, 2);
 				m_Component.MotorSlopeSpeedDown = EditorGUILayout.Slider("Slope Sp. Down", m_Component.MotorSlopeSpeedDown, 0, 2);

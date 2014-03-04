@@ -52,4 +52,5 @@ MonoBehaviour:
   - OnBulletHitPlayerRPC
   - OnRecievedChunkFromMaster
   - OnRequestWorld
+  - FireRocketRPC
   DisableAutoOpenWizard: 0

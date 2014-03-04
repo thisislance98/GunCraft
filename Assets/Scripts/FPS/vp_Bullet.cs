@@ -106,7 +106,7 @@ public class vp_Bullet : MonoBehaviour
 			}
 			else if (hit.transform.tag == "NetworkPlayer" && hit.transform.parent == null) // did the bullet hit a player
 			{
-				hit.transform.GetComponent<NetworkPlayer>().OnBulletHitPlayer(ray.direction,hit.point,hit.normal);
+				hit.transform.GetComponent<NetworkPlayer>().OnBulletHitPlayer();
 				hitType = HitType.Player;
 			}
 			

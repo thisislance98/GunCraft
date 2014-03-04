@@ -2918,6 +2918,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BloodParticlePrefab: {fileID: 100000, guid: fbaf627fdec25db4c8d2376d4f7116b3, type: 2}
   ProjectilePrefab: {fileID: 100000, guid: 8e0eede1a84a3d44a859ca0304834df5, type: 2}
+  RocketPrefab: {fileID: 100000, guid: 27d890077818e6241afcbb315c47a0a3, type: 2}
   PlayerMeshRenderer: {fileID: 13700002}
   GunRenderer: {fileID: 2300000}
   CharacterAnim: {fileID: 9500000}
