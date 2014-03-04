@@ -181,7 +181,6 @@ public class vp_FPSController : vp_Component
 		moveDirection.y = double.IsNaN(moveDirection.y) ? 0.0f : moveDirection.y;
 		moveDirection.z = double.IsNaN(moveDirection.z) ? 0.0f : moveDirection.z;
 
-		Debug.Log("fall speed: " + m_FallSpeed);
 
 		// move the charactercontroller
 		m_Controller.Move(moveDirection);

@@ -134,7 +134,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  subId: 5
+  subId: 7
   ownerId: 0
   group: 0
   prefixBackup: -1
@@ -1283,17 +1283,17 @@ MonoBehaviour:
     TextAsset: {fileID: 0}
     Enabled: 1
     Allowed: 0
-  MotorAcceleration: .180000007
-  MotorDamping: .170000002
-  MotorJetForce: .25
-  MaxJetSpeed: 3
-  MotorAirSpeed: .75
+  MotorAcceleration: .300000012
+  MotorDamping: .100000001
+  MotorJetForce: .5
+  MaxJetSpeed: .075000003
+  MotorAirSpeed: .699999988
   MotorJumpForce: .0199999996
   MotorSlopeSpeedUp: 1
   MotorSlopeSpeedDown: 1
   PhysicsForceDamping: .0500000007
   PhysicsPushForce: 5
-  PhysicsGravityModifier: .200000003
+  PhysicsGravityModifier: .0500000007
   PhysicsWallBounce: 0
 --- !u!143 &182180412
 CharacterController:
@@ -1412,7 +1412,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  subId: 1
+  subId: 8
   ownerId: 0
   group: 0
   prefixBackup: -1
@@ -1737,7 +1737,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  subId: 4
+  subId: 9
   ownerId: 0
   group: 0
   prefixBackup: -1
@@ -7681,7 +7681,7 @@ Prefab:
       objectReference: {fileID: 2100000, guid: de0c8505993054e67bfc6a03f0d655b1, type: 2}
     - target: {fileID: 11400000, guid: 72543b3910ffaa644b43ef2759173fb4, type: 2}
       propertyPath: subId
-      value: 1
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 100002, guid: 72543b3910ffaa644b43ef2759173fb4, type: 2}
       propertyPath: m_IsActive
@@ -8960,7 +8960,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  subId: 3
+  subId: 10
   ownerId: 0
   group: 0
   prefixBackup: -1
