@@ -87,7 +87,7 @@ public class vp_Bullet : MonoBehaviour
 		if(Physics.Raycast(ray, out hit, Range, ~((1 << vp_Layer.Player) | (1 << vp_Layer.Debris))))
 		{
 
-			DoHitEffects(hit);
+			DoHitEffects(hit.point);
 
 			// do damage on the target
 			TerrainPrefabBrain terrain = hit.transform.GetComponent<TerrainPrefabBrain>();
@@ -125,31 +125,17 @@ public class vp_Bullet : MonoBehaviour
 	public void HitCube(Vector3 hitPos, int shotType, int density, TerrainPrefabBrain terrain)
 	{
 		transform.position = hitPos;
-		PlayImpactSound();
+		DoHitEffects(hitPos);
 		terrain.OnBulletHit(hitPos,(ShotType)shotType,density,false);
 		vp_Timer.In(1, TryDestroy);
 	}
 
-	void DoHitEffects(RaycastHit hit)
+	void DoHitEffects(Vector3 hitPos)
 	{
-		// move this gameobject instance to the hit object
-		Vector3 scale = transform.localScale;	// save scale for 
-		transform.parent = hit.transform;
-		transform.localPosition = hit.transform.InverseTransformPoint(hit.point);
-		transform.rotation = Quaternion.LookRotation(hit.normal);				// face away from hit surface
-		if (hit.transform.lossyScale == Vector3.one)							// if hit object has normal scale
-			transform.Rotate(Vector3.forward, Random.Range(0, 360), Space.Self);	// spin randomly
-		else
-		{
-			// rotated child objects will get skewed if the parent
-			// object has been unevenly scaled in the editor, so on
-			// scaled objects we don't support spin, and we need to
-			// unparent, rescale and reparent the decal.
-			transform.parent = null;
-			transform.localScale = scale;
-			transform.parent = hit.transform;
-		}
-		
+
+		transform.position = hitPos;
+		transform.rotation = Quaternion.identity;
+
 		// spawn impact effect
 		if (m_ImpactPrefab != null)
 			Object.Instantiate(m_ImpactPrefab, transform.position, transform.rotation);

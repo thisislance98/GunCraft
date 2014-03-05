@@ -1,8 +1,9 @@
 using UnityEngine;
 using System.Collections;
 
-public class Rocket : MonoBehaviour {
+public class Rocket : Photon.MonoBehaviour {
 
+	public GameObject ExplosionPrefab;
 	public float Damage = 12;
 	public float BlockDestroyRadius = 3;
 	public float DamageRadius = 2;
@@ -17,7 +18,7 @@ public class Rocket : MonoBehaviour {
 		_isMine = isMine;
 		_shootingPlayer = shootingPlayer;
 	}
-	
+
 
 	// Update is called once per frame
 	void Update () {
@@ -31,10 +32,15 @@ public class Rocket : MonoBehaviour {
 
 		Vector3 checkPos = transform.position + transform.forward * .5f;
 		int hitCubeDensity = TerrainBrain.Instance().getTerrainDensity(checkPos);
-		if (hitCubeDensity > 0 && _isMine)
+		if (hitCubeDensity > 0)
 		{
-			CheckForPlayerHit(checkPos,false);
-			OnHitTerrain(checkPos,BlockDestroyRadius,ShotType.Destroy);
+			if (_isMine)
+			{
+				CheckForPlayerHit(checkPos,false);
+				OnHitTerrain(checkPos,BlockDestroyRadius,ShotType.Destroy);
+			}
+
+			Destroy(gameObject);
 		}
 
 
@@ -70,7 +76,8 @@ public class Rocket : MonoBehaviour {
 
 		return false;
 	}
-	
+
+
 
 	void OnHitTerrain(Vector3 hitPos, float radius, ShotType shotType)
 	{
@@ -89,6 +96,11 @@ public class Rocket : MonoBehaviour {
 				
 
 			}
-		Destroy(gameObject);
+	}
+
+	void OnDestroy()
+	{
+		Instantiate(ExplosionPrefab,transform.position,Quaternion.identity);
+
 	}
 }

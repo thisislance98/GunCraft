@@ -677,11 +677,11 @@ public class TerrainPrefabBrain : MonoBehaviour
 		    regenerateMesh();
 		}
 		
-		if (destroyCube)
-		{
-			Instantiate(smallExplosionPrefab,hitPos,Quaternion.identity);	
-
-		}
+//		if (destroyCube)
+//		{
+//			Instantiate(smallExplosionPrefab,hitPos,Quaternion.identity);	
+//
+//		}
 		return didModify;
     }
 	

@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using MoPhoGames.USpeak.Interface;
+using System.Collections.Generic;
 
 public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 {
@@ -13,7 +14,8 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 	public Transform SpineBone;
 	public float LerpPositionSpeed;
 	public float LerpRotationSpeed;
-	
+
+	static List<GameObject> _playerObservers = new List<GameObject>();
 	Quaternion _lastRotation;
 	Vector3 _lastMoveDirection;
 	Vector3 _lastPosition;
@@ -71,6 +73,17 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 		yield return null;
 	}
 
+	public static void AddPlayerObserver(GameObject obj)
+	{
+		_playerObservers.Add(obj);
+	}
+	
+	void SendObserversMessage(string message, bool isMine)
+	{
+		foreach (GameObject obj in _playerObservers)
+			obj.SendMessage(message,isMine,SendMessageOptions.DontRequireReceiver);
+
+	}
 
 	[RPC]
 	void DropFlag()
@@ -275,6 +288,7 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 	{
 		GetComponent<USpeaker>().InitializeSettings( data );
 	}
+	
 
 	[RPC]
 	void SetTeam(int team)
@@ -283,9 +297,15 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 		Color teamColor;
 
 		if (team == vp_FPSPlayer.Instance.GetTeam())
+		{
+			SendObserversMessage("OnPlayerJoined",true);
 			teamColor = Color.green;
+		}
 		else
+		{
+			SendObserversMessage("OnPlayerJoined",false);
 			teamColor = Color.red;
+		}
 
 		PlayerMeshRenderer.material.SetColor("_Color",teamColor);
 
@@ -329,13 +349,13 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 		float startTime = (float)PhotonNetwork.time;
 
 		photonView.RPC("FireRocketRPC",PhotonTargets.All,startPos,rotation,speed,startTime);
-	
+
 	}
 
 	[RPC]
 	void FireRocketRPC(Vector3 startPos, Quaternion rotation, float speed, float startTime)
 	{
-
+	
 		GameObject rocket = (GameObject)Instantiate(RocketPrefab,startPos,rotation);
 
 		float timeDelta = (float)PhotonNetwork.time - startTime;
@@ -441,6 +461,13 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 	{
 		if (IsHoldingFlag())
 			GetHeldFlag().SendMessage("OnDroppedFlag",this);
+
+
+		SendObserversMessage("OnPlayerLeft",(_team == vp_FPSPlayer.Instance.GetTeam()));
+
+
+
+
 	}
 
 }
