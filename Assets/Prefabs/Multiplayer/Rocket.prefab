@@ -355,7 +355,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Damage: 12
   BlockDestroyRadius: .5
-  DamageRadius: 6
+  DamageRadius: 2
 --- !u!114 &11400002
 MonoBehaviour:
   m_ObjectHideFlags: 1

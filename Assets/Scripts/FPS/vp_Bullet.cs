@@ -121,6 +121,14 @@ public class vp_Bullet : MonoBehaviour
 
 		return hitPos;
 	}
+	
+	public void HitCube(Vector3 hitPos, int shotType, int density, TerrainPrefabBrain terrain)
+	{
+		transform.position = hitPos;
+		PlayImpactSound();
+		terrain.OnBulletHit(hitPos,(ShotType)shotType,density,false);
+		vp_Timer.In(1, TryDestroy);
+	}
 
 	void DoHitEffects(RaycastHit hit)
 	{
@@ -164,13 +172,6 @@ public class vp_Bullet : MonoBehaviour
 		PlayImpactSound();
 	}
 
-	public void HitCube(Vector3 hitPos, int shotType, int density, TerrainPrefabBrain terrain)
-	{
-		transform.position = hitPos;
-		PlayImpactSound();
-		terrain.OnBulletHit(hitPos,(ShotType)shotType,density,false);
-		vp_Timer.In(1, TryDestroy);
-	}
 
 	void PlayImpactSound()
 	{

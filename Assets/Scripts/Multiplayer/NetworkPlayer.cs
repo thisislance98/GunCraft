@@ -340,7 +340,7 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 
 		float timeDelta = (float)PhotonNetwork.time - startTime;
 		rocket.transform.position += rocket.transform.forward * speed * timeDelta;
-		rocket.SendMessage("Fire",speed);
+		rocket.GetComponent<Rocket>().Fire(speed,photonView.isMine,this);
 
 	}
 
@@ -355,7 +355,7 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 
 		if (hitType == HitType.Cube)
 		{
-			photonView.RPC("OnBulletHitCube",PhotonTargets.Others,hitPos,shotType,terrainDensity);
+			photonView.RPC("HitCube",PhotonTargets.Others,hitPos,shotType,terrainDensity,false);
 		}
 
 
@@ -363,7 +363,7 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 	}
 
 	[RPC]
-	public void HitCube(Vector3 hitPos, int shotType, int density)
+	public void HitCube(Vector3 hitPos, int shotType, int density, bool isRocket)
 	{
 
 		GameObject chunkObj = TerrainPrefabBrain.findTerrainChunk(hitPos);
@@ -371,14 +371,23 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 		
 		if ( chunkObj != null )
 		{
-			int hitCubeDensity = TerrainBrain.Instance().getTerrainDensity(hitPos);
-			if (hitCubeDensity > 0)
+			if (isRocket)
 			{
-				TerrainPrefabBrain terrain = chunkObj.GetComponent<TerrainPrefabBrain>();
-				terrain.OnBulletHit(hitPos,(ShotType)shotType,density,false);
+				int hitCubeDensity = TerrainBrain.Instance().getTerrainDensity(hitPos);
+
+				if (hitCubeDensity > 0)
+				{
+					TerrainPrefabBrain terrain = chunkObj.GetComponent<TerrainPrefabBrain>();
+					terrain.OnBulletHit(hitPos,(ShotType)shotType,density,true);
+				}
+			}
+			else // it's a bullet
+			{
+				vp_Bullet bullet = ((GameObject)Object.Instantiate(ProjectilePrefab)).GetComponent<vp_Bullet>();
+				bullet.HitCube(hitPos,shotType,density,chunkObj.GetComponent<TerrainPrefabBrain>());
 			}
 		}
-		else
+		else // the terrain is not within view distance
 		{
 			Debug.Log("couldn't find terrain at hit pos: " + hitPos);
 			TerrainBrain.Instance().setTerrainDensity(hitPos,density);
@@ -386,26 +395,8 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 
 
 	}
-
-	[RPC]
-	void OnBulletHitCube(Vector3 hitPos, int shotType, int density)
-	{
-		GameObject chunkObj = TerrainPrefabBrain.findTerrainChunk(hitPos);
-
-
-		if ( chunkObj != null )
-		{
-			vp_Bullet bullet = ((GameObject)Object.Instantiate(ProjectilePrefab)).GetComponent<vp_Bullet>();
-			bullet.HitCube(hitPos,shotType,density,chunkObj.GetComponent<TerrainPrefabBrain>());
-		}
-		else
-		{
-			Debug.Log("couldn't find terrain at hit pos: " + hitPos);
-			TerrainBrain.Instance().setTerrainDensity(hitPos,density);
-		}
-	}
-
 	
+
 	public void OnBulletHitPlayer(float damage)
 	{
 		photonView.RPC("OnBulletHitPlayerRPC",PhotonTargets.All, photonView.ownerId,damage);

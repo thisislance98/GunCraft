@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 public class NetworkConnect : Photon.MonoBehaviour
 {
@@ -69,9 +70,30 @@ public class NetworkConnect : Photon.MonoBehaviour
 
 	void OnJoinedRoom()
 	{
+		int[] numInTeam = new int[2];
+		int team;
+
+		foreach (PhotonPlayer photonPlayer in PhotonNetwork.otherPlayers)
+		{
+			if (photonPlayer.customProperties.ContainsKey("Team") == false)
+			{
+				Debug.Log("Error: player does not have team assigned");
+				continue;
+			}
+
+			numInTeam[(int)photonPlayer.customProperties["Team"]]++;
+
+		}
+
+
+		team = (numInTeam[0] > numInTeam[1]) ? 1 : 0;
+		Hashtable hash = new Hashtable();
+		hash["Team"] = team;
+		PhotonNetwork.player.SetCustomProperties(hash);
+
 		Debug.Log("joined room " + PhotonNetwork.playerList.Length);
 		vp_FPSPlayer player = GameObject.FindGameObjectWithTag("Player").GetComponent<vp_FPSPlayer>();
-		player.OnPlayerConnected(PhotonNetwork.playerList.Length);
+		player.OnPlayerConnected(team);
 	}
 
     void OnConnectedToPhoton()

@@ -17,8 +17,8 @@ public class FlagGameManager : Photon.MonoBehaviour {
 	List<GameObject> _flagObservers = new List<GameObject>();
 
 	NetworkPlayer _myPlayer;
-	int _myTeam;
-	int _theirTeam;
+	int _myTeam = -1;
+	int _theirTeam = -1;
 	int _myTeamScore;
 	int _theirScore;
 
@@ -69,7 +69,11 @@ public class FlagGameManager : Photon.MonoBehaviour {
 			TheirScoreLabel.text = "Their Score: " + _theirScore;
 		}
 	}
-	
+
+	public bool IsTeamSet()
+	{
+		return _myTeam != -1;
+	}
 
 	public void SetTeam(int team)
 	{

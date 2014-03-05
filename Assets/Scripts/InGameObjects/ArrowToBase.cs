@@ -26,6 +26,9 @@ public class ArrowToBase : MonoBehaviour {
 	// Update is called once per frame
 	void Update () 
 	{
+		if (FlagGameManager.Instance.IsTeamSet() == false)
+			return;
+
 		Vector3 dir;
 
 		if (PointToMyFlag) // is arrow to my flag

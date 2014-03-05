@@ -89,11 +89,11 @@ public class vp_FPSPlayer : MonoBehaviour
 		_netPlayer = player;
 	}
 
-	public void OnPlayerConnected(int numCurrentPlayers)
+	public void OnPlayerConnected(int team)
 	{
-		_team = numCurrentPlayers % 2;
+		_team = team;
 
-		Debug.Log("num players: " + numCurrentPlayers + " team: " + _team);
+		Debug.Log("joined team: " + _team);
 		Vector3 pos = FlagGameManager.Instance.GetBasePosition(_team);
 		FlagGameManager.Instance.SetTeam(_team);
 

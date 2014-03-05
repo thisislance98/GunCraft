@@ -5,54 +5,61 @@ public class Rocket : MonoBehaviour {
 
 	public float Damage = 12;
 	public float BlockDestroyRadius = 3;
-	public float DamageRadius = 6;
+	public float DamageRadius = 2;
 	float _speed;
 	float _timeAlive;
+	bool _isMine;
+	NetworkPlayer _shootingPlayer;
+
 	// Use this for initialization
-	void Fire (float speed) {
+	public void Fire(float speed, bool isMine, NetworkPlayer shootingPlayer) {
 		_speed = speed;
+		_isMine = isMine;
+		_shootingPlayer = shootingPlayer;
 	}
 	
+
 	// Update is called once per frame
 	void Update () {
 
 		transform.position += transform.forward * _speed * Time.deltaTime;
 		_timeAlive += Time.deltaTime;
 
-		int hitCubeDensity = TerrainBrain.Instance().getTerrainDensity(transform.position);
-		if (hitCubeDensity > 0)
-		{
-			CheckForPlayerHit(transform.position,false);
-			OnHitTerrain(transform.position,BlockDestroyRadius,ShotType.Destroy);
-		}
-
 		if (_timeAlive > 10)
 			Destroy(gameObject);
+
+
+		Vector3 checkPos = transform.position + transform.forward * .5f;
+		int hitCubeDensity = TerrainBrain.Instance().getTerrainDensity(checkPos);
+		if (hitCubeDensity > 0 && _isMine)
+		{
+			CheckForPlayerHit(checkPos,false);
+			OnHitTerrain(checkPos,BlockDestroyRadius,ShotType.Destroy);
+		}
+
+
 	}
 
 	void OnTriggerEnter(Collider other)
 	{ 
-		Debug.Log("trigger entered: " + other.name);
 		CheckForPlayerHit(transform.position,true);
-
 	}
 
 	bool CheckForPlayerHit(Vector3 center, bool destroyIfHit)
 	{
-		Collider[] colliders = Physics.OverlapSphere(center,BlockDestroyRadius);	
-		
+		Collider[] colliders = Physics.OverlapSphere(center,DamageRadius);	
 
 		foreach(Collider col in colliders)
 		{
-	//		Debug.Log("hit collider: " + col.transform.name);
-			if (col.tag == "NetworkPlayer")
+			if (col.tag == "NetworkPlayer" && col.GetComponent<NetworkPlayer>() != _shootingPlayer)
 			{
-				Debug.Log("got player");
+	
 				float distToPlayer = Vector3.Distance(transform.position,col.transform.position);
 				float damage = Damage * (1 - distToPlayer / DamageRadius);
 				damage = Mathf.Max(0,damage);
 
-				col.GetComponent<NetworkPlayer>().OnBulletHitPlayer(damage);
+				if (_isMine)
+					col.GetComponent<NetworkPlayer>().OnBulletHitPlayer(damage);
 
 				if (destroyIfHit)
 					Destroy(gameObject);
@@ -77,7 +84,7 @@ public class Rocket : MonoBehaviour {
 
 				if (shotType == ShotType.Destroy)
 				{
-					NetworkPlayer.Instance.photonView.RPC("HitCube",PhotonTargets.All,pos,(int)ShotType.Destroy,0);
+					NetworkPlayer.Instance.photonView.RPC("HitCube",PhotonTargets.All,pos,(int)ShotType.Destroy,0,true);
 				}
 				
 
