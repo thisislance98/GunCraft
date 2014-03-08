@@ -87,13 +87,14 @@ public class NetworkConnect : Photon.MonoBehaviour
 
 
 		team = (numInTeam[0] > numInTeam[1]) ? 1 : 0;
-		Hashtable hash = new Hashtable();
+		Hashtable hash = PhotonNetwork.player.customProperties;
 		hash["Team"] = team;
 		PhotonNetwork.player.SetCustomProperties(hash);
 
 		Debug.Log("joined room " + PhotonNetwork.playerList.Length);
 		vp_FPSPlayer player = GameObject.FindGameObjectWithTag("Player").GetComponent<vp_FPSPlayer>();
 		player.OnPlayerConnected(team);
+
 	}
 
     void OnConnectedToPhoton()
@@ -128,6 +129,7 @@ public class NetworkConnect : Photon.MonoBehaviour
         if (PhotonNetwork.room == null){
             string roomName = "TestRoom"+Application.loadedLevelName;
             PhotonNetwork.CreateRoom(roomName, true, true, 16);
+			Debug.Log("creating room");
         }
     }
     

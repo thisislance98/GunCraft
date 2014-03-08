@@ -328,32 +328,30 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 
 	public void HitFlag(int teamOfFlag)
 	{
+		Flag flag = FlagGameManager.Instance.GetFlag(teamOfFlag);
+		flag.OnPlayerTriggerEnter(this);
 
-		photonView.RPC("OnHitFlag",PhotonTargets.AllBuffered,teamOfFlag);
+	//	photonView.RPC("OnHitFlag",PhotonTargets.AllBuffered,teamOfFlag);
 	}
 
-	[RPC]
-	IEnumerator OnHitFlag(int teamOfFlag)
-	{
-
-		while (FlagGameManager.Instance == null || FlagGameManager.Instance.GetMyPlayer() == null)
-		{
-			yield return new WaitForSeconds(1);
-		}
-	//	Debug.Log("hit flag: " + teamOfFlag + " ismine: " + photonView.isMine + " my team: " + _team + " flag team: " + teamOfFlag);
-		if (_team != -1)
-		{
-
-	//		if (photonView.isMine)
-				
-
-			Flag flag = FlagGameManager.Instance.GetFlag(teamOfFlag);
-			flag.OnPlayerTriggerEnter(this);
-		}
-
-		yield return null;
-
-	}
+//	[RPC]
+//	IEnumerator OnHitFlag(int teamOfFlag)
+//	{
+//
+//		while (FlagGameManager.Instance == null || FlagGameManager.Instance.GetMyPlayer() == null)
+//		{
+//			yield return new WaitForSeconds(1);
+//		}
+//	//	Debug.Log("hit flag: " + teamOfFlag + " ismine: " + photonView.isMine + " my team: " + _team + " flag team: " + teamOfFlag);
+//		if (_team != -1)
+//		{
+//			Flag flag = FlagGameManager.Instance.GetFlag(teamOfFlag);
+//			flag.OnPlayerTriggerEnter(this);
+//		}
+//
+//		yield return null;
+//
+//	}
 
 	public void FireRocket(Vector3 startPos, Quaternion rotation, float speed)
 	{

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 public class FlagGameManager : Photon.MonoBehaviour {
 
@@ -40,10 +41,29 @@ public class FlagGameManager : Photon.MonoBehaviour {
 
 	public void OnFlagStateChange()
 	{
+		photonView.RPC("OnFlagStateChangeRPC",PhotonTargets.AllBuffered);
+	}
+
+	[RPC]
+	public IEnumerator OnFlagStateChangeRPC()
+	{
+
+		while (GetMyPlayer() == null || GetMyPlayer().GetTeam() == -1)
+		{
+			yield return new WaitForSeconds(.3f);
+		}
+
+		GetFlag(0).UpdateFlag();
+		GetFlag(1).UpdateFlag();
+
+
 		foreach(GameObject observer in _flagObservers)
 		{
-			observer.SendMessage("OnFlagStateChange");
+			Debug.Log("observer: " + observer.name + "is active: " + observer.activeSelf);
+			observer.GetComponent<ArrowToBase>().OnFlagStateChange();
 		}
+
+		UpdateScoreLabels();
 	}
 
 	public NetworkPlayer GetMyPlayer()
@@ -54,20 +74,70 @@ public class FlagGameManager : Photon.MonoBehaviour {
 	public void SetMyPlayer(NetworkPlayer player)
 	{
 		_myPlayer = player;
+
+		UpdateScoreLabels();
 	}
 
 	public void OnScore(int scoringTeam)
 	{
-		if (FlagGameManager.Instance.GetMyPlayer().GetTeam() == scoringTeam)
+		Hashtable hash = PhotonNetwork.room.customProperties;
+
+		ValidateTeamScores();
+
+		if (scoringTeam == 0)
+			hash["Team0Score"] = (int)hash["Team0Score"] + 1;
+		else
+			hash["Team1Score"] = (int)hash["Team1Score"] + 1;
+
+		PhotonNetwork.room.SetCustomProperties(hash);
+		UpdateScoreLabels();
+		
+	}
+
+	void ValidateTeamScores()
+	{
+		Hashtable hash = PhotonNetwork.room.customProperties;
+
+		bool didSet = false;
+
+		if (hash["Team0Score"] == null)
 		{
-			_myTeamScore++;
-			MyScoreLabel.text = "Your Score: " + _myTeamScore;
+			hash["Team0Score"] = 0;
+			didSet = true;
+		}
+		if (hash["Team1Score"] == null)
+		{
+			hash["Team1Score"] = 0;
+			didSet = true;
+		}
+
+		if (didSet)
+			PhotonNetwork.room.SetCustomProperties(hash);
+	}
+
+	void UpdateScoreLabels()
+	{
+		int myScore;
+		int theirScore;
+
+		ValidateTeamScores();
+
+		if (FlagGameManager.Instance.GetMyPlayer().GetTeam() == 0)
+		{
+			myScore = (int)PhotonNetwork.room.customProperties["Team0Score"];
+			theirScore = (int)PhotonNetwork.room.customProperties["Team1Score"];
 		}
 		else
 		{
-			_theirScore++;
-			TheirScoreLabel.text = "Their Score: " + _theirScore;
+			myScore = (int)PhotonNetwork.room.customProperties["Team1Score"];
+			theirScore = (int)PhotonNetwork.room.customProperties["Team0Score"];
 		}
+
+
+		MyScoreLabel.text = "Your Score: " + myScore;
+		TheirScoreLabel.text = "Their Score: " + theirScore;
+
+
 	}
 
 	public bool IsTeamSet()
@@ -112,6 +182,7 @@ public class FlagGameManager : Photon.MonoBehaviour {
 
 	public Flag GetFlag(int team)
 	{
+
 		return Flags[team].GetComponent<Flag>();
 	}
 

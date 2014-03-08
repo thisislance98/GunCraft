@@ -56,4 +56,5 @@ MonoBehaviour:
   - HitCube
   - OnBulletHitCube
   - GetTargetPositionFromOwner
+  - OnFlagStateChangeRPC
   DisableAutoOpenWizard: 0

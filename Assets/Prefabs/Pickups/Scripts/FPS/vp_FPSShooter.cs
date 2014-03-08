@@ -304,7 +304,7 @@ public class vp_FPSShooter : vp_Component
 	
 	public bool HasAmmo()
 	{
-		Debug.Log("total ammo: " + TotalAmmo + " for: " + transform.name);
+
 		return (TotalAmmo > 0 || IsAmmoUnlimited);
 	}
 

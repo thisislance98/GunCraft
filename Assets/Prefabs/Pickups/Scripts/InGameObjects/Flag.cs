@@ -25,28 +25,49 @@ public class Flag : MonoBehaviour {
 			if (player.IsHoldingFlag())
 			{
 			
-				ReturnFlagToOtherBase(player);
-
 				FlagGameManager.Instance.OnScore(player.GetTeam());
 
+				SetFlagHolder(null,player.GetTeam());
 
 			}
 		}
 		else // just took their flag
 		{
-			Debug.Log("took their flag");
-			collider.enabled = false;
-			transform.parent = player.transform;
-			transform.localPosition = Vector3.zero;
-			FlagGameManager.Instance.OnFlagStateChange();
+
+			SetFlagHolder(player.photonView,player.GetTeam());
 
 		}
 
 	}
 
-	void ReturnFlagToOtherBase(NetworkPlayer player)
+
+	void SetFlagHolder(PhotonView holder, int team)
 	{
-		int otherTeam = (player.GetTeam() + 1) % 2;
+
+		int viewId = (holder == null) ? -1 : holder.viewID;
+		Debug.Log("setting flag holder: " + viewId + " for team: " + team);
+
+		RoomHelper.Set<int>("Team" + team + "FlagHolderId",viewId);
+		FlagGameManager.Instance.OnFlagStateChange();
+
+	}
+
+	void GrabFlag(PhotonView playerView)
+	{
+		Debug.Log("grabbing flag " + GetTeam());
+		int otherTeam = (GetTeam() + 1) % 2;
+		
+		Transform theirFlag = FlagGameManager.Instance.GetFlag(otherTeam).transform;
+
+		theirFlag.collider.enabled = false;
+		theirFlag.parent = playerView.transform;
+		theirFlag.localPosition = Vector3.zero;
+
+	}
+
+	void ReturnFlagToOtherBase()
+	{
+		int otherTeam = (GetTeam() + 1) % 2;
 		
 		Transform flag = FlagGameManager.Instance.GetFlag(otherTeam).transform;
 		
@@ -54,12 +75,30 @@ public class Flag : MonoBehaviour {
 		flag.localPosition = Vector3.zero;
 		
 		flag.collider.enabled = true;
-		FlagGameManager.Instance.OnFlagStateChange();
+
+		Debug.Log("returning flag: " + GetTeam());
+
+	}
+
+	public void UpdateFlag()
+	{
+		int holderId = RoomHelper.Get<int>("Team" + GetTeam() + "FlagHolderId",-1 );
+
+		PhotonView flagHolder = null; 
+	
+		Debug.Log("updating holder id: " + holderId + " for team: " + GetTeam());
+		if (holderId != -1)
+			flagHolder = PhotonView.Find(holderId );
+
+		if (flagHolder == null)
+			ReturnFlagToOtherBase();
+		else
+			GrabFlag(flagHolder);
 	}
 
 	void OnDroppedFlag(NetworkPlayer player)
 	{
-		ReturnFlagToOtherBase(player);
+		SetFlagHolder(null,player.GetTeam());
 
 	}
 
