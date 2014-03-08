@@ -382,7 +382,7 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 
 		HitType hitType; 
 
-		Vector3 hitPos = bullet.Fire((ShotType)shotType,terrainDensity, out hitType);
+		Vector3 hitPos = bullet.Fire((ShotType)shotType,terrainDensity, out hitType, transform.position);
 
 		if (hitType == HitType.Cube)
 		{
@@ -428,19 +428,24 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 	}
 	
 
-	public void OnBulletHitPlayer(float damage)
+	public void OnBulletHitPlayer(float damage, Vector3 shootingPos)
 	{
-		photonView.RPC("OnBulletHitPlayerRPC",PhotonTargets.All, photonView.ownerId,damage);
+		photonView.RPC("OnBulletHitPlayerRPC",PhotonTargets.All, photonView.ownerId,damage,shootingPos);
 	}
 
 	[RPC]
-	void OnBulletHitPlayerRPC(int ownerId,float damage)
+	void OnBulletHitPlayerRPC(int ownerId,float damage, Vector3 shootingPos)
 	{
 
 		if (photonView.ownerId == ownerId && transform.parent != null) // owner
 		{
 			vp_FPSPlayer player = transform.parent.gameObject.GetComponent<vp_FPSPlayer>();
-			player.OnGotHit(damage);
+
+			if (player.IsDead())
+				return;
+
+			player.OnGotHit(damage,shootingPos);
+
 
 
 			if (player.m_Health <= 0)

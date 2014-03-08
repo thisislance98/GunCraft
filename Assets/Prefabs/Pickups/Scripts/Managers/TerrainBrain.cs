@@ -181,6 +181,19 @@ public class TerrainBrain : Photon.MonoBehaviour
 		return false;
 	}
 
+	public Vector3 GetGroundPos(Vector3 startPos)
+	{
+		float distance = 500;
+
+		for (float y = startPos.y; y >= startPos.y - distance; y--)
+		{
+			if (getTerrainDensity(Mathf.RoundToInt(startPos.x), Mathf.RoundToInt(y), Mathf.RoundToInt(startPos.z)) != 0)
+				return new Vector3 (startPos.x, y+1, startPos.z);
+		}
+
+		return Vector3.zero;
+	}
+
 	public void SaveWorld()
 	{
 		StartCoroutine(SaveWorldRoutine());

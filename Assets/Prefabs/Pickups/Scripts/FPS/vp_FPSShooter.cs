@@ -93,7 +93,7 @@ public class vp_FPSShooter : vp_Component
 		_shotType = type;
 	}
 
-	public int _totalAmmo = 200;
+	public int _totalAmmo;
 	public int TotalAmmo 
 	{
 		get { 
@@ -101,18 +101,18 @@ public class vp_FPSShooter : vp_Component
 		}
 
 		set {
-			Debug.Log("setting total ammo");
+
 			_totalAmmo = value;
 
-			if (_totalAmmo < 0)
+
+			if (_totalAmmo <= 0)
+			{
 				_totalAmmo = 0;
+
+			}
 		}
 	}
-
-	public static ShotType GetShotType()
-	{
-		return _shotType;
-	}
+	
 
 
 	///////////////////////////////////////////////////////////
@@ -190,6 +190,10 @@ public class vp_FPSShooter : vp_Component
 
 	}
 
+	public bool CanFire()
+	{
+		return (Time.time > m_NextAllowedFireTime);
+	}
 
 	///////////////////////////////////////////////////////////
 	// this method handles firing rate, recoil forces and fire
@@ -250,13 +254,14 @@ public class vp_FPSShooter : vp_Component
 
 			if (ProjectilePrefab != null)
 			{
+
 				bool isRocket = (ProjectilePrefab.tag == "Rocket");
 				int terrainDensity = (_shotType == ShotType.Create) ? TextureManager.Instance.GetTextureIndex()+1 : 0;
 
 				if (isRocket)
 				{
 					Vector3 startPos = transform.FindChild("Mesh").position + Vector3.up * .1f;
-					NetworkPlayer.Instance.FireRocket(m_Camera.transform.position,m_Camera.transform.rotation,10);
+					NetworkPlayer.Instance.FireRocket(m_Camera.transform.position,m_Camera.transform.rotation,20);
 				}
 				else if (TextureManager.Instance.GetAvaiableBlocks(terrainDensity) > 0)
 				{
@@ -299,6 +304,7 @@ public class vp_FPSShooter : vp_Component
 	
 	public bool HasAmmo()
 	{
+		Debug.Log("total ammo: " + TotalAmmo + " for: " + transform.name);
 		return (TotalAmmo > 0 || IsAmmoUnlimited);
 	}
 
@@ -326,6 +332,7 @@ public class vp_FPSShooter : vp_Component
 
 	public void ResetAmmo()
 	{
+		Debug.Log("resetting ammo for: " + transform.name);
 		TotalAmmo = 0;
 		m_AmmoCount = 0;
 	}

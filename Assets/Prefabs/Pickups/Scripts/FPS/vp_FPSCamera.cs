@@ -587,11 +587,22 @@ public class vp_FPSCamera : vp_Component
 
 	}
 
+	public void LookAt(Vector3 pos)
+	{
+		transform.rotation = Quaternion.LookRotation(pos-transform.position);
+
+	}
+	
+
 	///////////////////////////////////////////////////////////
 	// mouse look implementation with smooth filtering
 	///////////////////////////////////////////////////////////
 	protected void UpdateMouseLook(Touch touch)
 	{
+		if (vp_FPSPlayer.Instance.IsDead())
+			return;
+
+
 		Vector3 touchPos;
 		
 //#if UNITY_EDITOR

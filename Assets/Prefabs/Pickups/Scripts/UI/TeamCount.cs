@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 public class TeamCount : MonoBehaviour {
 
@@ -7,27 +8,41 @@ public class TeamCount : MonoBehaviour {
 	int count = 0;
 
 	// Use this for initialization
-	void Start () {
-		NetworkPlayer.AddPlayerObserver(gameObject);
+	IEnumerator Start () {
+
+		while (true)
+		{
+			yield return new WaitForSeconds(3);
+			UpdateCount();
+			UpdateLabel();
+
+		}
+
+	}
+
+	public void UpdateCount()
+	{
+		if (NetworkPlayer.Instance == null)
+			return;
+		count = 0;
+
+		foreach(PhotonPlayer player in PhotonNetwork.playerList)
+		{
+			if (IsMine)
+			{
+				if ((int)player.customProperties["Team"] == NetworkPlayer.Instance.GetTeam())
+					count++;
+
+			}
+			else if ((int)player.customProperties["Team"] != NetworkPlayer.Instance.GetTeam())
+				count++;
+
+
+		}
+
+
 	}
 	
-	void OnPlayerJoined(bool isMine)
-	{
-		Debug.Log("player joined");
-		if (IsMine == isMine)
-			count++;
-
-		UpdateLabel();
-	}
-
-	void OnPlayerLeft(bool isMine)
-	{
-		if (IsMine == isMine)
-			count--;
-
-		UpdateLabel();
-	}
-
 	void UpdateLabel()
 	{
 		if (IsMine)

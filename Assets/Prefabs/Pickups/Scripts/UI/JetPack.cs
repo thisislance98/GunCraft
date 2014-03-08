@@ -53,7 +53,7 @@ public class JetPack : MonoBehaviour {
 		CurrentFuel = _currentFuelStartHeight;
 		TotalFuel = _totalFuelStartHeight;
 
-		Activate(false);
+	//	Activate(false);
 	}
 
 	public void Activate(bool active)

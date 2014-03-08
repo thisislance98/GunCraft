@@ -201,6 +201,8 @@ public class vp_FPSShooterEditor : Editor
 			{
 				m_Component.IsAmmoUnlimited = EditorGUILayout.Toggle("Ammo Unlimited",m_Component.IsAmmoUnlimited);
 				m_Component._totalAmmo = EditorGUILayout.IntField("Total Ammo", m_Component._totalAmmo);
+
+
 				m_Component.AmmoMaxCount = EditorGUILayout.IntField("Max Count", m_Component.AmmoMaxCount);
 				m_Component.AmmoReloadTime = EditorGUILayout.FloatField("Reload Time", m_Component.AmmoReloadTime);
 			

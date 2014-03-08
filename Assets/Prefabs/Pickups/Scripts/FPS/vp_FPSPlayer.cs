@@ -50,6 +50,8 @@ public class vp_FPSPlayer : MonoBehaviour
 	float _startGravityModifier;
 	int _team = -1;
 	NetworkPlayer _netPlayer;
+	float _lastDeathTime;
+	public GameObject GotHitObserver;
 
 	///////////////////////////////////////////////////////////
 	// properties
@@ -175,7 +177,7 @@ public class vp_FPSPlayer : MonoBehaviour
 		InputCrouch();
 
 		// handle input for weapons
-		if (Application.platform != RuntimePlatform.IPhonePlayer)
+		if (Application.platform != RuntimePlatform.IPhonePlayer && CurrentShooter != null && CurrentShooter.CanFire())
 			InputFire();
 		InputZoom();
 		InputReload();
@@ -385,28 +387,31 @@ public class vp_FPSPlayer : MonoBehaviour
 	protected void InputFire()
 	{
 
-
-		// fire button pressed / held down
-		if ( Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
-		{
-			OnFireDown();
-		}
-
-		// fire button released
-		if (Input.GetMouseButtonUp(0) || Input.GetMouseButtonUp(1))
-		{
-			if (Input.GetMouseButtonUp(1))
-				_doubleTap = true;
-
-			OnFireUp();
-
-		}
-
 		if (Application.platform != RuntimePlatform.IPhonePlayer)
 			if (Input.GetMouseButton(0))
 				Fire(ShotType.Destroy);
-			else if (Input.GetMouseButton(1))
-				Fire (ShotType.Create);
+		else if (Input.GetMouseButton(1))
+			Fire (ShotType.Create);
+		else // is iphone
+		{
+			// fire button pressed / held down
+			if ( Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
+			{
+				OnFireDown();
+			}
+
+			// fire button released
+			if (Input.GetMouseButtonUp(0) || Input.GetMouseButtonUp(1))
+			{
+				if (Input.GetMouseButtonUp(1))
+					_doubleTap = true;
+
+				OnFireUp();
+
+			}
+		}
+
+
 
 
 	}
@@ -454,6 +459,7 @@ public class vp_FPSPlayer : MonoBehaviour
 
 		if (CurrentShooter.HasAmmo() == false)
 		{
+			Debug.Log("shooter: " + CurrentShooter.transform.name);
 			for (int i = 4; i >= 1; i--)
 			{
 				if (i == 2)
@@ -519,13 +525,13 @@ public class vp_FPSPlayer : MonoBehaviour
 	protected void InputZoom()
 	{
 
-		if (Input.GetMouseButtonDown(1) || Input.GetMouseButtonDown(2))
-			SetState("Zoom", true);
-		if (Input.GetMouseButtonUp(1) || Input.GetMouseButtonUp(2))
-		{
-			SetState("Zoom", false);
-			ReenableWeaponStatesIn(0.5f);	// schedule to reenable 'Crouch' and / or 'Run' in half a second
-		}
+//		if (Input.GetMouseButtonDown(1) || Input.GetMouseButtonDown(2))
+//			SetState("Zoom", true);
+//		if (Input.GetMouseButtonUp(1) || Input.GetMouseButtonUp(2))
+//		{
+//			SetState("Zoom", false);
+//			ReenableWeaponStatesIn(0.5f);	// schedule to reenable 'Crouch' and / or 'Run' in half a second
+//		}
 
 	}
 
@@ -670,6 +676,7 @@ public class vp_FPSPlayer : MonoBehaviour
 	///////////////////////////////////////////////////////////
 	public bool SetWeapon(int weapon)
 	{
+		Debug.Log("setting weapon: " + weapon);
 		if (Camera.GetShooter(weapon).HasAmmo() == false)
 		{
 			Debug.Log("weapon on of ammo: " + weapon);
@@ -937,37 +944,44 @@ public class vp_FPSPlayer : MonoBehaviour
 	// here's a stub for a Damage method that can be called by
 	// damage causing entities like vp_Explosion
 	///////////////////////////////////////////////////////////
-	public void Damage(float damage)
+	public void Damage(float damage, Vector3 shootingPos)
 	{
 
 		m_Health -= damage;
 		Debug.Log("Health = " + m_Health);
 		if (m_Health <= 0.0f)
 		{
-			Debug.Log("Player died.");
-			DeathLabel.gameObject.SetActive(true);
-			m_IsDead = true;
-			SetWeapon(1);
-			Transform fpsCamera = transform.FindChild("FPSCamera");
-			fpsCamera.GetComponent<vp_FPSCamera>().TweenFOV(130,.3f);
-			GameObject weaponCamera = fpsCamera.FindChild("WeaponCamera").gameObject;
-			weaponCamera.SetActive(false);
-
-			Camera.GetShooter(3).ResetAmmo();
-			Camera.GetShooter(4).ResetAmmo();
-			JetPack.Instance.Activate(false);
-			XRay.Instance.Activate(false);
-
-			StartCoroutine(StartDeathCountdown());
-			StartCoroutine(LiveAfterDelay());
-	//		iTween.MoveTo(gameObject,FlagGameManager.Instance.GetBasePosition(_team) + Vector3.up * 10,5);
-			// NOTE: remember to restore the m_Health variable after respawn
-			// TIP: if health goes far below zero, gib the player!
-			m_Health = 0;
+			Die (shootingPos);
 		}
 
 	}
 
+	void Die(Vector3 shootingPos)
+	{
+		if (m_IsDead)
+			return;
+
+		Camera.LookAt(shootingPos);
+		Debug.Log("Player died.");
+		DeathLabel.gameObject.SetActive(true);
+		m_IsDead = true;
+		SetWeapon(1);
+		Transform fpsCamera = transform.FindChild("FPSCamera");
+		fpsCamera.GetComponent<vp_FPSCamera>().TweenFOV(130,.3f);
+		GameObject weaponCamera = fpsCamera.FindChild("WeaponCamera").gameObject;
+		weaponCamera.SetActive(false);
+		
+		// reset guns and pickups
+		Camera.GetShooter(3).ResetAmmo();
+		Camera.GetShooter(4).ResetAmmo();
+		JetPack.Instance.Activate(false);
+		XRay.Instance.Activate(false);
+		
+		StartCoroutine(StartDeathCountdown());
+		StartCoroutine(LiveAfterDelay());
+		
+		m_Health = 0;
+	}
 
 	IEnumerator StartDeathCountdown()
 	{
@@ -987,30 +1001,44 @@ public class vp_FPSPlayer : MonoBehaviour
 		yield return new WaitForSeconds(9);
 
 		Transform fpsCamera = transform.FindChild("FPSCamera");
-		fpsCamera.GetComponent<vp_FPSCamera>().TweenFOV(60,.3f);
+
 
 		NetworkPlayer.Instance.photonView.RPC ("OnPlayerResurrect",PhotonTargets.All);
 
 		// give some time to show getting up animation
 		yield return new WaitForSeconds(1);
 
-		float animTime = 5;
-		iTween.MoveTo(gameObject,FlagGameManager.Instance.GetMyBasePosition() + Vector3.up * 10,animTime);
+
+		Vector3 posAroundBase = FlagGameManager.Instance.GetMyBasePosition() + Vector3.right + Vector3.up * 30;
+
+		Vector3 respawnPos = TerrainBrain.Instance().GetGroundPos(posAroundBase) + Vector3.up*.5f;
+
+		float animTime = 1;
+		iTween.MoveTo(gameObject,iTween.Hash("position", respawnPos,"time",animTime, "easetype",iTween.EaseType.linear));
 		yield return new WaitForSeconds(animTime);
 
 		GameObject weaponCamera = fpsCamera.FindChild("WeaponCamera").gameObject;
 		weaponCamera.SetActive(true);
+		fpsCamera.GetComponent<vp_FPSCamera>().camera.fieldOfView = 60;
 		m_IsDead = false;
+		m_Health = MaxHealth;
+		_lastDeathTime = Time.time;
 	}
 
-	public void OnGotHit()
+
+	public bool IsDead()
 	{
-		Damage(HitDamage);
+		return m_IsDead;
 	}
 
-	public void OnGotHit(float damage)
+	public void OnGotHit(float damage,Vector3 shootingPos)
 	{
-		Damage(damage);
+		Debug.Log("time : " + Time.time + " last death: " + _lastDeathTime);
+		if (m_IsDead || Time.time -_lastDeathTime < 2)
+			return;
+
+		GotHitObserver.SendMessage("OnGotHit",shootingPos);
+		Damage(damage,shootingPos);
 	}
 
 
