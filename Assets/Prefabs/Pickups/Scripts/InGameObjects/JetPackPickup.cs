@@ -1,12 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class JetPackPickup : MonoBehaviour {
+public class JetPackPickup : ObjectPickup {
 
-	void OnTriggerEnter(Collider other)
+	override protected void OnTriggerEnter(Collider other)
 	{
 		if (other.tag != "Player")
 			return;
+
+		base.OnTriggerEnter(other);
 		
 		JetPack.Instance.Activate(true);
 		

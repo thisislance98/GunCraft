@@ -33,7 +33,7 @@ public class TerrainBrain : Photon.MonoBehaviour
 	Vector3 lastPos = Vector3.zero;
 	
 	// Distance in blocks to load terrain
-	float viewDistance = 30.0f;
+	float viewDistance = (Application.platform == RuntimePlatform.IPhonePlayer) ? 30.0f : 50.0f;
 	int blockLoadDistance = 50;
 	
 	//Queue<GameObject> m_freePool = new Queue<GameObject>();
@@ -318,7 +318,7 @@ public class TerrainBrain : Photon.MonoBehaviour
 		if (Input.GetKey(KeyCode.F))
 		{
 			Debug.Log("saving world");
-			SaveWorld();
+		//	SaveWorld();
 		}
 		if (Input.GetMouseButtonDown(0))
 		{

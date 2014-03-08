@@ -24,7 +24,7 @@ using System.Collections;
 
 public class vp_FPSPlayer : MonoBehaviour
 {
-
+	public UILabel DeathLabel;
 	public float MaxWalkSpeed;
 	// components
 	[HideInInspector]
@@ -68,6 +68,7 @@ public class vp_FPSPlayer : MonoBehaviour
 	void Awake()
 	{
 		Instance = this;
+		DeathLabel.gameObject.SetActive(false);
 		// get hold of the vp_FPSCamera and vp_FPSController attached to
 		// this game object. NOTE: vp_FPSWeapons and vp_FPSShooters are
 		// accessed via 'CurrentWeapon' and 'CurrentShooter'
@@ -241,6 +242,9 @@ public class vp_FPSPlayer : MonoBehaviour
 
 	protected void InputWalk(Touch touch)
 	{
+		if (m_IsDead)
+			return;
+
 		Vector3 delta = Vector3.zero;
 		if (m_Moving)
 		{
@@ -341,6 +345,9 @@ public class vp_FPSPlayer : MonoBehaviour
 
 		if (Input.GetKey(KeyCode.Space))
 			Controller.ApplyJetpack();
+
+		if (Input.GetKeyUp(KeyCode.Space))
+		    Controller.OnJetpackStop();
 
 	}
 
@@ -447,8 +454,18 @@ public class vp_FPSPlayer : MonoBehaviour
 
 		if (CurrentShooter.HasAmmo() == false)
 		{
-			Debug.Log("switching weapon " + CurrentShooter.name);
-			SetWeapon(1);
+			for (int i = 4; i >= 1; i--)
+			{
+				if (i == 2)
+					continue;
+
+				if (Camera.GetShooter(i).HasAmmo())
+				{
+					SetWeapon(i);
+					break;
+				}
+			}
+
 
 			return;
 		}
@@ -581,6 +598,7 @@ public class vp_FPSPlayer : MonoBehaviour
 		if (shooter == null)
 			Debug.Log("shooter is null");
 
+	
 		shooter.AddAmmo(ammo);
 
 
@@ -927,12 +945,20 @@ public class vp_FPSPlayer : MonoBehaviour
 		if (m_Health <= 0.0f)
 		{
 			Debug.Log("Player died.");
+			DeathLabel.gameObject.SetActive(true);
 			m_IsDead = true;
-
+			SetWeapon(1);
 			Transform fpsCamera = transform.FindChild("FPSCamera");
 			fpsCamera.GetComponent<vp_FPSCamera>().TweenFOV(130,.3f);
 			GameObject weaponCamera = fpsCamera.FindChild("WeaponCamera").gameObject;
 			weaponCamera.SetActive(false);
+
+			Camera.GetShooter(3).ResetAmmo();
+			Camera.GetShooter(4).ResetAmmo();
+			JetPack.Instance.Activate(false);
+			XRay.Instance.Activate(false);
+
+			StartCoroutine(StartDeathCountdown());
 			StartCoroutine(LiveAfterDelay());
 	//		iTween.MoveTo(gameObject,FlagGameManager.Instance.GetBasePosition(_team) + Vector3.up * 10,5);
 			// NOTE: remember to restore the m_Health variable after respawn
@@ -943,10 +969,22 @@ public class vp_FPSPlayer : MonoBehaviour
 	}
 
 
+	IEnumerator StartDeathCountdown()
+	{
+		int seconds = 10;
+
+		while (seconds > 0)
+		{
+			DeathLabel.text = "You are dead. Respawning in " + seconds + " seconds";
+			seconds--;
+			yield return new WaitForSeconds(1);
+		}
+		DeathLabel.gameObject.SetActive(false);
+	}
 
 	IEnumerator LiveAfterDelay()
 	{
-		yield return new WaitForSeconds(10);
+		yield return new WaitForSeconds(9);
 
 		Transform fpsCamera = transform.FindChild("FPSCamera");
 		fpsCamera.GetComponent<vp_FPSCamera>().TweenFOV(60,.3f);

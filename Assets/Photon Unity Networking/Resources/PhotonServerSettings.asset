@@ -55,4 +55,5 @@ MonoBehaviour:
   - FireRocketRPC
   - HitCube
   - OnBulletHitCube
+  - GetTargetPositionFromOwner
   DisableAutoOpenWizard: 0

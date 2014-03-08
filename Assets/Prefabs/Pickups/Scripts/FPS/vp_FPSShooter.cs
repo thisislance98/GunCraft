@@ -103,6 +103,9 @@ public class vp_FPSShooter : vp_Component
 		set {
 			Debug.Log("setting total ammo");
 			_totalAmmo = value;
+
+			if (_totalAmmo < 0)
+				_totalAmmo = 0;
 		}
 	}
 
@@ -219,6 +222,8 @@ public class vp_FPSShooter : vp_Component
 
 		m_AmmoCount--;
 
+		if (m_AmmoCount < 0)
+			m_AmmoCount = 0;
 
 		// return the weapon to its forward looking state by certain
 		// position, rotation and velocity factors
@@ -319,12 +324,18 @@ public class vp_FPSShooter : vp_Component
 
 	}
 
+	public void ResetAmmo()
+	{
+		TotalAmmo = 0;
+		m_AmmoCount = 0;
+	}
 
 	public void AddAmmo(int ammo)
 	{
 		TotalAmmo += ammo;
 
 		m_AmmoCount = Mathf.Min(AmmoMaxCount,TotalAmmo);
+		Debug.Log("adding ammo: " + ammo + " to shooter" + transform.name + " total: " + TotalAmmo + " current: " + m_AmmoCount);
 	}
 
 	///////////////////////////////////////////////////////////

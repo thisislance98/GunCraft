@@ -14,6 +14,8 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 	public Transform SpineBone;
 	public float LerpPositionSpeed;
 	public float LerpRotationSpeed;
+	public AudioClip GrownClip;
+	public AudioClip DeathClip;
 
 	static List<GameObject> _playerObservers = new List<GameObject>();
 	Quaternion _lastRotation;
@@ -67,7 +69,10 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 			photonView.RPC ("SetTeam",PhotonTargets.AllBuffered,vp_FPSPlayer.Instance.GetTeam());
 		}
 		else
+		{
 			GetComponent<USpeaker>().SpeakerMode = SpeakerMode.Remote;
+			photonView.RPC("GetTargetPositionFromOwner",photonView.owner,PhotonNetwork.player);
+		}
 
 		
 		yield return null;
@@ -236,6 +241,12 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 	{
 		CharacterAnim.SetFloat("DirectionX",x);
 		CharacterAnim.SetFloat("DirectionZ",z);
+	}
+
+	[RPC]
+	void GetTargetPositionFromOwner(PhotonPlayer requestingPlayer)
+	{
+		photonView.RPC("SetTargetPosition",requestingPlayer,transform.position);
 	}
 
 	[RPC]
@@ -431,12 +442,19 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 			vp_FPSPlayer player = transform.parent.gameObject.GetComponent<vp_FPSPlayer>();
 			player.OnGotHit(damage);
 
+
 			if (player.m_Health <= 0)
+			{
 				photonView.RPC("OnPlayerDied",PhotonTargets.All);
+				audio.PlayOneShot(DeathClip);
+			}
+			else
+				audio.PlayOneShot(GrownClip);
 
 		}
 		else // non owner
 		{
+			audio.PlayOneShot(GrownClip);
 //			GameObject blood = (GameObject)Instantiate(BloodParticlePrefab,hitPos,Quaternion.LookRotation(hitNormal,Vector3.up));
 //			blood.transform.parent = transform;
 		}

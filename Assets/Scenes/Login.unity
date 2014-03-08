@@ -732,9 +732,10 @@ MonoBehaviour:
   mText: "Welcom to my game. Here are the instructions. This is capture the flag.
     The red arrow will always point to the enemy's flag. The green arrow will point
     to your base if you currently have their flag or to your flag if the enemy player
-    is carrying it. Destroy blocks with gold to get pickups like ammo. Here are the
-    controls:\n\n- \"A,S,D,F\" to straffe \n- \"E\" for team voice chat\n- \"R\" to
-    chat with eveyone\n\"Space\" for jet pack thrust if you have one\n- \"1,2,3,4\"
+    is carrying it. Destroy the blocks that are gray and gold to get pickups like
+    ammo. Here are the controls:\n\n- \"A,S,D,F\" to straffe \n- \"E\" for voice with
+    everyone (I'm currently having issues with the volume on this so you may have
+    to turn up your speakers)\n\"Space\" for jet pack thrust if you have one\n- \"1,2,3,4\"
     to switch between weapons\n- mouse left click to destroy blocks\n- mouse right
     click to create blocks\n- mouse scroll wheel to scroll through the type blocks
     you can create"

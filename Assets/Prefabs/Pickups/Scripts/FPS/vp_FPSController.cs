@@ -361,18 +361,27 @@ public class vp_FPSController : vp_Component
 	///////////////////////////////////////////////////////////
 	public bool ApplyJetpack()
 	{
+		if (audio.isPlaying == false)
+			audio.Play();
 
 		if (JetPack.Instance.OnFuelUsed() == false)
+		{
+			audio.Stop();
 			return false;
+		}
 
 		m_FallSpeed += MotorJetForce * Time.deltaTime;// MotorJumpForce;
 
 		m_FallSpeed = Mathf.Min(m_FallSpeed,MaxJetSpeed);
 
-
-
 		return true;
 
+	}
+
+
+	public void OnJetpackStop()
+	{
+		audio.Stop();
 	}
 
 	

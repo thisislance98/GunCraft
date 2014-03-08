@@ -15,7 +15,7 @@ public class TerrainPrefabBrain : MonoBehaviour
     private MeshFilter m_meshFilter;
 	private static Transform _player = null;
 	private static Dictionary<IntCoords,int> _blockDamage = new Dictionary<IntCoords, int>();
-	private static int[] _blockTypeHitCounts = new int[] {0,1,1,5,2,30,10};
+	private static int[] _blockTypeHitCounts = new int[] {0,1,1,1,2,30,10};
 
     //private int[, ,] m_tmpdata;
 

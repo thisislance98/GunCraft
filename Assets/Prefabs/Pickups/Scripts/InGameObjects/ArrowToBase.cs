@@ -4,6 +4,8 @@ using System.Collections;
 public class ArrowToBase : MonoBehaviour {
 
 	public bool PointToMyFlag;
+	public UILabel TheyHaveFlagLabel;
+	public UILabel YouHaveFlagLabel;
 	bool amHoldingFlag;
 	bool areTheyHoldingOurFlag;
 
@@ -30,6 +32,12 @@ public class ArrowToBase : MonoBehaviour {
 			return;
 
 		Vector3 dir;
+
+		if (TheyHaveFlagLabel != null)
+			TheyHaveFlagLabel.enabled = areTheyHoldingOurFlag;
+
+		if (YouHaveFlagLabel != null)
+			YouHaveFlagLabel.enabled = amHoldingFlag;
 
 		if (PointToMyFlag) // is arrow to my flag
 		{
