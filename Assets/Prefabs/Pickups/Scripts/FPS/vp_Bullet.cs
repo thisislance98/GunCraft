@@ -75,7 +75,7 @@ public class vp_Bullet : MonoBehaviour
 	// the surface of the first object hit. it then spawns a
 	// number of particle effects and plays a random impact sound.
 	///////////////////////////////////////////////////////////
-	public Vector3 Fire(ShotType shotType, int terrainDensity, out HitType hitType, Vector3 shootingPos)
+	public Vector3 Fire(ShotType shotType, int terrainDensity, out HitType hitType, int shootingPlayerViewId)
 	{
 		hitType = HitType.Nothing;
 		Ray ray = new Ray(transform.position, transform.forward);
@@ -106,7 +106,7 @@ public class vp_Bullet : MonoBehaviour
 			}
 			else if (hit.transform.tag == "NetworkPlayer" && hit.transform.parent == null) // did the bullet hit a player
 			{
-				hit.transform.GetComponent<NetworkPlayer>().OnBulletHitPlayer(Damage,shootingPos);
+				hit.transform.GetComponent<NetworkPlayer>().OnBulletHitPlayer(Damage,shootingPlayerViewId);
 				hitType = HitType.Player;
 			}
 			

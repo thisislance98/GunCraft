@@ -17,6 +17,10 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 	public AudioClip GrownClip;
 	public AudioClip DeathClip;
 
+	public int KillScore = 10;
+	public int DeathScore = -10;
+	public int CaptureScore = 50;
+
 	static List<GameObject> _playerObservers = new List<GameObject>();
 	Quaternion _lastRotation;
 	Vector3 _lastMoveDirection;
@@ -380,7 +384,7 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 
 		HitType hitType; 
 
-		Vector3 hitPos = bullet.Fire((ShotType)shotType,terrainDensity, out hitType, transform.position);
+		Vector3 hitPos = bullet.Fire((ShotType)shotType,terrainDensity, out hitType, photonView.viewID);
 
 		if (hitType == HitType.Cube)
 		{
@@ -426,14 +430,16 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 	}
 	
 
-	public void OnBulletHitPlayer(float damage, Vector3 shootingPos)
+	public void OnBulletHitPlayer(float damage, int shootingPlayerViewId)
 	{
-		photonView.RPC("OnBulletHitPlayerRPC",PhotonTargets.All, photonView.ownerId,damage,shootingPos);
+		photonView.RPC("OnBulletHitPlayerRPC",PhotonTargets.All, photonView.ownerId,damage,shootingPlayerViewId);
 	}
 
 	[RPC]
-	void OnBulletHitPlayerRPC(int ownerId,float damage, Vector3 shootingPos)
+	void OnBulletHitPlayerRPC(int ownerId,float damage, int shootingPlayerViewId)
 	{
+
+		PhotonView shootingPlayerView = PhotonView.Find(shootingPlayerViewId);
 
 		if (photonView.ownerId == ownerId && transform.parent != null) // owner
 		{
@@ -442,7 +448,7 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 			if (player.IsDead())
 				return;
 
-			player.OnGotHit(damage,shootingPos);
+			player.OnGotHit(damage,shootingPlayerView.transform.position);
 
 
 
@@ -450,6 +456,10 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 			{
 				photonView.RPC("OnPlayerDied",PhotonTargets.All);
 				audio.PlayOneShot(DeathClip);
+				PlayerHelper.Set<int>("Deaths",PlayerHelper.Get<int>("Deaths",0)+1);
+				PlayerHelper.Set<int>(shootingPlayerView.owner, "Kills",PlayerHelper.Get<int>(shootingPlayerView.owner,"Kills",0)+1);
+				UpdateScore(PhotonNetwork.player);
+				UpdateScore(shootingPlayerView.owner);
 			}
 			else
 				audio.PlayOneShot(GrownClip);
@@ -461,6 +471,16 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 //			GameObject blood = (GameObject)Instantiate(BloodParticlePrefab,hitPos,Quaternion.LookRotation(hitNormal,Vector3.up));
 //			blood.transform.parent = transform;
 		}
+
+	}
+
+	public void  UpdateScore(PhotonPlayer player)
+	{
+		int score = PlayerHelper.Get<int>(player,"Kills",0) * KillScore;
+		score += PlayerHelper.Get<int>(player,"Deaths",0) * DeathScore;
+		score += PlayerHelper.Get<int>(player,"Captures",0) * CaptureScore;
+
+		PlayerHelper.Set<int>(player,"Score",score);
 
 	}
 

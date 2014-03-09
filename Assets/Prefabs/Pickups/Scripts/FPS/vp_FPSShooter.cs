@@ -332,7 +332,6 @@ public class vp_FPSShooter : vp_Component
 
 	public void ResetAmmo()
 	{
-		Debug.Log("resetting ammo for: " + transform.name);
 		TotalAmmo = 0;
 		m_AmmoCount = 0;
 	}

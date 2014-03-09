@@ -7,8 +7,9 @@ public class ShotArrow : MonoBehaviour {
 	public Renderer ArrowRenderer;
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
 		ArrowRenderer.enabled = false;
+		Debug.Log("arrow awoke");
 	}
 	
 	void OnGotHit(Vector3 shootingPos)
@@ -17,7 +18,6 @@ public class ShotArrow : MonoBehaviour {
 		_timeSinceHit = 0;
 
 		transform.forward = (shootingPos + Vector3.up) - transform.position;
-
 	}
 
 	void Update()

@@ -26,6 +26,10 @@ public class Flag : MonoBehaviour {
 			{
 			
 				FlagGameManager.Instance.OnScore(player.GetTeam());
+				int captures = PlayerHelper.Get<int>(player.photonView.owner,"Captures",0);
+				PlayerHelper.Set<int>(player.photonView.owner,"Captures",captures+1);
+
+				NetworkPlayer.Instance.UpdateScore(player.photonView.owner);
 
 				SetFlagHolder(null,player.GetTeam());
 

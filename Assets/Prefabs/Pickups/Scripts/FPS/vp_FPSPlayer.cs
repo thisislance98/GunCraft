@@ -969,7 +969,7 @@ public class vp_FPSPlayer : MonoBehaviour
 		Transform fpsCamera = transform.FindChild("FPSCamera");
 		fpsCamera.GetComponent<vp_FPSCamera>().TweenFOV(130,.3f);
 		GameObject weaponCamera = fpsCamera.FindChild("WeaponCamera").gameObject;
-		weaponCamera.SetActive(false);
+		weaponCamera.GetComponent<Camera>().enabled = false;
 		
 		// reset guns and pickups
 		Camera.GetShooter(3).ResetAmmo();
@@ -1013,12 +1013,13 @@ public class vp_FPSPlayer : MonoBehaviour
 
 		Vector3 respawnPos = TerrainBrain.Instance().GetGroundPos(posAroundBase) + Vector3.up*.5f;
 
-		float animTime = 1;
+		float animTime = .5f;
 		iTween.MoveTo(gameObject,iTween.Hash("position", respawnPos,"time",animTime, "easetype",iTween.EaseType.linear));
 		yield return new WaitForSeconds(animTime);
 
 		GameObject weaponCamera = fpsCamera.FindChild("WeaponCamera").gameObject;
-		weaponCamera.SetActive(true);
+		weaponCamera.GetComponent<Camera>().enabled = true;
+
 		fpsCamera.GetComponent<vp_FPSCamera>().camera.fieldOfView = 60;
 		m_IsDead = false;
 		m_Health = MaxHealth;
@@ -1033,7 +1034,7 @@ public class vp_FPSPlayer : MonoBehaviour
 
 	public void OnGotHit(float damage,Vector3 shootingPos)
 	{
-		Debug.Log("time : " + Time.time + " last death: " + _lastDeathTime);
+
 		if (m_IsDead || Time.time -_lastDeathTime < 2)
 			return;
 
