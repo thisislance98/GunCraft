@@ -367,6 +367,7 @@ public class vp_FPSController : vp_Component
 		if (JetPack.Instance.OnFuelUsed() == false)
 		{
 			audio.Stop();
+			OnJump();
 			return false;
 		}
 
@@ -377,11 +378,17 @@ public class vp_FPSController : vp_Component
 		return true;
 
 	}
-
+	
 
 	public void OnJetpackStop()
 	{
 		audio.Stop();
+	}
+
+	public void OnJump()
+	{
+		if (IsGrounded())
+			m_FallSpeed = .1f;
 	}
 
 	

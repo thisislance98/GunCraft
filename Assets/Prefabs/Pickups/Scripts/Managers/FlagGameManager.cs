@@ -9,6 +9,8 @@ public class FlagGameManager : Photon.MonoBehaviour {
 	Transform[] Flags = new Transform[2];
 	public UILabel TheirScoreLabel;
 	public UILabel MyScoreLabel;
+	public AudioClip WinClip;
+	public AudioClip LoseClip;
 
 
 	public static FlagGameManager Instance;
@@ -20,7 +22,7 @@ public class FlagGameManager : Photon.MonoBehaviour {
 	NetworkPlayer _myPlayer;
 	int _myTeam = -1;
 	int _theirTeam = -1;
-	int _myTeamScore;
+	int _myScore;
 	int _theirScore;
 
 
@@ -31,6 +33,8 @@ public class FlagGameManager : Photon.MonoBehaviour {
 		Flags[0] = Bases[0].transform.FindChild("Flag");
 		Bases[1] = GameObject.Find("Base1").GetComponent<Base>();
 		Flags[1] = Bases[1].transform.FindChild("Flag");
+
+
 
 	}
 
@@ -59,7 +63,6 @@ public class FlagGameManager : Photon.MonoBehaviour {
 
 		foreach(GameObject observer in _flagObservers)
 		{
-			Debug.Log("observer: " + observer.name + "is active: " + observer.activeSelf);
 			observer.GetComponent<ArrowToBase>().OnFlagStateChange();
 		}
 
@@ -71,16 +74,27 @@ public class FlagGameManager : Photon.MonoBehaviour {
 		return _myPlayer;
 	}
 
+	public void OnConnected(NetworkPlayer player)
+	{
+		SetMyPlayer(player);
+
+		_myScore = GetMyScore();
+		_theirScore = GetTheirScore();
+		
+		UpdateScoreLabels();
+	}
+
 	public void SetMyPlayer(NetworkPlayer player)
 	{
 		_myPlayer = player;
 
-		UpdateScoreLabels();
 	}
 
 	public void OnScore(int scoringTeam)
 	{
 		Hashtable hash = PhotonNetwork.room.customProperties;
+
+		Debug.Log("team scored: " + scoringTeam);
 
 		ValidateTeamScores();
 
@@ -88,6 +102,8 @@ public class FlagGameManager : Photon.MonoBehaviour {
 			hash["Team0Score"] = (int)hash["Team0Score"] + 1;
 		else
 			hash["Team1Score"] = (int)hash["Team1Score"] + 1;
+
+
 
 		PhotonNetwork.room.SetCustomProperties(hash);
 		UpdateScoreLabels();
@@ -115,25 +131,41 @@ public class FlagGameManager : Photon.MonoBehaviour {
 			PhotonNetwork.room.SetCustomProperties(hash);
 	}
 
-	void UpdateScoreLabels()
+	int GetMyScore()
 	{
-		int myScore;
-		int theirScore;
-
 		ValidateTeamScores();
 
 		if (FlagGameManager.Instance.GetMyPlayer().GetTeam() == 0)
-		{
-			myScore = (int)PhotonNetwork.room.customProperties["Team0Score"];
-			theirScore = (int)PhotonNetwork.room.customProperties["Team1Score"];
-		}
+			return (int)PhotonNetwork.room.customProperties["Team0Score"];
 		else
-		{
-			myScore = (int)PhotonNetwork.room.customProperties["Team1Score"];
-			theirScore = (int)PhotonNetwork.room.customProperties["Team0Score"];
-		}
+			return (int)PhotonNetwork.room.customProperties["Team1Score"];
+	}
+
+	int GetTheirScore()
+	{
+		ValidateTeamScores();
+		
+		if (FlagGameManager.Instance.GetMyPlayer().GetTeam() == 1)
+			return (int)PhotonNetwork.room.customProperties["Team0Score"];
+		else
+			return (int)PhotonNetwork.room.customProperties["Team1Score"];
+	}
+
+	void UpdateScoreLabels()
+	{
+		int myScore = GetMyScore();
+		int theirScore = GetTheirScore();
 
 
+		Debug.Log("my score: " + _myScore + " new score: " + myScore);
+
+		if (myScore > _myScore)
+			AudioManager.Instance.Play(WinClip);
+		else if (theirScore > _theirScore)
+		    AudioManager.Instance.Play(LoseClip);
+
+		_myScore = myScore;
+		_theirScore = theirScore;
 		MyScoreLabel.text = "Your Score: " + myScore;
 		TheirScoreLabel.text = "Their Score: " + theirScore;
 

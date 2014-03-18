@@ -7,6 +7,8 @@ public class TextureManager : MonoBehaviour {
 	public Texture2D[] Textures;
 	public int[] AvailableBlockTextures;
 	public UILabel availableBlocksLabel;
+	public int GoldTextureIndex;
+	public int PickupTextureIndex;
 	
 	int currentIndex;
 	public static TextureManager Instance;

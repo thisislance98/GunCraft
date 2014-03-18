@@ -13,6 +13,8 @@ public class NetworkConnect : Photon.MonoBehaviour
      * Via OnConnectedToPhoton(); we will either join an existing room (if any), otherwise create one. 
      */
 
+	public UILabel StatusLabel;
+
     void Start()
     {
 
@@ -81,11 +83,12 @@ public class NetworkConnect : Photon.MonoBehaviour
 				continue;
 			}
 
+
 			numInTeam[(int)photonPlayer.customProperties["Team"]]++;
 
 		}
 
-
+		StatusLabel.enabled = false;
 		team = (numInTeam[0] > numInTeam[1]) ? 1 : 0;
 		Hashtable hash = PhotonNetwork.player.customProperties;
 		hash["Team"] = team;
@@ -129,7 +132,7 @@ public class NetworkConnect : Photon.MonoBehaviour
         if (PhotonNetwork.room == null){
             string roomName = "TestRoom"+Application.loadedLevelName;
             PhotonNetwork.CreateRoom(roomName, true, true, 16);
-			Debug.Log("creating room");
+			Debug.Log("creating room...");
         }
     }
     
@@ -140,6 +143,7 @@ public class NetworkConnect : Photon.MonoBehaviour
     {
         Debug.Log("We received a room list update, total rooms now: " + PhotonNetwork.GetRoomList().Length);
 
+		StatusLabel.text = "found a room";
         string wantedRoomName = "TestRoom" + Application.loadedLevelName;
         foreach (RoomInfo room in PhotonNetwork.GetRoomList())
         {

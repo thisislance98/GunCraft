@@ -1,4 +1,4 @@
-﻿/////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
 //
 //	vp_Bullet.cs
 //	© 2012 VisionPunk, Minea Softworks. All Rights Reserved.
@@ -106,7 +106,7 @@ public class vp_Bullet : MonoBehaviour
 			}
 			else if (hit.transform.tag == "NetworkPlayer" && hit.transform.parent == null) // did the bullet hit a player
 			{
-				hit.transform.GetComponent<NetworkPlayer>().OnBulletHitPlayer(Damage,shootingPlayerViewId);
+				hit.transform.GetComponent<NetworkPlayer>().OnProjectileHitPlayer(Damage,shootingPlayerViewId);
 				hitType = HitType.Player;
 			}
 			

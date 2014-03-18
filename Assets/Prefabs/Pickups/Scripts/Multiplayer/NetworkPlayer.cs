@@ -48,10 +48,18 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 
 		if (photonView.isMine)
 		{
+//			PhotonNetwork.networkingPeer.NetworkSimulationSettings.IncomingLag = 500;
+//			PhotonNetwork.networkingPeer.NetworkSimulationSettings.OutgoingLag = 500;
+			PhotonNetwork.networkingPeer.NetworkSimulationSettings.IncomingJitter = 50;
+			PhotonNetwork.networkingPeer.NetworkSimulationSettings.OutgoingJitter = 50;
+//			PhotonNetwork.networkingPeer.NetworkSimulationSettings.IncomingLossPercentage = 5;
+//			PhotonNetwork.networkingPeer.NetworkSimulationSettings.OutgoingLossPercentage = 5;
+			PhotonNetwork.networkingPeer.IsSimulationEnabled = false;
+
 			Instance = this;
-			Debug.Log("my view started");
+	
 			collider.enabled = false;
-			FlagGameManager.Instance.SetMyPlayer(this);
+			FlagGameManager.Instance.OnConnected(this);
 			//            //We aren't the photonView owner, disable this script
 			//            //RPC's and OnPhotonSerializeView will STILL get trough but we prevent Update from running
 			//            enabled = false;
@@ -430,16 +438,21 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 	}
 	
 
-	public void OnBulletHitPlayer(float damage, int shootingPlayerViewId)
+	public void OnProjectileHitPlayer(float damage, int shootingPlayerViewId)
 	{
-		photonView.RPC("OnBulletHitPlayerRPC",PhotonTargets.All, photonView.ownerId,damage,shootingPlayerViewId);
+		photonView.RPC("OnProjectileHitPlayerRPC",PhotonTargets.All, photonView.ownerId,damage,shootingPlayerViewId);
 	}
 
 	[RPC]
-	void OnBulletHitPlayerRPC(int ownerId,float damage, int shootingPlayerViewId)
+	void OnProjectileHitPlayerRPC(int ownerId,float damage, int shootingPlayerViewId)
 	{
 
 		PhotonView shootingPlayerView = PhotonView.Find(shootingPlayerViewId);
+
+		// don't do anything if we shoot a teammate
+		if  (shootingPlayerView.GetComponent<NetworkPlayer>().GetTeam() == GetTeam())
+			return;
+
 
 		if (photonView.ownerId == ownerId && transform.parent != null) // owner
 		{
@@ -449,7 +462,6 @@ public class NetworkPlayer : Photon.MonoBehaviour, ISpeechDataHandler
 				return;
 
 			player.OnGotHit(damage,shootingPlayerView.transform.position);
-
 
 
 			if (player.m_Health <= 0)

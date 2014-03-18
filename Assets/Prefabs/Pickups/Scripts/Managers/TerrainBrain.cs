@@ -48,6 +48,7 @@ public class TerrainBrain : Photon.MonoBehaviour
 		
 		if (m_instance == null)
 		{
+
 			Debug.LogWarning("Lost terrain brain, reaquiring.");
 			GameObject ob = GameObject.Find("TerrainManager");
 			if (ob == null)
@@ -82,6 +83,8 @@ public class TerrainBrain : Photon.MonoBehaviour
 
 		startGravity = Physics.gravity;
 		Physics.gravity = Vector3.down;
+
+		UnityEngine.Random.seed = 42;
 
 		Application.targetFrameRate = 60;
 
@@ -381,7 +384,7 @@ public class TerrainBrain : Photon.MonoBehaviour
 
 		if (Physics.gravity == Vector3.down && IsBlockBelowPosition(GameObject.FindGameObjectWithTag("Player").transform.position,100))
 		{
-			Debug.Log("setting gravity");
+	
 			Physics.gravity = startGravity;
 		}
 		

@@ -9,7 +9,7 @@ public class ShotArrow : MonoBehaviour {
 	// Use this for initialization
 	void Awake () {
 		ArrowRenderer.enabled = false;
-		Debug.Log("arrow awoke");
+
 	}
 	
 	void OnGotHit(Vector3 shootingPos)

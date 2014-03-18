@@ -65,7 +65,7 @@ public class Rocket : Photon.MonoBehaviour {
 				damage = Mathf.Max(0,damage);
 
 				if (_isMine)
-					col.GetComponent<NetworkPlayer>().OnBulletHitPlayer(damage,_shootingPlayer.photonView.viewID);
+					col.GetComponent<NetworkPlayer>().OnProjectileHitPlayer(damage,_shootingPlayer.photonView.viewID);
 
 				if (destroyIfHit)
 					Destroy(gameObject);

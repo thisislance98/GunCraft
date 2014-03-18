@@ -1330,7 +1330,7 @@ public class vp_FPSCamera : vp_Component
 		// making sure the renderer is enabled
 		foreach (Renderer r in t.GetComponentsInChildren<Renderer>())
 		{
-			Debug.Log("render enable: " + r.transform);
+		
 			r.enabled = true;
 		}
 

@@ -57,4 +57,5 @@ MonoBehaviour:
   - OnBulletHitCube
   - GetTargetPositionFromOwner
   - OnFlagStateChangeRPC
+  - OnProjectileHitPlayerRPC
   DisableAutoOpenWizard: 0

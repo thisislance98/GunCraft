@@ -54,7 +54,7 @@ public class IntCoords : IEquatable<IntCoords>
 
 class LightCache
 {
-	
+
 }
 
 class TerrainCache
@@ -110,19 +110,21 @@ class TerrainCache
 				{
 					Vector3 loc = new Vector3((float)(x+t), (float)(y+u), (float)(z+v)) / TerrainBrain.noiseMultiplier;
 					//Vector3 cpos = new Vector3((float)t, (float)u, (float)v);
-					
-					m_lastData[t, u, v] = tb.GetRandomDensity(loc);
-					
-					
+
+					int density = tb.GetRandomDensity(loc);
+
+					if (density == TextureManager.Instance.GoldTextureIndex && UnityEngine.Random.Range(0,1.0f/PickupManager.Instance.PickupLikelyhood) < 1)
+						density = TextureManager.Instance.PickupTextureIndex;
+
+					m_lastData[t, u, v] = density;
+
 				}
 			}
 		}
 		
 		//Debug.Log("Stored cache:" + coords.ToString());
 		m_data[coords] = m_lastData;
-		
-		
-		
+
 		return m_lastData;
 	}
 

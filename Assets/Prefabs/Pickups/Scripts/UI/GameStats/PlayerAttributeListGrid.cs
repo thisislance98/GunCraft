@@ -13,10 +13,9 @@ public class PlayerAttributeListGrid : ListGrid {
 
 		for (int i=0; i < PhotonNetwork.playerList.Length; i++)
 		{
-			int key = PhotonNetwork.playerList[i];
+			PhotonPlayer key = PhotonNetwork.playerList[i];
 			string value = PlayerHelper.Get<int>(PhotonNetwork.playerList[i],Attribute,0).ToString();
-			Debug.Log("adding key: " + key + " name: " + PhotonNetwork.playerList[i] +  " value: " + value + " for attibute: " + Attribute + " list count: " + sortedList.Count);
-
+	
 			sortedList.Add(key,value);
 		}
 

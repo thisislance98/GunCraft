@@ -90,7 +90,7 @@ public class Flag : MonoBehaviour {
 
 		PhotonView flagHolder = null; 
 	
-		Debug.Log("updating holder id: " + holderId + " for team: " + GetTeam());
+//		Debug.Log("updating holder id: " + holderId + " for team: " + GetTeam());
 		if (holderId != -1)
 			flagHolder = PhotonView.Find(holderId );
 

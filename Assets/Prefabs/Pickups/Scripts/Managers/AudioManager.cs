@@ -11,6 +11,10 @@ public class AudioManager : MonoBehaviour {
 		Instance = this;
 	}
 
-	
+	public void Play(AudioClip clip)
+	{
+		audio.PlayOneShot(clip);
+
+	}
 
 }

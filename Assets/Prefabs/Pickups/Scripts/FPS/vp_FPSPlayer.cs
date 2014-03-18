@@ -142,7 +142,7 @@ public class vp_FPSPlayer : MonoBehaviour
 
 		// ready weapon 1 by default
 		if (WeaponCount > 0)
-			SetWeapon(1);
+			SetWeapon(3);
 
 		InputManager.Instance.AddObserver(gameObject);
 
@@ -676,7 +676,7 @@ public class vp_FPSPlayer : MonoBehaviour
 	///////////////////////////////////////////////////////////
 	public bool SetWeapon(int weapon)
 	{
-		Debug.Log("setting weapon: " + weapon);
+
 		if (Camera.GetShooter(weapon).HasAmmo() == false)
 		{
 			Debug.Log("weapon on of ammo: " + weapon);

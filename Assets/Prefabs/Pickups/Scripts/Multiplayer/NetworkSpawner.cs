@@ -4,7 +4,7 @@ using System.Collections;
 public class NetworkSpawner : Photon.MonoBehaviour
 {
    
-
+	public UILabel StatusLabel;
     public Transform playerPrefab;
 
 
@@ -30,10 +30,21 @@ public class NetworkSpawner : Photon.MonoBehaviour
     {
         Debug.Log("Clean up a bit after server quit");
         
+		StatusLabel.enabled = true;
+		StatusLabel.text = "Bad Internet Connection.. Restarting in 5 seconds";
         /* 
         * To reset the scene we'll just reload it:
         */
-        Application.LoadLevel(Application.loadedLevel);
+        
+		StartCoroutine(RestartInSeconds(5));
     }
+
+	IEnumerator RestartInSeconds(float time)
+	{
+		yield return new WaitForSeconds(time);
+
+		Application.LoadLevel(Application.loadedLevel);
+
+	}
 
 }
